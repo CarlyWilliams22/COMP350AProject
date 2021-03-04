@@ -52,7 +52,12 @@ public class Student {
 	}
 
 	public void addToken(String s) {
-		tokens.put(s, 1);
+		if (tokens.containsKey(s)) {
+			tokens.put(s, tokens.get(s) + 1);
+		} else {
+			tokens.put(s, 1);
+		}
+
 	}
 
 	public void addGreenStudent(Student s) {

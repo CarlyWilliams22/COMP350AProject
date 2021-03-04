@@ -13,7 +13,7 @@ public class FolderEngine {
 
 	}
 
-	public void creatFolder() {
+	public void createStudents() {
 
 	}
 

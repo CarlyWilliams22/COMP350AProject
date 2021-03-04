@@ -1,8 +1,15 @@
+import java.util.ArrayList;
 
 public class PlagiarismEngine {
 
+	private ArrayList<Student> students;
+
 	public PlagiarismEngine() {
 
+	}
+	
+	public void addStudent(Student s) {
+		students.add(s);
 	}
 
 	public void parseWhitespace() {
@@ -14,10 +21,6 @@ public class PlagiarismEngine {
 	}
 
 	public void tokenize() {
-
-	}
-
-	public void createStudents() {
 
 	}
 
