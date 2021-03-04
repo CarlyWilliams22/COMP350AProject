@@ -1,6 +1,7 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 public class FolderEngine {
 
@@ -27,15 +29,15 @@ public class FolderEngine {
 	 * @param source - absolute file path of zip file
 	 * @see Adapted from https://thetopsites.net/article/58771386.shtml
 	 */
-	public void unzip(String source) {
+	public void recursiveUnzip(String PATH) {
 		int MEMORY = 2048;
 
 		try {
 			// create zip file
-			ZipFile zip = new ZipFile(source);
+			ZipFile zip = new ZipFile(PATH);
 
 			// get zip file path
-			String path = source.substring(0, source.length() - 4);
+			String path = PATH.substring(0, PATH.length() - 4);
 
 			// get all zip file entries
 			Enumeration zipFileEntries = zip.entries();
@@ -76,7 +78,7 @@ public class FolderEngine {
 
 					// unzip another zip file
 					if (currentEntry.endsWith(".zip")) {
-						unzip(file.getAbsolutePath());
+						recursiveUnzip(file.getAbsolutePath());
 					}
 				}
 
@@ -90,8 +92,37 @@ public class FolderEngine {
 
 	}
 
-	public void recursiveUnzip() {
+	public void unzipLocally(String PATH) {
+		FileInputStream fileInput;
 
+		byte[] buffer = new byte[1024];
+
+		try {
+			fileInput = new FileInputStream(PATH);
+			ZipInputStream zipInput = new ZipInputStream(fileInput);
+			ZipEntry entry = zipInput.getNextEntry();
+
+			while (entry != null) {
+				String fileName = entry.getName();
+				File file = new File(fileName);
+				System.out.println("Unzipping to " + file.getAbsolutePath());
+
+				FileOutputStream fileOutput = new FileOutputStream(file);
+				int len;
+
+				while ((len = zipInput.read(buffer)) > 0) {
+					fileOutput.write(buffer, 0, len);
+				} // while
+
+				fileOutput.close();
+				zipInput.closeEntry();
+				entry = zipInput.getNextEntry();
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void createStudents() {
