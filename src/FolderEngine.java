@@ -19,6 +19,14 @@ public class FolderEngine {
 		errorFiles = new ArrayList<File>();
 	}
 
+	/**
+	 * Unzip
+	 * 
+	 * Recursively unzips files
+	 * 
+	 * @param source - absolute file path of zip file
+	 * @see Adapted from https://thetopsites.net/article/58771386.shtml
+	 */
 	public void unzip(String source) {
 		int MEMORY = 2048;
 
