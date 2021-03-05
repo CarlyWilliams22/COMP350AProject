@@ -15,8 +15,9 @@ public class Student {
 	private ArrayList<Student> yellowStudents;
 	private ArrayList<Student> redStudents;
 
-	public Student() {
-
+	public Student(int ID, String name) {
+		this.ID = ID;
+		this.name = name;
 	}
 
 	public int getID() {

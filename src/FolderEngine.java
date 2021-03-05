@@ -1,15 +1,12 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -17,11 +14,11 @@ import java.util.zip.ZipInputStream;
 public class FolderEngine {
 
 	private PlagiarismEngine pe;
-	private ArrayList<File> errorFiles;
+	private ArrayList<File> files;
 
 	public FolderEngine() {
 		pe = new PlagiarismEngine();
-		errorFiles = new ArrayList<File>();
+		files = new ArrayList<File>();
 	}
 
 	/**
@@ -108,9 +105,10 @@ public class FolderEngine {
 			while (entry != null) {
 				String fileName = entry.getName();
 				File file = new File(fileName);
-				System.out.println("Unzipping to " + file.getAbsolutePath());
+				System.out.println("Unzipping " + fileName);
 
-				FileOutputStream fileOutput = new FileOutputStream(file);
+				FileOutputStream fileOutput = new FileOutputStream(
+						"C:\\Users\\moodyms18\\git\\COMP350AProject\\Storage\\" + file);
 				int len;
 
 				while ((len = zipInput.read(buffer)) > 0) {
@@ -119,6 +117,9 @@ public class FolderEngine {
 
 				fileOutput.close();
 				zipInput.closeEntry();
+
+				System.out.println("Unzipped to " + file.getAbsolutePath());
+
 				entry = zipInput.getNextEntry();
 			}
 		} catch (FileNotFoundException e) {
@@ -130,25 +131,20 @@ public class FolderEngine {
 
 	public void createStudents() {
 
-	}
-	
-	public void stripFile(File submission) {
-		try {
-			Scanner scnr = new Scanner(submission);
-			File strippedSub = new File("strippedSub.txt");
-			FileWriter filwrit = new FileWriter(strippedSub);
-			BufferedWriter bufwrit = new BufferedWriter(filwrit);
-			String currLine;
-			while(scnr.hasNextLine()) {
-				currLine = scnr.nextLine();
-				if(!(currLine.startsWith("//"))) {
-					bufwrit.write(currLine);
-				}
-			}
-		} catch (Exception e){
-			
-		}
+		File folder = new File("C:\\Users\\moodyms18\\git\\COMP350AProject\\Storage");
+		Student stu;
+		int ID = 0;
+		String name;
+
+		System.out.println(folder.exists());
 		
-	}//stripFile method
+		for (File file : folder.listFiles()) {
+			System.out.println(file.isFile());
+			stu = new Student(ID, file.getName());
+			stu.addFile(file);
+			pe.addStudent(stu);
+		}
+
+	}
 
 }
