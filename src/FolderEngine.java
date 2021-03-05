@@ -1,12 +1,15 @@
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -128,5 +131,24 @@ public class FolderEngine {
 	public void createStudents() {
 
 	}
+	
+	public void stripFile(File submission) {
+		try {
+			Scanner scnr = new Scanner(submission);
+			File strippedSub = new File("strippedSub.txt");
+			FileWriter filwrit = new FileWriter(strippedSub);
+			BufferedWriter bufwrit = new BufferedWriter(filwrit);
+			String currLine;
+			while(scnr.hasNextLine()) {
+				currLine = scnr.nextLine();
+				if(!(currLine.startsWith("//"))) {
+					bufwrit.write(currLine);
+				}
+			}
+		} catch (Exception e){
+			
+		}
+		
+	}//stripFile method
 
 }
