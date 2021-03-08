@@ -6,9 +6,9 @@ public class CopiedCodeCatcher {
 
 		UI ui = new UI();
 		
-		FolderEngine fe = new FolderEngine();
+		PlagiarismEngine pe = new PlagiarismEngine();
 		File testFile = new File("FileStripTest.txt");
-		fe.stripFile(testFile);
+		pe.stripFile(testFile);
 		
 		
 

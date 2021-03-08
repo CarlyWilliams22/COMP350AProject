@@ -149,37 +149,5 @@ public class FolderEngine {
 		}
 
 	}
-	
-	public void stripFile(File submission) {
-		try {
-			Scanner scnr = new Scanner(submission);
-			File strippedSub = new File("strippedSub.txt");
-			FileWriter filwrit = new FileWriter(strippedSub);
-			BufferedWriter bufwrit = new BufferedWriter(filwrit);
-			String currLine;
-			int indexOfSlashes;
-			String shortenedStr;
-			while(scnr.hasNextLine()) {
-				currLine = scnr.nextLine();
-				if(!(currLine.isEmpty())) {
-					indexOfSlashes = currLine.indexOf("//");
-					if(indexOfSlashes == -1) {
-						bufwrit.write(currLine + "\n");
-					} else {
-						if(indexOfSlashes != 0) {
-							shortenedStr = currLine.substring(0, indexOfSlashes);
-							bufwrit.write(shortenedStr + "\n");
-						}
-					}
-				}
-			}
-			bufwrit.flush();
-			bufwrit.close();
-		} catch (Exception e){
-			e.printStackTrace();
-		} 
-		
-		
-	}//stripFile method
 
 }
