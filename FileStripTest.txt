@@ -1,0 +1,9 @@
+This should show up in the stripped file
+//this should not show up in the stripped file
+
+this gets a little more complicated... //this also should not show up
+but it seems to work
+//does it work //if comment slashes //show up multiple times in one line??
+
+/How does it do with 1 slash?
+/ /  or with a space between two slashes?
