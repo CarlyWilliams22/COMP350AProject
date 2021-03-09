@@ -45,7 +45,12 @@ public class Student {
 	}
 
 	public void addFile(File f) {
-		files.add(f);
+		try {
+			files.add(f);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public ArrayList<File> getFiles() {
@@ -83,6 +88,13 @@ public class Student {
 
 	public ArrayList<Student> getRedStudents() {
 		return new ArrayList<Student>(redStudents);
+	}
+	
+	public void printTokens() {
+		for(Map.Entry<String, Integer> entry : tokens.entrySet()) {
+			System.out.println("keyword: " + entry.getKey() 
+							+ "; time appeared: " + entry.getValue());
+		}
 	}
 
 }

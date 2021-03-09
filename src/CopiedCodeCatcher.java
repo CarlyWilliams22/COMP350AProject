@@ -10,7 +10,11 @@ public class CopiedCodeCatcher {
 		File testFile = new File("FileStripTest.txt");
 		pe.stripFile(testFile);
 		
-		
+		Student testStud = new Student(1, "Tommy");
+		//File studentTestFile = new File("TommyCode.txt");
+		//testStud.addFile(studentTestFile);
+		//pe.tokenize(testStud);
+		//testStud.printTokens();
 
 	}
 

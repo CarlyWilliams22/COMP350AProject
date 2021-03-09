@@ -63,7 +63,34 @@ public class PlagiarismEngine {
 	}
 
 	public void tokenize(Student s) {
-
+		Scanner fileScnr;
+		String currLine;
+		for(File codeFile : s.getFiles()) {
+			try {
+				fileScnr = new Scanner(codeFile);
+				while(fileScnr.hasNextLine()) {
+					currLine = fileScnr.nextLine();
+					for(String token : primitiveTypeKeywords) {
+						if(currLine.contains(token)) {
+							s.addToken(token);
+						}
+					}
+					for(String token : commonNonprimitiveTypeKeywords) {
+						if(currLine.contains(token)) {
+							s.addToken(token);
+						}
+					}
+					for(String token : controlStructureKeywords) {
+						if(currLine.contains(token)) {
+							s.addToken(token);
+						}
+					}
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}	
+		}
 	}
 
 	public void compare() {
