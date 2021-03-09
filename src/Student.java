@@ -97,4 +97,5 @@ public class Student {
 		}
 	}
 
+    public Map<String, Integer> getTokens() { return tokens; }
 }
