@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Scanner;
@@ -32,7 +33,8 @@ public class FolderEngine {
 	 * @param source - absolute file path of zip file
 	 * @see Adapted from https://thetopsites.net/article/58771386.shtml
 	 */
-	public void recursiveUnzip(String PATH) {
+	public void unzipRecursively(String PATH) {
+		File currentFile;
 		int MEMORY = 2048;
 
 		try {
@@ -65,14 +67,19 @@ public class FolderEngine {
 					byte buffer[] = new byte[MEMORY];
 
 					// write the file
-					FileOutputStream outputStream = new FileOutputStream(file);
+					FileOutputStream outputStream = new FileOutputStream(
+							currentFile = new File("Storage\\" + file.getName()));
 					BufferedOutputStream outputBuffer = new BufferedOutputStream(outputStream, MEMORY);
 
 					while ((len = inputBuffer.read(buffer, 0, MEMORY)) > 0) {
 						outputStream.write(buffer, 0, len);
 					}
 
-					System.out.println("Unzipped to " + file.getAbsolutePath());
+					System.out.println(files.size());
+					files.add(currentFile);
+					System.out.println(files.size());
+
+					System.out.println("Unzipped to " + currentFile.getAbsolutePath());
 
 					outputBuffer.flush();
 					outputBuffer.close();
@@ -81,7 +88,7 @@ public class FolderEngine {
 
 					// unzip another zip file
 					if (currentEntry.endsWith(".zip")) {
-						recursiveUnzip(file.getAbsolutePath());
+						unzipRecursively(currentFile.getCanonicalPath());
 					}
 				}
 
@@ -96,6 +103,7 @@ public class FolderEngine {
 	}
 
 	public void unzipLocally(String PATH) {
+		File currentFile;
 		FileInputStream fileInput;
 
 		byte[] buffer = new byte[1024];
@@ -111,17 +119,21 @@ public class FolderEngine {
 				System.out.println("Unzipping " + fileName);
 
 				FileOutputStream fileOutput = new FileOutputStream(
-						"C:\\Users\\moodyms18\\git\\COMP350AProject\\Storage\\" + file);
+						currentFile = new File("Storage\\" + file.getName()));
 				int len;
 
 				while ((len = zipInput.read(buffer)) > 0) {
 					fileOutput.write(buffer, 0, len);
 				} // while
 
+				System.out.println(files.size());
+				files.add(currentFile);
+				System.out.println(files.size());
+
 				fileOutput.close();
 				zipInput.closeEntry();
 
-				System.out.println("Unzipped to " + file.getAbsolutePath());
+				System.out.println("Unzipped to " + currentFile.getCanonicalPath());
 
 				entry = zipInput.getNextEntry();
 			}
@@ -129,6 +141,16 @@ public class FolderEngine {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void addFile(File file) {
+		files.add(file);
+	}
+
+	public void printFiles() {
+		for (File file : files) {
+			System.out.println(file.getName());
 		}
 	}
 
@@ -140,14 +162,13 @@ public class FolderEngine {
 		String name;
 
 		System.out.println(folder.exists());
-		
+
 		for (File file : folder.listFiles()) {
 			System.out.println(file.isFile());
 			stu = new Student(ID, file.getName());
 			stu.addFile(file);
 			pe.addStudent(stu);
 		}
-
 	}
 
 }

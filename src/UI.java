@@ -1,9 +1,5 @@
-
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -26,7 +22,8 @@ public class UI extends Application {
 	private PlagiarismEngine algorithm;
 
 	public UI() {
-
+		fe = new FolderEngine();
+		algorithm = new PlagiarismEngine();
 	}
 
 	@Override
@@ -49,10 +46,17 @@ public class UI extends Application {
 
 		upload.setOnAction(new EventHandler<ActionEvent>() { // runs File Explorer
 			@Override
-			public void handle(final ActionEvent e) {
+			public void handle(final ActionEvent event) {
 				File file = fileExplorer.showOpenDialog(primary);
 				if (file != null) {
-					openFile(file);
+					try {
+						String PATH = file.getCanonicalPath();
+						fe.unzipLocally(PATH);
+//						fe.unzipRecursively(PATH);
+						fe.printFiles();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		});
@@ -65,33 +69,15 @@ public class UI extends Application {
 		pane.setCenter(table);
 		pane.setBottom(buttons);
 
-		Group group = new Group();
-		group.getChildren().add(pane);
+//		Group group = new Group();
+//		group.getChildren().add(pane);
 
-		Scene scene = new Scene(group, 800, 500); // width x height
+		Scene mainScreen = new Scene(pane); // width x height
 
 		primary.setMaximized(true);
 		primary.setTitle("Copied Code Catcher 2021");
-		primary.setScene(scene);
+		primary.setScene(mainScreen);
 		primary.show();
-	}
-
-	/**
-	 * Open File
-	 * 
-	 * @param file
-	 * @see Adapted from
-	 *      https://docs.oracle.com/javafx/2/ui_controls/file-chooser.htm
-	 */
-	private void openFile(File file) {
-		try {
-
-			Desktop desktop = Desktop.getDesktop();
-			desktop.open(file);
-
-		} catch (IOException ex) {
-			Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
-		}
 	}
 
 	public static void main(String[] args) {
