@@ -2,6 +2,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Scanner;
 
 public class PlagiarismEngine {
@@ -14,7 +16,11 @@ public class PlagiarismEngine {
 	private static String controlStructureKeywords[] = {"if",
 			"else", "if else", "for", "while", "do", "switch", 
 			"case", "break", "continue"};
-
+	
+	private final double GREEN = .25;
+	private final double YELLOW = .5;
+	private final double RED = 1;
+	
 	public PlagiarismEngine() {
 
 	}
@@ -93,8 +99,62 @@ public class PlagiarismEngine {
 		}
 	}
 
-	public void compare() {
+	/*
+	* Takes two students finds the overlap of keywords and 
+	* sorts them into the appropriate categories 
+	* */
+	public void compare(Student student1, Student student2) {
+	    //Used to walk through the words in student 1's code
+        Iterator tokenIterator = student1.getTokens().entrySet().iterator();
+        //Copy of student 2's dictionary
+        Map<String, Integer> student2Dictionary = student2.getTokens();
+        //How many words do the two java codes have in common
+        int compScore = 0;
+        //the percentage of keyword overlap
+        double percent1, percent2;
+        
+        while(tokenIterator.hasNext()){
+            //Current entry being compared
+            Map.Entry word = (Map.Entry)tokenIterator.next();
+            //checks if student 2 has also used this word
+            if(student2Dictionary.containsKey(word.getKey())){
+                //Finds the overlap of times this word is used
+                if((int)word.getValue() < student2Dictionary.get(word.getKey())){
+                    compScore+=(int)word.getValue();
+                }
+                else{
+                    compScore+= student2Dictionary.get(word.getKey());
+                }
+            }
+        }
+        
+        //calculate student 1s percentage
+        percent1 = ((double)compScore)/(double)student2.getScore();
 
+        //calculate student 2s percentage
+        percent2 = ((double)compScore)/(double)student1.getScore();
+	    
+        //place the students in the proper columns
+        //student 1
+        if(percent1 < GREEN){
+            student1.addGreenStudent(student2);
+        }
+        else if(percent1 < YELLOW){
+            student1.addYellowStudent(student2);
+        }
+	    else{
+	        student1.addRedStudent(student2);
+        }
+	    //student 2
+        if(percent2 < GREEN){
+            student2.addGreenStudent(student1);
+        }
+        else if(percent2 < YELLOW){
+            student2.addYellowStudent(student1);
+        }
+        else{
+            student2.addRedStudent(student1);
+        }
 	}
 
 }
