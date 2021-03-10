@@ -5,3 +5,6 @@ but it seems to work
 / /  or with a space between two slashes?
 Is it actually still working? 
 Seems to be
+Before
+After
+And how  does it handle this?

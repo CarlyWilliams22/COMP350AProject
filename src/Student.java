@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Student {
@@ -8,7 +9,7 @@ public class Student {
 	private String name;
 	private int score;
 
-	private Map<String, Integer> tokens;
+	private Map<String, Integer> keywords;
 
 	private ArrayList<File> files;
 	private ArrayList<Student> greenStudents;
@@ -18,6 +19,11 @@ public class Student {
 	public Student(int ID, String name) {
 		this.ID = ID;
 		this.name = name;
+		files = new ArrayList<File>();
+		greenStudents = new ArrayList<Student>();
+		yellowStudents = new ArrayList<Student>();
+		redStudents = new ArrayList<Student>();
+		keywords = new HashMap<String, Integer>();
 	}
 
 	public int getID() {
@@ -57,11 +63,11 @@ public class Student {
 		return new ArrayList<File>(files);
 	}
 
-	public void addToken(String s) {
-		if (tokens.containsKey(s)) {
-			tokens.put(s, tokens.get(s) + 1);
+	public void addKeyword(String s) {
+		if (keywords.containsKey(s)) {
+			keywords.put(s, keywords.get(s) + 1);
 		} else {
-			tokens.put(s, 1);
+			keywords.put(s, 1);
 		}
 
 	}
@@ -90,12 +96,12 @@ public class Student {
 		return new ArrayList<Student>(redStudents);
 	}
 	
-	public void printTokens() {
-		for(Map.Entry<String, Integer> entry : tokens.entrySet()) {
+	public void printKeywords() {
+		for(Map.Entry<String, Integer> entry : keywords.entrySet()) {
 			System.out.println("keyword: " + entry.getKey() 
 							+ "; time appeared: " + entry.getValue());
 		}
 	}
 
-    public Map<String, Integer> getTokens() { return tokens; }
+    public Map<String, Integer> getKeywords() { return keywords; }
 }

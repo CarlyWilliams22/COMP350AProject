@@ -12,3 +12,14 @@ but it seems to work
 
 Is it actually still working? //I guess not
 Seems to be
+
+Does this now work?? /* This should not show up
+and if it does, we have issues
+cause these lines should be gone
+*/
+
+Before
+/*Does this work?*/
+After
+
+And how /*insert random text here*/ does it handle this?
