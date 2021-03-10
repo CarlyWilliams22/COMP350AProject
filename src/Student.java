@@ -19,11 +19,11 @@ public class Student {
 	public Student(int ID, String name) {
 		this.ID = ID;
 		this.name = name;
-		files = new ArrayList<File>();
-		greenStudents = new ArrayList<Student>();
-		yellowStudents = new ArrayList<Student>();
-		redStudents = new ArrayList<Student>();
-		keywords = new HashMap<String, Integer>();
+		this.files = new ArrayList<File>();
+		this.greenStudents = new ArrayList<Student>();
+		this.yellowStudents = new ArrayList<Student>();
+		this.redStudents = new ArrayList<Student>();
+		this.keywords = new HashMap<String, Integer>();
 	}
 
 	public int getID() {
@@ -99,9 +99,14 @@ public class Student {
 	public void printKeywords() {
 		for(Map.Entry<String, Integer> entry : keywords.entrySet()) {
 			System.out.println("keyword: " + entry.getKey() 
-							+ "; time appeared: " + entry.getValue());
+							+ "; times appeared: " + entry.getValue());
 		}
 	}
 
     public Map<String, Integer> getKeywords() { return keywords; }
+    
+    public void replaceFile(File fileToRemove, File fileToAdd) {
+    	this.files.remove(fileToRemove);
+    	this.files.add(fileToAdd);
+    }
 }

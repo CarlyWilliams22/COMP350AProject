@@ -4,10 +4,10 @@ public class HelloWorld {
 
 	public static void main(String[] args) {
 		if(true) {
-			//create array of guys
+			//create String array of guys
 			String[] names = {"Billy", "Bob", "Joe", "Jeff"};
 		} else {
-			//create array of girls
+			//create String array of girls
 			String[] names = {"Lucy", "Lily", "Mary", "Martha"};
 		}
 		
