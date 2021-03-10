@@ -19,11 +19,11 @@ import javafx.stage.Stage;
 public class UI extends Application {
 
 	private FolderEngine fe;
-	private PlagiarismEngine algorithm;
+	private PlagiarismEngine pe;
 
 	public UI() {
 		fe = new FolderEngine();
-		algorithm = new PlagiarismEngine();
+		pe = new PlagiarismEngine();
 	}
 
 	@Override
@@ -52,12 +52,25 @@ public class UI extends Application {
 					try {
 						String PATH = file.getCanonicalPath();
 						fe.unzipLocally(PATH);
-//						fe.unzipRecursively(PATH);
-						fe.printFiles();
+						pe.receiveFiles(fe.transferFiles());
+						pe.printFiles();
+//						fe.printFiles();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
 				}
+			}
+		});
+
+		process.setOnAction(new EventHandler<ActionEvent>() { // runs File Explorer
+			@Override
+			public void handle(final ActionEvent event) {
+				pe.createStudents();
+				pe.printStudents();
+				// parse comments
+				// parse whitespace
+				// tokenize
+				// compare
 			}
 		});
 

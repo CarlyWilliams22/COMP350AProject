@@ -17,11 +17,9 @@ import java.util.zip.ZipInputStream;
 
 public class FolderEngine {
 
-	private PlagiarismEngine pe;
 	private ArrayList<File> files;
 
 	public FolderEngine() {
-		pe = new PlagiarismEngine();
 		files = new ArrayList<File>();
 	}
 
@@ -148,26 +146,15 @@ public class FolderEngine {
 		files.add(file);
 	}
 
-	public void printFiles() {
-		for (File file : files) {
-			System.out.println(file.getName());
-		}
+	public ArrayList<File> transferFiles() {
+		return new ArrayList<File>(files);
 	}
 
-	public void createStudents() {
-
-		File folder = new File("C:\\Users\\moodyms18\\git\\COMP350AProject\\Storage");
-		Student stu;
-		int ID = 0;
-		String name;
-
-		System.out.println(folder.exists());
-
-		for (File file : folder.listFiles()) {
-			System.out.println(file.isFile());
-			stu = new Student(ID, file.getName());
-			stu.addFile(file);
-			pe.addStudent(stu);
+	public void printFiles() {
+		if (files.size() > 0) {
+			for (File file : files) {
+				System.out.println(file.getName());
+			}
 		}
 	}
 
