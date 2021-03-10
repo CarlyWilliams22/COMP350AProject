@@ -9,8 +9,19 @@ import java.util.Scanner;
 public class PlagiarismEngine {
 
 	private ArrayList<Student> students;
-	private static String primitiveTypeKeywords[] = {"byte", "short", "int",
-			"long", "float", "double", "boolean", "char"};
+	/*Keywords taken from the Wikapedia article List of Java keywords
+	*Link: https://en.wikipedia.org/wiki/List_of_Java_keywords */
+	private static String primitiveTypeKeywords[] = {"abstract", "assert", 
+			"boolean", "break", "byte", "case", "catch", "char", 
+			"class", "const", "continue", "default", "do", "double",
+			"else", "enum", "extends", "final", "finally", "float",
+			"for", "goto", "if", "implements", "import", "instanceof",
+			"int", "interface", "long", "native", "new", "non-sealed",
+			"package", "private", "protected", "public", "return",
+			"short", "static", "strictfp", "super", "switch", 
+			"synchronized", "this", "throw", "throws", "transient", 
+			"try", "void", "volatile", "while", "true", "false", 
+			"null"};
 	private static String commonNonprimitiveTypeKeywords[] = 
 		{"String", "ArrayList", "Map"};
 	private static String controlStructureKeywords[] = {"if",
