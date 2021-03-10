@@ -261,5 +261,27 @@ public class PlagiarismEngine {
 			student2.addRedStudent(student1);
 		}
 	}
+	
+	
+	/*
+	 * Compares all the students in the students ArrayList
+	 * 
+	 * */
+	public void compareAll() {
+		//The student that the remaining students will be compared to
+		int currStudent = 0;
+		//Keeps track of who we have compared to
+		//The final student in the ArrayList can be skipped
+		while(currStudent < students.size()-1) {
+			//Compares the rest of the students to the current students
+			for(int i = currStudent+1; i < students.size(); i++) {
+				compare(students.get(currStudent),students.get(i));
+			}
+			//move to the next student
+			currStudent++;
+		}
+	}
 
 }
+
+	
