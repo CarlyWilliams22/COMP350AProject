@@ -44,9 +44,12 @@ public class CopiedCodeCatcher {
 //		System.out.println("Score for timmy: " + testStud2.getScore());
 		
 		for(int i = 0; i < testStud.getRedStudents().size(); i++) {
-			System.out.println("Students in red with tommy: " + testStud.getRedStudents().get(i));
-
+			System.out.println("Students in red with Tommy: " + testStud.getRedStudents().get(i).getName());
 		}		
+		
+		for(int i = 0; i < testStud2.getRedStudents().size(); i++) {
+			System.out.println("Students in red with Timmy: " + testStud2.getRedStudents().get(i).getName());
+		}	
 	}
 
 }

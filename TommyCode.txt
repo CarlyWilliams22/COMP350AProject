@@ -2,6 +2,9 @@
 
 public class HelloWorld {
 
+	/* 	This main method does not take any arguments.
+		It creates a string of names and prints out a greeting to each.
+	*/
 	public static void main(String[] args) {
 		if(true) {
 			//create String array of guys

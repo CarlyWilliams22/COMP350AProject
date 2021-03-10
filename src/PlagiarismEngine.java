@@ -135,30 +135,32 @@ public class PlagiarismEngine {
 										break;
 									}
 								}
-								// //
-								// if(scnr.hasNextLine()) {
-								// currLine = scnr.nextLine();
-								// } else {
-								// break;
-								// }
 							}
 						} // if for opening comment chars
+						//if it doesn't have a block comment char
 						else {
+							//look for double slashes
 							indexOfSlashes = currLine.indexOf("//");
+							//if it doesn't have any, just write the line
 							if (indexOfSlashes == -1) {
 								bufwrit.write(currLine + "\n");
 							} else {
+								//otherwise use the index to shorten the string
 								if (indexOfSlashes != 0) {
-									shortenedStr = currLine.substring(0, indexOfSlashes);
+									shortenedStr = currLine.substring(
+												0, indexOfSlashes);
+									//write the line minus the comment
 									bufwrit.write(shortenedStr + "\n");
 								}
 							}
 						}
 					}
 				}
+				//close scanners and writers
 				bufwrit.flush();
 				bufwrit.close();
 				scnr.close();
+				//replace the file with the stripped file in the student
 				s.replaceFile(codeFile, strippedSub);
 			} catch (Exception e) {
 				e.printStackTrace();
