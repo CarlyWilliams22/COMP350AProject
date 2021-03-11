@@ -1,3 +1,7 @@
+/*This is the first comment containing important info, so it stays
+*Even if it's a block comment, the whole thing should stay
+*Because it probably contains author info and other good stuff
+*/
 This should show up in the stripped file
 //this should not show up in the stripped file
 
