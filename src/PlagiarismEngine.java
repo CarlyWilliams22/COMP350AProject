@@ -73,9 +73,6 @@ public class PlagiarismEngine {
 		}
 	}
 
-	public void parseWhitespace() {
-
-	}
 
 	/**
 	 * 
@@ -169,9 +166,6 @@ public class PlagiarismEngine {
 
 	}// stripFile method
 
-	public void parseComments() {
-
-	}
 
 	/**
 	 * 
@@ -208,6 +202,15 @@ public class PlagiarismEngine {
 		}
 	}// countKeywords
 
+	/**
+	 * Calls the countKeywords function far all the students
+	 * */
+	public void allStudentKeywords() {
+		for(int i = 0; i < students.size(); i++) {
+			countKeywords(students.get(i));
+		}
+	}
+	
 	/**
 	 * Takes two students finds the overlap of keywords and sorts them into the
 	 * appropriate categories
