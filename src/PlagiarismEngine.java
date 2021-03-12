@@ -182,6 +182,12 @@ public class PlagiarismEngine {
 		} // for method
 
 	}// stripFile method
+	
+	public void stripAll() {
+		for(int i = 0; i < students.size(); i++) {
+			stripFile(students.get(i));
+		}
+	}
 
 
 	/**
