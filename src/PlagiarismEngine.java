@@ -261,9 +261,13 @@ public class PlagiarismEngine {
 
 		// calculate student 1s percentage
 		percent1 = ((double) compScore) / (double) student2.getScore();
+		//add the comparison score to the correct student
+		student1.addCompScore(student2.getName(), percent1);
 
 		// calculate student 2s percentage
 		percent2 = ((double) compScore) / (double) student1.getScore();
+		//add the comparison score to the correct student
+		student2.addCompScore(student1.getName(), percent2);
 
 		// place the students in the proper columns
 		// student 1
