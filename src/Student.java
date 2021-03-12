@@ -10,6 +10,7 @@ public class Student {
 	private int score;
 
 	private Map<String, Integer> keywords;
+	private Map<String, Double> compScores;
 
 	private ArrayList<File> files;
 	private ArrayList<Student> greenStudents;
@@ -24,6 +25,7 @@ public class Student {
 		this.yellowStudents = new ArrayList<Student>();
 		this.redStudents = new ArrayList<Student>();
 		this.keywords = new HashMap<String, Integer>();
+		this.compScores = new HashMap<>();
 	}
 
 	public int getID() {
@@ -104,6 +106,16 @@ public class Student {
 	}
 
     public Map<String, Integer> getKeywords() { return keywords; }
+    
+    /**Will store the comp scores for all the students compared to this 
+     * student
+     *
+     * @param key
+     * @param value
+     */
+    public void addCompScore(String key, Double value) {
+    	compScores.put(key, value);
+    }
     
     public void replaceFile(File fileToRemove, File fileToAdd) {
     	this.files.remove(fileToRemove);
