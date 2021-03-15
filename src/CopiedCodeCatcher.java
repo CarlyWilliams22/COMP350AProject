@@ -11,10 +11,10 @@ public class CopiedCodeCatcher {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		//use hard coded text file to check strip method
 		//results found in file called "strippedSub.txt"
-		File testFile = new File("FileStripTest.txt");
-		Student ss = new Student(0, "Test");
-		ss.addFile(testFile);
-		pe.stripFile(ss);
+//		File testFile = new File("FileStripTest.txt");
+//		Student ss = new Student(0, "Test");
+//		ss.addFile(testFile);
+//		pe.stripFile(ss);
 		
 //		System.out.println("Test student 1");
 //		//create test student
@@ -28,17 +28,18 @@ public class CopiedCodeCatcher {
 //		//print the results
 //		testStud.printKeywords();
 //		
-//		System.out.println("Test student 2");
-//		//create test student
-//		Student testStud2 = new Student(2, "Timmy");
-//		//give student a hardcoded txt file with dummy code
-//		File studentTestFile2 = new File("TimmyCode.txt");
-//		testStud2.addFile(studentTestFile2);
-//		pe.stripFile(testStud2);		
-//		//count the keywords in the test student file
-//		pe.countKeywords(testStud2);
-//		//print the results
-//		testStud2.printKeywords();
+		System.out.println("Test student 2");
+		//create test student
+		Student testStud2 = new Student(2, "Timmy");
+		//give student a hardcoded txt file with dummy code
+		File studentTestFile2 = new File("TimmyCode.txt");
+		testStud2.addFile(studentTestFile2);
+		pe.stripFile(testStud2);		
+		//count the keywords in the test student file
+		pe.countKeywords(testStud2);
+		//print the results
+		testStud2.printKeywords();
+		System.out.println(testStud2.getScore());
 //		
 //		pe.compare(testStud, testStud2);
 ////		System.out.println("Score for tommy: " + testStud.getScore());

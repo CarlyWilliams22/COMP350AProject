@@ -1,14 +1,16 @@
-/*This is the first comment containing important info, so it stays
-*Even if it's a block comment, the whole thing should stay
-*Because it probably contains author info and other good stuff
-*/
-This should show up in the stripped file
-this gets a little more complicated... 
-but it seems to work
-/How does it do with 1 slash?
-/ /  or with a space between two slashes?
-Is it actually still working? 
-Seems to be
-Before
-After
-And how  does it handle this?
+//Some basic code
+public class HelloWorld {
+	public static void main(String[] args) {
+		if(true) {
+			
+			String[] names = {"Billy", "Bob", "Joe", "Jeff"};
+		} else {
+			
+			String[] names = {"Lucy", "Lily", "Mary", "Martha"};
+		}
+		
+		for(name : names) {
+			System.out.println("Hello, " + name);
+		} 
+	}
+}

@@ -21,8 +21,9 @@ public class PlagiarismEngine {
 			"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void",
 			"volatile", "while", "true", "false", "null" };
 	private static String commonNonprimitiveTypeKeywords[] = { "String", "ArrayList", "Map" };
-	private static String controlStructureKeywords[] = { "if", "else", "if else", "for", "while", "do", "switch",
-			"case", "break", "continue" };
+	/* Took this out because it was causing double counting
+	 * private static String controlStructureKeywords[] = { "if", "else", "if else", "for", "while", "do", "switch",
+			"case", "break", "continue" };*/
 
 	private final double GREEN = .25;
 	private final double YELLOW = .5;
@@ -197,6 +198,7 @@ public class PlagiarismEngine {
 	public void countKeywords(Student s) {
 		Scanner fileScnr;
 		String currLine;
+		int numKeywords = 0;
 		for (File codeFile : s.getFiles()) {
 			try {
 				fileScnr = new Scanner(codeFile);
@@ -205,16 +207,13 @@ public class PlagiarismEngine {
 					for (String word : primitiveTypeKeywords) {
 						if (currLine.contains(word)) {
 							s.addKeyword(word);
+							numKeywords++;
 						}
 					}
 					for (String word : commonNonprimitiveTypeKeywords) {
 						if (currLine.contains(word)) {
 							s.addKeyword(word);
-						}
-					}
-					for (String word : controlStructureKeywords) {
-						if (currLine.contains(word)) {
-							s.addKeyword(word);
+							numKeywords++;
 						}
 					}
 				}
@@ -223,6 +222,8 @@ public class PlagiarismEngine {
 				e.printStackTrace();
 			}
 		}
+		
+		s.setScore(numKeywords);
 	}// countKeywords
 
 	/**
