@@ -21,9 +21,11 @@ public class PlagiarismEngine {
 			"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void",
 			"volatile", "while", "true", "false", "null" };
 	private static String commonNonprimitiveTypeKeywords[] = { "String", "ArrayList", "Map" };
-	/* Took this out because it was causing double counting
-	 * private static String controlStructureKeywords[] = { "if", "else", "if else", "for", "while", "do", "switch",
-			"case", "break", "continue" };*/
+	/*
+	 * Took this out because it was causing double counting private static String
+	 * controlStructureKeywords[] = { "if", "else", "if else", "for", "while", "do",
+	 * "switch", "case", "break", "continue" };
+	 */
 
 	private final double GREEN = .25;
 	private final double YELLOW = .5;
@@ -74,6 +76,9 @@ public class PlagiarismEngine {
 		}
 	}
 
+	public ArrayList<Student> getStudents() {
+		return new ArrayList<Student>(students);
+	}
 
 	/**
 	 * 
@@ -112,7 +117,7 @@ public class PlagiarismEngine {
 								// find index of each
 								indexOfBlkComStart = currLine.indexOf("/*");
 								indexOfBlkComEnd = currLine.indexOf("*/");
-								if(!firstComment) {
+								if (!firstComment) {
 									// create substrings with those indices
 									beforeCom = currLine.substring(0, indexOfBlkComStart);
 									afterCom = currLine.substring(indexOfBlkComEnd + 2);
@@ -122,13 +127,13 @@ public class PlagiarismEngine {
 									bufwrit.write(currLine + "\n");
 									firstComment = false;
 								}
-								
+
 							}
 							// else if it doesn't have closing chars,
 							// but has more lines
 							else if (scnr.hasNextLine()) {
 								// grab the next line
-								if(!firstComment) {
+								if (!firstComment) {
 									nextLine = scnr.nextLine();
 									// see if it contains the closing chars
 									while (!(nextLine.contains("*/"))) {
@@ -146,21 +151,20 @@ public class PlagiarismEngine {
 									firstComment = false;
 								}
 							}
-						} //end if statement for block comment chars
-						//if it doesn't have a block comment char
+						} // end if statement for block comment chars
+							// if it doesn't have a block comment char
 						else {
-							//look for double slashes
+							// look for double slashes
 							indexOfSlashes = currLine.indexOf("//");
-							//if it doesn't have any, just write the line
+							// if it doesn't have any, just write the line
 							if (indexOfSlashes == -1) {
 								bufwrit.write(currLine + "\n");
 							} else {
-								if(!firstComment) {
-									//otherwise use the index to shorten the string
+								if (!firstComment) {
+									// otherwise use the index to shorten the string
 									if (indexOfSlashes != 0) {
-										shortenedStr = currLine.substring(
-													0, indexOfSlashes);
-										//write the line minus the comment
+										shortenedStr = currLine.substring(0, indexOfSlashes);
+										// write the line minus the comment
 										bufwrit.write(shortenedStr + "\n");
 									}
 								} else {
@@ -171,11 +175,11 @@ public class PlagiarismEngine {
 						}
 					}
 				}
-				//close scanners and writers
+				// close scanners and writers
 				bufwrit.flush();
 				bufwrit.close();
 				scnr.close();
-				//replace the file with the stripped file in the student
+				// replace the file with the stripped file in the student
 				s.replaceFile(codeFile, strippedSub);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -183,13 +187,12 @@ public class PlagiarismEngine {
 		} // for method
 
 	}// stripFile method
-	
+
 	public void stripAll() {
-		for(int i = 0; i < students.size(); i++) {
+		for (int i = 0; i < students.size(); i++) {
 			stripFile(students.get(i));
 		}
 	}
-
 
 	/**
 	 * 
@@ -222,19 +225,19 @@ public class PlagiarismEngine {
 				e.printStackTrace();
 			}
 		}
-		
+
 		s.setScore(numKeywords);
 	}// countKeywords
 
 	/**
 	 * Calls the countKeywords function far all the students
-	 * */
+	 */
 	public void allStudentKeywords() {
-		for(int i = 0; i < students.size(); i++) {
+		for (int i = 0; i < students.size(); i++) {
 			countKeywords(students.get(i));
 		}
 	}
-	
+
 	/**
 	 * Takes two students finds the overlap of keywords and sorts them into the
 	 * appropriate categories
@@ -268,12 +271,12 @@ public class PlagiarismEngine {
 
 		// calculate student 1s percentage
 		percent1 = ((double) compScore) / (double) student2.getScore();
-		//add the comparison score to the correct student
+		// add the comparison score to the correct student
 		student1.addCompScore(student2.getName(), percent1);
 
 		// calculate student 2s percentage
 		percent2 = ((double) compScore) / (double) student1.getScore();
-		//add the comparison score to the correct student
+		// add the comparison score to the correct student
 		student2.addCompScore(student1.getName(), percent2);
 
 		// place the students in the proper columns
@@ -294,27 +297,24 @@ public class PlagiarismEngine {
 			student2.addRedStudent(student1);
 		}
 	}
-	
-	
+
 	/*
 	 * Compares all the students in the students ArrayList
 	 * 
-	 * */
+	 */
 	public void compareAll() {
-		//The student that the remaining students will be compared to
+		// The student that the remaining students will be compared to
 		int currStudent = 0;
-		//Keeps track of who we have compared to
-		//The final student in the ArrayList can be skipped
-		while(currStudent < students.size()-1) {
-			//Compares the rest of the students to the current students
-			for(int i = currStudent+1; i < students.size(); i++) {
-				compare(students.get(currStudent),students.get(i));
+		// Keeps track of who we have compared to
+		// The final student in the ArrayList can be skipped
+		while (currStudent < students.size() - 1) {
+			// Compares the rest of the students to the current students
+			for (int i = currStudent + 1; i < students.size(); i++) {
+				compare(students.get(currStudent), students.get(i));
 			}
-			//move to the next student
+			// move to the next student
 			currStudent++;
 		}
 	}
 
 }
-
-	
