@@ -121,4 +121,16 @@ public class Student {
     	this.files.remove(fileToRemove);
     	this.files.add(fileToAdd);
     }
+    
+    public int getNumRed() {
+    	return redStudents.size();
+    }
+    
+    public int getNumYellow() {
+    	return yellowStudents.size();
+    }
+    
+    public int getNumGreen() {
+    	return greenStudents.size();
+    }
 }
