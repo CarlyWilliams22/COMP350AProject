@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -46,6 +47,15 @@ public class UI extends Application {
 		fileLabel.setFont(new Font("Arial", 20));
 
 		Label resultsLabel = new Label("Students' Results");
+		resultsLabel.setFont(new Font("Arial", 20));
+
+		HBox fileHBox = new HBox();
+		fileHBox.getChildren().add(fileLabel);
+		fileHBox.setAlignment(Pos.BASELINE_CENTER);
+
+		HBox resultsHBox = new HBox();
+		resultsHBox.getChildren().add(resultsLabel);
+		resultsHBox.setAlignment(Pos.BASELINE_CENTER);
 
 		// Table for File Output
 		TableView fileTable = new TableView();
@@ -79,33 +89,38 @@ public class UI extends Application {
 		resultsTable.setEditable(false);
 		resultsTable.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
 
-		resultsTable.setItems(getResults());
-
 		Button upload = new Button("Upload Files");
+		upload.setMinSize(100, 25);
 		Button process = new Button("Process Files");
+		process.setMinSize(100, 25);
 
 		Button save = new Button("Save to Computer");
 		Button exit = new Button("Exit");
 
 		VBox fileVBox = new VBox();
-		fileVBox.setSpacing(10);
-		fileVBox.setPadding(new Insets(10, 0, 0, 10));
 		fileVBox.getChildren().addAll(fileLabel, fileTable);
+		fileVBox.setAlignment(Pos.CENTER);
+
+		VBox resultsVBox = new VBox();
+		resultsVBox.getChildren().addAll(resultsLabel, resultsTable);
+		resultsVBox.setAlignment(Pos.CENTER);
 
 		HBox fileButtons = new HBox();
+		fileButtons.setSpacing(50);
+		fileButtons.setAlignment(Pos.CENTER);
 		fileButtons.getChildren().addAll(upload, process);
 
 		HBox resultsButtons = new HBox();
 		resultsButtons.getChildren().addAll(save, exit);
 
 		BorderPane filePane = new BorderPane();
-		filePane.setTop(fileLabel);
+		filePane.setTop(fileHBox);
 		filePane.setCenter(fileVBox);
 		filePane.setBottom(fileButtons);
 
 		BorderPane resultsPane = new BorderPane();
 		resultsPane.setTop(resultsLabel);
-		resultsPane.setCenter(resultsTable);
+		resultsPane.setCenter(resultsVBox);
 		resultsPane.setBottom(resultsButtons);
 
 		Scene mainScreen = new Scene(filePane); // width x height
@@ -121,7 +136,7 @@ public class UI extends Application {
 				if (file != null) {
 					try {
 						String PATH = file.getCanonicalPath();
-						fe.unzipLocally(PATH);
+						fe.unzipRecursively(PATH);
 						pe.receiveFiles(fe.transferFiles());
 						pe.printFiles();
 //						fe.printFiles();
@@ -136,33 +151,39 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				pe.createStudents();
-				pe.printStudents();
+				pe.stripAll();
+				pe.allStudentKeywords();
+				pe.compareAll();
+				resultsTable.setItems(getResults());
 				primary.setScene(resultsScreen);
-//				primary.setScene(resultsScreen);
-				// parse comments
-				// parse whitespace
-				// tokenize
-				// compare
+				System.out.println("\n\nDone!");
 			}
 		});
 
 		save.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
+
 				// save
 			}
 		});
 
 		exit.setOnAction(e -> System.exit(0));
 
-		primary.setMaximized(true);
 		primary.setTitle("Copied Code Catcher 2021");
+		primary.setHeight(screenSize.getMaxY());
+		primary.setWidth(screenSize.getMaxX());
 		primary.setScene(mainScreen);
+		primary.setMaximized(true);
 		primary.show();
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private ObservableList<Student> getResults() {
-		ObservableList<Student> results = null;
+		ObservableList<Student> results = FXCollections.observableArrayList();
 		for (Student s : pe.getStudents()) {
 			results.add(s);
 		}
