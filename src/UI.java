@@ -154,6 +154,7 @@ public class UI extends Application {
 				pe.stripAll();
 				pe.allStudentKeywords();
 				pe.compareAll();
+				pe.setColors();
 				resultsTable.setItems(getResults());
 				primary.setScene(resultsScreen);
 				System.out.println("\n\nDone!");
