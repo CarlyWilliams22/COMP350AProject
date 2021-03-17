@@ -75,9 +75,10 @@ public class FolderEngine {
 				System.out.println("Unzipping " + entry.getName());
 //				currentFile = new File(file.getParent() + file.getName());
 				currentFile = new File(file.getName());
+				
 
 				// write data to folder
-				if (!entry.isDirectory() && entry.getName().endsWith(".java")) {
+				if (!entry.isDirectory()) {
 					int len; // bytes left to write
 					BufferedInputStream inputBuffer = new BufferedInputStream(zip.getInputStream(entry));
 					byte buffer[] = new byte[MEMORY];
@@ -105,11 +106,11 @@ public class FolderEngine {
 					inputBuffer.close();
 
 				}
-				
 				// unzip another zip file
 				if (currentEntry.endsWith(".zip")) {
 					unzipRecursively(currentFile.getCanonicalPath());
 				}
+				
 
 			}
 
