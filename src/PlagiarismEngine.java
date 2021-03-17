@@ -91,7 +91,7 @@ public class PlagiarismEngine {
 				Scanner scnr = new Scanner(codeFile);
 				// create a file to write the results to
 				System.out.println(codeFile.getName());
-				File strippedSub = new File("stripped" + s.getID() + codeFile.getName());
+				File strippedSub = new File(s.getID() + codeFile.getName());
 				// create a file writer and buffer writer for writing
 				FileWriter filwrit = new FileWriter(strippedSub);
 				BufferedWriter bufwrit = new BufferedWriter(filwrit);
@@ -183,6 +183,7 @@ public class PlagiarismEngine {
 		
 				// replace the file with the stripped file in the student
 				s.replaceFile(codeFile, strippedSub);
+				s.setName(strippedSub.getName());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -34,6 +34,7 @@ public class FolderEngine {
 	public void unzipRecursively(String PATH) {
 		File currentFile;
 		int MEMORY = 2048;
+		//int uniquePrefix = 1;
 
 		try {
 			// create zip file
@@ -44,20 +45,35 @@ public class FolderEngine {
 
 			// get all zip file entries
 			Enumeration zipFileEntries = zip.entries();
-
+//			int i = 0;
+//			while(zipFileEntries.hasMoreElements()) {
+//				System.out.println("ZipFileEntry #" + i + " " + zipFileEntries.nextElement());
+//				i++;
+//			}
+			
 			// unzip each entry
 			while (zipFileEntries.hasMoreElements()) {
 				
 				// get zip file
 				ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
 				String currentEntry = entry.getName();
+				//uniquePrefix++;
+				
+				System.out.println("These are the files: " + files.toString());
+//				if(files.contains(entry)) {
+//					System.out.println("Made it in the if statement!!!");
+//					currentEntry = uniquePrefix + currentEntry;
+//				}
 
 				System.out.println("This is the value of entry.getName(): " + currentEntry);
+				System.out.println("This is the value of entry.toString: " + entry.toString());
+
 				// create destination folder
 				File file = new File(path, currentEntry);
 				File parent = file.getParentFile();
 				parent.mkdirs();
 				System.out.println("Unzipping " + entry.getName());
+//				currentFile = new File(file.getParent() + file.getName());
 				currentFile = new File(file.getName());
 
 				// write data to folder
@@ -89,6 +105,7 @@ public class FolderEngine {
 					inputBuffer.close();
 
 				}
+				
 				// unzip another zip file
 				if (currentEntry.endsWith(".zip")) {
 					unzipRecursively(currentFile.getCanonicalPath());
