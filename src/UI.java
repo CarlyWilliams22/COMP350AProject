@@ -60,6 +60,8 @@ public class UI extends Application {
 		// Table for File Output
 		TableView fileTable = new TableView();
 		TableColumn fileNameColumn = new TableColumn("File");
+		fileNameColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
+
 		fileTable.setEditable(false);
 		fileTable.getColumns().add(fileNameColumn);
 
@@ -95,7 +97,9 @@ public class UI extends Application {
 		process.setMinSize(100, 25);
 
 		Button save = new Button("Save to Computer");
+		upload.setMinSize(100, 25);
 		Button exit = new Button("Exit");
+		process.setMinSize(100, 25);
 
 		VBox fileVBox = new VBox();
 		fileVBox.getChildren().addAll(fileLabel, fileTable);
@@ -111,6 +115,8 @@ public class UI extends Application {
 		fileButtons.getChildren().addAll(upload, process);
 
 		HBox resultsButtons = new HBox();
+		resultsButtons.setSpacing(50);
+		resultsButtons.setAlignment(Pos.CENTER);
 		resultsButtons.getChildren().addAll(save, exit);
 
 		BorderPane filePane = new BorderPane();
@@ -135,11 +141,14 @@ public class UI extends Application {
 				File file = fileExplorer.showOpenDialog(primary);
 				if (file != null) {
 					try {
+						ObservableList<File> files = FXCollections.observableArrayList();
+						files.add(file);
+						fileTable.setItems(files);
+
 						String PATH = file.getCanonicalPath();
 						fe.unzipRecursively(PATH);
 						pe.receiveFiles(fe.transferFiles());
 						pe.printFiles();
-//						fe.printFiles();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -156,7 +165,11 @@ public class UI extends Application {
 				pe.compareAll();
 				pe.setColors();
 				resultsTable.setItems(getResults());
+				primary.setTitle("Copied Code Catcher 2021");
+				primary.setHeight(screenSize.getMaxY());
+				primary.setWidth(screenSize.getMaxX());
 				primary.setScene(resultsScreen);
+				primary.setMaximized(true);
 				System.out.println("\n\nDone!");
 			}
 		});
