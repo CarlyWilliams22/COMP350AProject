@@ -129,24 +129,18 @@ public class Student {
 	public void setGreen() {
 		green = greenStudents.size();
 	}
-
+	
+	public int getGreenNum() {return greenStudents.size();}
+	
 	public void setYellow() {
 		yellow = yellowStudents.size();
 	}
 
+	public int getYellowNum() {return yellowStudents.size();}
+	
 	public void setRed() {
 		red = redStudents.size();
 	}
 
-	public int getNumRed() {
-		return redStudents.size();
-	}
-
-	public int getNumYellow() {
-		return yellowStudents.size();
-	}
-
-	public int getNumGreen() {
-		return greenStudents.size();
-	}
+	public int getRedNum() {return redStudents.size();}
 }

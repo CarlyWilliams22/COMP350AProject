@@ -163,15 +163,15 @@ public class UI extends Application {
 
 		TableColumn greenCol = new TableColumn("Green");
 		greenCol.setMinWidth(screenSize.getMaxX() / 5);
-		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Green"));
+		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("GreenNum"));
 
 		TableColumn yellowCol = new TableColumn("Yellow");
 		yellowCol.setMinWidth(screenSize.getMaxX() / 5);
-		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Yellow"));
+		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("YellowNum"));
 
 		TableColumn redCol = new TableColumn("Red");
 		redCol.setMinWidth(screenSize.getMaxX() / 5);
-		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Red"));
+		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("RedNum"));
 
 		resultsTable.setEditable(false);
 		resultsTable.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
