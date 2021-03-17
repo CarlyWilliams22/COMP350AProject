@@ -39,6 +39,27 @@ public class UI extends Application {
 	@Override
 	public void start(Stage primary) throws Exception {
 
+		renderFileScreen(primary);
+
+		primary.setTitle("Copied Code Catcher 2021");
+		primary.setMaximized(true);
+		primary.show();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private ObservableList<Student> getResults() {
+		ObservableList<Student> results = FXCollections.observableArrayList();
+		for (Student s : pe.getStudents()) {
+			results.add(s);
+		}
+
+		return results;
+	}
+
+	private void renderFileScreen(Stage primary) {
 		// Screen Dimensions
 		Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
 
@@ -46,16 +67,9 @@ public class UI extends Application {
 		Label fileLabel = new Label("Uploaded Files");
 		fileLabel.setFont(new Font("Arial", 20));
 
-		Label resultsLabel = new Label("Students' Results");
-		resultsLabel.setFont(new Font("Arial", 20));
-
 		HBox fileHBox = new HBox();
 		fileHBox.getChildren().add(fileLabel);
 		fileHBox.setAlignment(Pos.BASELINE_CENTER);
-
-		HBox resultsHBox = new HBox();
-		resultsHBox.getChildren().add(resultsLabel);
-		resultsHBox.setAlignment(Pos.BASELINE_CENTER);
 
 		// Table for File Output
 		TableView fileTable = new TableView();
@@ -65,72 +79,26 @@ public class UI extends Application {
 		fileTable.setEditable(false);
 		fileTable.getColumns().add(fileNameColumn);
 
-		TableView<Student> resultsTable = new TableView<Student>();
-
-		// Create Results Columns
-		TableColumn nameCol = new TableColumn("Name");
-		nameCol.setMinWidth(screenSize.getMaxX() / 5);
-		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
-
-		TableColumn IDCol = new TableColumn("ID");
-		IDCol.setMinWidth(screenSize.getMaxX() / 5);
-		IDCol.setCellValueFactory(new PropertyValueFactory<Student, String>("ID"));
-
-		TableColumn greenCol = new TableColumn("Green");
-		greenCol.setMinWidth(screenSize.getMaxX() / 5);
-		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Green"));
-
-		TableColumn yellowCol = new TableColumn("Yellow");
-		yellowCol.setMinWidth(screenSize.getMaxX() / 5);
-		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Yellow"));
-
-		TableColumn redCol = new TableColumn("Red");
-		redCol.setMinWidth(screenSize.getMaxX() / 5);
-		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Red"));
-
-		resultsTable.setEditable(false);
-		resultsTable.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
-
 		Button upload = new Button("Upload Files");
 		upload.setMinSize(100, 25);
 		Button process = new Button("Process Files");
-		process.setMinSize(100, 25);
-
-		Button save = new Button("Save to Computer");
-		upload.setMinSize(100, 25);
-		Button exit = new Button("Exit");
 		process.setMinSize(100, 25);
 
 		VBox fileVBox = new VBox();
 		fileVBox.getChildren().addAll(fileLabel, fileTable);
 		fileVBox.setAlignment(Pos.CENTER);
 
-		VBox resultsVBox = new VBox();
-		resultsVBox.getChildren().addAll(resultsLabel, resultsTable);
-		resultsVBox.setAlignment(Pos.CENTER);
-
 		HBox fileButtons = new HBox();
 		fileButtons.setSpacing(50);
 		fileButtons.setAlignment(Pos.CENTER);
 		fileButtons.getChildren().addAll(upload, process);
-
-		HBox resultsButtons = new HBox();
-		resultsButtons.setSpacing(50);
-		resultsButtons.setAlignment(Pos.CENTER);
-		resultsButtons.getChildren().addAll(save, exit);
 
 		BorderPane filePane = new BorderPane();
 		filePane.setTop(fileHBox);
 		filePane.setCenter(fileVBox);
 		filePane.setBottom(fileButtons);
 
-		BorderPane resultsPane = new BorderPane();
-		resultsPane.setTop(resultsLabel);
-		resultsPane.setCenter(resultsVBox);
-		resultsPane.setBottom(resultsButtons);
-
 		Scene mainScreen = new Scene(filePane); // width x height
-		Scene resultsScreen = new Scene(resultsPane);
 
 		FileChooser fileExplorer = new FileChooser();
 		fileExplorer.setTitle("File Explorer");
@@ -163,16 +131,71 @@ public class UI extends Application {
 				pe.stripAll();
 				pe.allStudentKeywords();
 				pe.compareAll();
-				pe.setColors();
-				resultsTable.setItems(getResults());
-				primary.setTitle("Copied Code Catcher 2021");
-				primary.setHeight(screenSize.getMaxY());
-				primary.setWidth(screenSize.getMaxX());
-				primary.setScene(resultsScreen);
-				primary.setMaximized(true);
+				renderResultsScreen(primary);
 				System.out.println("\n\nDone!");
 			}
 		});
+
+		primary.setScene(mainScreen);
+	}
+
+	private void renderResultsScreen(Stage primary) {
+
+		Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
+
+		Label resultsLabel = new Label("Students' Results");
+		resultsLabel.setFont(new Font("Arial", 20));
+
+		HBox resultsHBox = new HBox();
+		resultsHBox.getChildren().add(resultsLabel);
+		resultsHBox.setAlignment(Pos.BASELINE_CENTER);
+
+		TableView<Student> resultsTable = new TableView<Student>();
+
+		// Create Results Columns
+		TableColumn nameCol = new TableColumn("Name");
+		nameCol.setMinWidth(screenSize.getMaxX() / 5);
+		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
+
+		TableColumn IDCol = new TableColumn("ID");
+		IDCol.setMinWidth(screenSize.getMaxX() / 5);
+		IDCol.setCellValueFactory(new PropertyValueFactory<Student, String>("ID"));
+
+		TableColumn greenCol = new TableColumn("Green");
+		greenCol.setMinWidth(screenSize.getMaxX() / 5);
+		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Green"));
+
+		TableColumn yellowCol = new TableColumn("Yellow");
+		yellowCol.setMinWidth(screenSize.getMaxX() / 5);
+		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Yellow"));
+
+		TableColumn redCol = new TableColumn("Red");
+		redCol.setMinWidth(screenSize.getMaxX() / 5);
+		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Red"));
+
+		resultsTable.setEditable(false);
+		resultsTable.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
+
+		Button save = new Button("Save to Computer");
+		save.setMinSize(100, 25);
+		Button exit = new Button("Exit");
+		exit.setMinSize(100, 25);
+
+		VBox resultsVBox = new VBox();
+		resultsVBox.getChildren().addAll(resultsLabel, resultsTable);
+		resultsVBox.setAlignment(Pos.CENTER);
+
+		HBox resultsButtons = new HBox();
+		resultsButtons.setSpacing(50);
+		resultsButtons.setAlignment(Pos.CENTER);
+		resultsButtons.getChildren().addAll(save, exit);
+
+		BorderPane resultsPane = new BorderPane();
+		resultsPane.setTop(resultsHBox);
+		resultsPane.setCenter(resultsVBox);
+		resultsPane.setBottom(resultsButtons);
+
+		Scene resultsScreen = new Scene(resultsPane);
 
 		save.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -184,25 +207,9 @@ public class UI extends Application {
 
 		exit.setOnAction(e -> System.exit(0));
 
-		primary.setTitle("Copied Code Catcher 2021");
-		primary.setHeight(screenSize.getMaxY());
-		primary.setWidth(screenSize.getMaxX());
-		primary.setScene(mainScreen);
-		primary.setMaximized(true);
-		primary.show();
-	}
+		resultsTable.setItems(getResults());
 
-	/**
-	 * 
-	 * @return
-	 */
-	private ObservableList<Student> getResults() {
-		ObservableList<Student> results = FXCollections.observableArrayList();
-		for (Student s : pe.getStudents()) {
-			results.add(s);
-		}
-
-		return results;
+		primary.setScene(resultsScreen);
 	}
 
 	public static void main(String[] args) {
