@@ -64,7 +64,6 @@ public class PlagiarismEngine {
 		for (File file : files) {
 			students.add(currentStudent = new Student(ID, file.getName()));
 			currentStudent.addFile(file);
-			System.out.println(file.getName());
 			ID++;
 		}
 	}
@@ -85,24 +84,32 @@ public class PlagiarismEngine {
 	 * @param s
 	 */
 	public void stripFile(Student s) {
+
 		for (File codeFile : s.getFiles()) {
 			try {
+
 				// create a new scanner
 				Scanner scnr = new Scanner(codeFile);
+
 				// create a file to write the results to
-				System.out.println(codeFile.getName());
-				File strippedSub = new File(s.getID() + codeFile.getName());
+//				System.out.println(codeFile.getName());
+				File strippedSub = new File("Storage\\" + s.getID() + codeFile.getName());
+
 				// create a file writer and buffer writer for writing
 				FileWriter filwrit = new FileWriter(strippedSub);
 				BufferedWriter bufwrit = new BufferedWriter(filwrit);
+
 				String currLine; // holds current line
 				int indexOfSlashes; // holds index of double slash
 				String shortenedStr; // holds the stripped line
 				String nextLine; // holds next line
+
 				int indexOfBlkComStart;
 				int indexOfBlkComEnd;
+
 				String beforeCom;
 				String afterCom;
+
 				boolean firstComment = true;
 
 				// iterate over each line in the file
@@ -180,7 +187,7 @@ public class PlagiarismEngine {
 				bufwrit.flush();
 				bufwrit.close();
 				scnr.close();
-		
+
 				// replace the file with the stripped file in the student
 				s.replaceFile(codeFile, strippedSub);
 				s.setName(strippedSub.getName());
@@ -194,9 +201,9 @@ public class PlagiarismEngine {
 	public void stripAll() {
 		for (int i = 0; i < students.size(); i++) {
 			stripFile(students.get(i));
-			for (File codeFile : students.get(i).getFiles()) {
-				System.out.println(codeFile.getName());
-			}
+//			for (File codeFile : students.get(i).getFiles()) {
+//				System.out.println(codeFile.getName());
+//			}
 		}
 	}
 
@@ -211,6 +218,7 @@ public class PlagiarismEngine {
 		for (File codeFile : s.getFiles()) {
 			try {
 				fileScnr = new Scanner(codeFile);
+//				System.out.println(codeFile.getName());
 				while (fileScnr.hasNextLine()) {
 					currLine = fileScnr.nextLine();
 					for (String word : primitiveTypeKeywords) {

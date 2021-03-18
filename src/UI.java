@@ -42,7 +42,7 @@ public class UI extends Application {
 		renderFileScreen(primary);
 
 		primary.setTitle("Copied Code Catcher 2021");
-		primary.setMaximized(true);
+//		primary.setMaximized(true);
 		primary.show();
 	}
 
@@ -66,8 +66,8 @@ public class UI extends Application {
 		label.setAlignment(Pos.CENTER);
 
 		TableView uploadTable = new TableView();
-		uploadTable.setMinWidth(200);
-		uploadTable.setMinHeight(200);
+		uploadTable.setMinWidth(500);
+		uploadTable.setMinHeight(500);
 		uploadTable.setEditable(false);
 
 		TableColumn fileColumn = new TableColumn("File");
@@ -113,7 +113,7 @@ public class UI extends Application {
 						uploadTable.setItems(files);
 
 						String PATH = file.getCanonicalPath();
-						fe.unzipRecursively(PATH);
+						fe.unzipLocally(PATH);
 						pe.receiveFiles(fe.transferFiles());
 						pe.printFiles();
 					} catch (IOException e) {
@@ -145,8 +145,8 @@ public class UI extends Application {
 		label.setAlignment(Pos.CENTER);
 
 		TableView<Student> resultsTable = new TableView<Student>();
-		resultsTable.setMinWidth(200);
-		resultsTable.setMinHeight(200);
+		resultsTable.setMinWidth(500);
+		resultsTable.setMinHeight(500);
 		resultsTable.setEditable(false);
 
 		// Create Results Columns
@@ -199,12 +199,17 @@ public class UI extends Application {
 		save.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
-
 				// save
 			}
 		});
 
-		exit.setOnAction(e -> System.exit(0));
+		exit.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				fe.deleteFolder();
+				System.exit(0);
+			}
+		});
 
 		resultsTable.setItems(getResults());
 
