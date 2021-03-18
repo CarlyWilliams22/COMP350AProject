@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import javafx.application.Application;
@@ -18,6 +17,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -60,45 +60,44 @@ public class UI extends Application {
 	}
 
 	private void renderFileScreen(Stage primary) {
-		// Screen Dimensions
-		Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
 
-		// Labels
-		Label fileLabel = new Label("Uploaded Files");
-		fileLabel.setFont(new Font("Arial", 20));
+		Label label = new Label("Copied Code Catcher");
+		label.setMinSize(50, 50);
+		label.setAlignment(Pos.CENTER);
 
-		HBox fileHBox = new HBox();
-		fileHBox.getChildren().add(fileLabel);
-		fileHBox.setAlignment(Pos.BASELINE_CENTER);
+		TableView uploadTable = new TableView();
+		uploadTable.setMinWidth(200);
+		uploadTable.setMinHeight(200);
+		uploadTable.setEditable(false);
 
-		// Table for File Output
-		TableView fileTable = new TableView();
-		TableColumn fileNameColumn = new TableColumn("File");
-		fileNameColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
+		TableColumn fileColumn = new TableColumn("File");
+		fileColumn.setMinWidth(100);
+		fileColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
+		uploadTable.getColumns().add(fileColumn);
 
-		fileTable.setEditable(false);
-		fileTable.getColumns().add(fileNameColumn);
-
-		Button upload = new Button("Upload Files");
+		Button upload = new Button("Upload");
 		upload.setMinSize(100, 25);
-		Button process = new Button("Process Files");
-		process.setMinSize(100, 25);
 
-		VBox fileVBox = new VBox();
-		fileVBox.getChildren().addAll(fileLabel, fileTable);
-		fileVBox.setAlignment(Pos.CENTER);
+		Button process = new Button("Process");
+		process.setMinSize(100, 25);
 
 		HBox fileButtons = new HBox();
 		fileButtons.setSpacing(50);
 		fileButtons.setAlignment(Pos.CENTER);
 		fileButtons.getChildren().addAll(upload, process);
 
-		BorderPane filePane = new BorderPane();
-		filePane.setTop(fileHBox);
-		filePane.setCenter(fileVBox);
-		filePane.setBottom(fileButtons);
+		GridPane grid = new GridPane();
+		grid.setMinSize(600, 300);
+		grid.setPadding(new Insets(10, 10, 10, 10));
+		grid.setVgap(5);
+		grid.setHgap(5);
+		grid.setAlignment(Pos.CENTER);
 
-		Scene mainScreen = new Scene(filePane); // width x height
+		grid.add(label, 0, 0);
+		grid.add(uploadTable, 0, 1);
+		grid.add(fileButtons, 0, 2);
+
+		Scene mainScreen = new Scene(grid);
 
 		FileChooser fileExplorer = new FileChooser();
 		fileExplorer.setTitle("File Explorer");
@@ -111,7 +110,7 @@ public class UI extends Application {
 					try {
 						ObservableList<File> files = FXCollections.observableArrayList();
 						files.add(file);
-						fileTable.setItems(files);
+						uploadTable.setItems(files);
 
 						String PATH = file.getCanonicalPath();
 						fe.unzipRecursively(PATH);
