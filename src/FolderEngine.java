@@ -18,9 +18,11 @@ import java.util.zip.ZipInputStream;
 public class FolderEngine {
 
 	private ArrayList<File> files;
+	private int uniquePrefix;
 
 	public FolderEngine() {
 		files = new ArrayList<File>();
+		uniquePrefix = 0;
 	}
 
 	/**
@@ -75,7 +77,8 @@ public class FolderEngine {
 				System.out.println("Unzipping " + entry.getName());
 //				currentFile = new File(file.getParent() + file.getName());
 				currentFile = new File(file.getName());
-				
+//				uniquePrefix++;
+//				
 
 				// write data to folder
 				if (!entry.isDirectory()) {
@@ -95,7 +98,9 @@ public class FolderEngine {
 					}
 
 					System.out.println(files.size());
-					files.add(currentFile);
+					if(currentFile.getName().endsWith(".java")) {
+						files.add(currentFile);
+					}
 					System.out.println(files.size());
 
 					System.out.println("Unzipped to " + currentFile.getAbsolutePath());
@@ -104,13 +109,11 @@ public class FolderEngine {
 					outputBuffer.close();
 					outputStream.close();
 					inputBuffer.close();
-
-				}
-				// unzip another zip file
-				if (currentEntry.endsWith(".zip")) {
-					unzipRecursively(currentFile.getCanonicalPath());
-				}
-				
+					// unzip another zip file
+					if (currentEntry.endsWith(".zip")) {
+						unzipRecursively(currentFile.getAbsolutePath());
+					}
+				}	
 
 			}
 
