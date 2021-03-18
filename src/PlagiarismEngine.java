@@ -27,9 +27,9 @@ public class PlagiarismEngine {
 	 * "switch", "case", "break", "continue" };
 	 */
 
-	private final double GREEN = .25;
-	private final double YELLOW = .5;
-	private final double RED = 1;
+	private final double GREEN = .25; // 25% match
+	private final double YELLOW = .5; // 50% match
+	private final double RED = 1; // 100% match
 
 	public PlagiarismEngine() {
 		files = new ArrayList<File>();
@@ -37,6 +37,7 @@ public class PlagiarismEngine {
 	}
 
 	/**
+	 * Receives files from the Folder Engine
 	 * 
 	 * @param files
 	 */
@@ -45,18 +46,7 @@ public class PlagiarismEngine {
 	}
 
 	/**
-	 * 
-	 */
-	public void printFiles() {
-		if (files.size() > 0) {
-			for (File file : files) {
-				System.out.println(file.getName());
-			}
-		}
-	}
-
-	/**
-	 * 
+	 * Creates a student for each file
 	 */
 	public void createStudents() {
 		Student currentStudent;
@@ -68,6 +58,9 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * Prints the ID of the students for debugging purposes
+	 */
 	public void printStudents() {
 		System.out.println("\nStudents");
 		for (Student s : students) {
@@ -75,15 +68,21 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * Returns a deep copy of the students
+	 * 
+	 * @return
+	 */
 	public ArrayList<Student> getStudents() {
 		return new ArrayList<Student>(students);
 	}
 
 	/**
+	 * Removes comments and excess white space from a file
 	 * 
-	 * @param s
+	 * @param s - a student
 	 */
-	public void stripFile(Student s) {
+	private void parseFile(Student s) {
 
 		for (File codeFile : s.getFiles()) {
 			try {
@@ -92,7 +91,7 @@ public class PlagiarismEngine {
 				Scanner scnr = new Scanner(codeFile);
 
 				// create a file to write the results to
-//				System.out.println(codeFile.getName());
+				// System.out.println(codeFile.getName());
 				File strippedSub = new File("Storage\\" + s.getID() + codeFile.getName());
 
 				// create a file writer and buffer writer for writing
@@ -198,9 +197,12 @@ public class PlagiarismEngine {
 
 	}// stripFile method
 
-	public void stripAll() {
+	/**
+	 * Calls the parseFile function for all the students
+	 */
+	public void parseAllFiles() {
 		for (int i = 0; i < students.size(); i++) {
-			stripFile(students.get(i));
+			parseFile(students.get(i));
 //			for (File codeFile : students.get(i).getFiles()) {
 //				System.out.println(codeFile.getName());
 //			}
@@ -211,7 +213,7 @@ public class PlagiarismEngine {
 	 * 
 	 * @param s
 	 */
-	public void countKeywords(Student s) {
+	private void countKeywords(Student s) {
 		Scanner fileScnr;
 		String currLine;
 		int numKeywords = 0;
@@ -244,9 +246,9 @@ public class PlagiarismEngine {
 	}// countKeywords
 
 	/**
-	 * Calls the countKeywords function far all the students
+	 * Calls the countKeywords function for all the students
 	 */
-	public void allStudentKeywords() {
+	public void countAllKeywords() {
 		for (int i = 0; i < students.size(); i++) {
 			countKeywords(students.get(i));
 		}
@@ -259,7 +261,7 @@ public class PlagiarismEngine {
 	 * @param student1
 	 * @param student2
 	 */
-	public void compare(Student student1, Student student2) {
+	private void compare(Student student1, Student student2) {
 		// Used to walk through the words in student 1's code
 		Iterator<Map.Entry<String, Integer>> keywordIterator = student1.getKeywords().entrySet().iterator();
 		// Copy of student 2's dictionary
@@ -312,9 +314,8 @@ public class PlagiarismEngine {
 		}
 	}
 
-	/*
+	/**
 	 * Compares all the students in the students ArrayList
-	 * 
 	 */
 	public void compareAll() {
 		// The student that the remaining students will be compared to
@@ -328,6 +329,17 @@ public class PlagiarismEngine {
 			}
 			// move to the next student
 			currStudent++;
+		}
+	}
+
+	/**
+	 * Prints files for debugging purposes
+	 */
+	private void printFiles() {
+		if (files.size() > 0) {
+			for (File file : files) {
+				System.out.println(file.getName());
+			}
 		}
 	}
 

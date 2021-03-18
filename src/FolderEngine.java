@@ -1,18 +1,10 @@
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Scanner;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class FolderEngine {
@@ -24,6 +16,11 @@ public class FolderEngine {
 
 	}
 
+	/**
+	 * Unzips a single zip file of files in a storage folder
+	 * 
+	 * @param PATH - zip file path
+	 */
 	public void unzipLocally(String PATH) {
 		File currentFile;
 		FileInputStream fileInput;
@@ -31,16 +28,20 @@ public class FolderEngine {
 		byte[] buffer = new byte[1024];
 
 		try {
+			// Creates the storage folder
 			createFolder();
 
+			// Setup to access each entry in the zip file
 			fileInput = new FileInputStream(PATH);
 			ZipInputStream zipInput = new ZipInputStream(fileInput);
 			ZipEntry entry = zipInput.getNextEntry();
 
+			// Unzips
 			while (entry != null) {
 				String fileName = entry.getName();
 				File file = new File(fileName);
 
+				// Writes unzipped file to storage folder
 				FileOutputStream fileOutput = new FileOutputStream(
 						currentFile = new File("Storage\\" + file.getName()));
 
@@ -50,11 +51,13 @@ public class FolderEngine {
 					fileOutput.write(buffer, 0, len);
 				}
 
+				// Adds file to list for processing
 				files.add(currentFile);
 
 				fileOutput.close();
 				zipInput.closeEntry();
 
+				// get the next file
 				entry = zipInput.getNextEntry();
 			} // while
 
@@ -65,10 +68,18 @@ public class FolderEngine {
 		}
 	}
 
+	/**
+	 * Transfers a deep copy of files
+	 * 
+	 * @return deep copy of files
+	 */
 	public ArrayList<File> transferFiles() {
 		return new ArrayList<File>(files);
 	}
 
+	/**
+	 * Print files for debugging purposes
+	 */
 	public void printFiles() {
 		if (files.size() > 0) {
 			for (File file : files) {
@@ -77,6 +88,9 @@ public class FolderEngine {
 		}
 	}
 
+	/**
+	 * Partially deletes the contents of the storage folder
+	 */
 	public void deleteFolder() {
 		File folder = new File("Storage\\");
 
@@ -94,16 +108,17 @@ public class FolderEngine {
 		}
 	}
 
+	/**
+	 * Creates the storage folder
+	 * 
+	 * @throws IOException
+	 */
 	private void createFolder() throws IOException {
 		File folder = new File("Storage\\");
 
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
-	}
-
-	private void addFile(File file) {
-		files.add(file);
 	}
 
 }

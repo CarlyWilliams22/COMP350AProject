@@ -8,21 +8,15 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class UI extends Application {
@@ -36,6 +30,13 @@ public class UI extends Application {
 		pe = new PlagiarismEngine();
 	}
 
+	public static void main(String[] args) {
+		launch(args);
+	}
+
+	/**
+	 * 
+	 */
 	@Override
 	public void start(Stage primary) throws Exception {
 
@@ -59,6 +60,10 @@ public class UI extends Application {
 		return results;
 	}
 
+	/**
+	 * 
+	 * @param primary
+	 */
 	private void renderFileScreen(Stage primary) {
 
 		Label label = new Label("Copied Code Catcher");
@@ -115,7 +120,6 @@ public class UI extends Application {
 						String PATH = file.getCanonicalPath();
 						fe.unzipLocally(PATH);
 						pe.receiveFiles(fe.transferFiles());
-						pe.printFiles();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -127,8 +131,8 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				pe.createStudents();
-				pe.stripAll();
-				pe.allStudentKeywords();
+				pe.parseAllFiles();
+				pe.countAllKeywords();
 				pe.compareAll();
 				renderResultsScreen(primary);
 				System.out.println("\n\nDone!");
@@ -138,6 +142,10 @@ public class UI extends Application {
 		primary.setScene(mainScreen);
 	}
 
+	/**
+	 * 
+	 * @param primary
+	 */
 	private void renderResultsScreen(Stage primary) {
 
 		Label label = new Label("Student Results");
@@ -214,10 +222,6 @@ public class UI extends Application {
 		resultsTable.setItems(getResults());
 
 		primary.setScene(resultsScreen);
-	}
-
-	public static void main(String[] args) {
-		launch(args);
 	}
 
 }
