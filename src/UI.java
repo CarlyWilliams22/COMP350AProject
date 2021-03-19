@@ -1,3 +1,13 @@
+/**
+ * @author Nathan Beam
+ * @author Tirzah Lloyd
+ * @author Matthew Moody
+ * @author Carly Williams
+ * 
+ * Copied Code Catcher Sprint 1 Working Increment
+ * 
+ */
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,6 +42,8 @@ public class UI extends Application {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Authors: Nathan Beam, Tirzah Lloyd, Matthew Moody, Carly Williams");
+		System.out.println("Copied Code Catcher Sprint 1 Working Increment");
 		launch(args);
 	}
 
@@ -124,7 +136,6 @@ public class UI extends Application {
 				fe.deleteFolder();
 				pe.compareAll();
 				renderResultsScreen(primary);
-				System.out.println("\n\nDone!");
 			}
 		});
 
@@ -197,6 +208,7 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				saveResults();
+				System.out.println("Results were saved to a CSV file.");
 			}
 		});
 
@@ -205,6 +217,7 @@ public class UI extends Application {
 			public void handle(final ActionEvent event) {
 				fe.deleteFolder();
 				fe.deleteFolder();
+				System.out.println("\n\n\t<<<NORMAL TERMINATION>>>");
 				System.exit(0);
 			}
 		});
@@ -266,8 +279,7 @@ public class UI extends Application {
 			writer.close();
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error writing results to file.");
 		}
 
 	}
