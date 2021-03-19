@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import javafx.application.Application;
@@ -45,19 +46,6 @@ public class UI extends Application {
 		primary.setTitle("Copied Code Catcher 2021");
 //		primary.setMaximized(true);
 		primary.show();
-	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	private ObservableList<Student> getResults() {
-		ObservableList<Student> results = FXCollections.observableArrayList();
-		for (Student s : pe.getStudents()) {
-			results.add(s);
-		}
-
-		return results;
 	}
 
 	/**
@@ -133,6 +121,7 @@ public class UI extends Application {
 				pe.createStudents();
 				pe.parseAllFiles();
 				pe.countAllKeywords();
+				fe.deleteFolder();
 				pe.compareAll();
 				renderResultsScreen(primary);
 				System.out.println("\n\nDone!");
@@ -215,6 +204,7 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				fe.deleteFolder();
+				fe.deleteFolder();
 				System.exit(0);
 			}
 		});
@@ -222,6 +212,27 @@ public class UI extends Application {
 		resultsTable.setItems(getResults());
 
 		primary.setScene(resultsScreen);
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private ObservableList<Student> getResults() {
+		ObservableList<Student> results = FXCollections.observableArrayList();
+		for (Student s : pe.getStudents()) {
+			results.add(s);
+		}
+		return results;
+	}
+
+	private static void writeToTextFile(String fileName, ObservableList<Student> students) throws IOException {
+		FileWriter myWriter = new FileWriter(fileName);
+		for (Student student : students) {
+			myWriter.write(student.getName() + ", " + student.getID() + ", " + student.getGreenNum() + ", "
+					+ student.getYellowNum() + ", " + student.getRedNum() + "\n");
+		}
+		myWriter.close();
 	}
 
 }
