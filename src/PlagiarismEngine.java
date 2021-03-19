@@ -284,7 +284,6 @@ public class PlagiarismEngine {
 				}
 			}
 		}
-
 		// calculate student 1s percentage
 		percent1 = ((double) compScore) / (double) student2.getScore();
 		// add the comparison score to the correct student
@@ -297,17 +296,17 @@ public class PlagiarismEngine {
 
 		// place the students in the proper columns
 		// student 1
-		if (percent1 < GREEN) {
+		if (percent1 <= GREEN) {
 			student1.addGreenStudent(student2);
-		} else if (percent1 < YELLOW) {
+		} else if (percent1 <= YELLOW) {
 			student1.addYellowStudent(student2);
 		} else {
 			student1.addRedStudent(student2);
 		}
 		// student 2
-		if (percent2 < GREEN) {
+		if (percent2 <= GREEN) {
 			student2.addGreenStudent(student1);
-		} else if (percent2 < YELLOW) {
+		} else if (percent2 <= YELLOW) {
 			student2.addYellowStudent(student1);
 		} else {
 			student2.addRedStudent(student1);
