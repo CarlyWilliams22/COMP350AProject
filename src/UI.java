@@ -60,11 +60,11 @@ public class UI extends Application {
 
 		TableView uploadTable = new TableView();
 		uploadTable.setMinWidth(500);
-		uploadTable.setMinHeight(500);
+		uploadTable.setMinHeight(100);
 		uploadTable.setEditable(false);
 
 		TableColumn fileColumn = new TableColumn("File");
-		fileColumn.setMinWidth(100);
+		fileColumn.setMinWidth(500);
 		fileColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
 		uploadTable.getColumns().add(fileColumn);
 
@@ -80,7 +80,7 @@ public class UI extends Application {
 		fileButtons.getChildren().addAll(upload, process);
 
 		GridPane grid = new GridPane();
-		grid.setMinSize(600, 300);
+		grid.setMinSize(600, 100);
 		grid.setPadding(new Insets(10, 10, 10, 10));
 		grid.setVgap(5);
 		grid.setHgap(5);
@@ -143,7 +143,7 @@ public class UI extends Application {
 
 		TableView<Student> resultsTable = new TableView<Student>();
 		resultsTable.setMinWidth(500);
-		resultsTable.setMinHeight(500);
+		resultsTable.setMinHeight(100);
 		resultsTable.setEditable(false);
 
 		// Create Results Columns
@@ -196,7 +196,7 @@ public class UI extends Application {
 		save.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
-				// save
+				saveResults();
 			}
 		});
 
@@ -226,13 +226,49 @@ public class UI extends Application {
 		return results;
 	}
 
-	private static void writeToTextFile(String fileName, ObservableList<Student> students) throws IOException {
-		FileWriter myWriter = new FileWriter(fileName);
-		for (Student student : students) {
-			myWriter.write(student.getName() + ", " + student.getID() + ", " + student.getGreenNum() + ", "
-					+ student.getYellowNum() + ", " + student.getRedNum() + "\n");
-		}
-		myWriter.close();
-	}
+	/**
+	 * Writes the results to an Excel spreadsheet Code adapted
+	 * 
+	 * @see https://stackabuse.com/reading-and-writing-csvs-in-java/
+	 */
+	private void saveResults() {
+		try {
+			FileWriter writer = new FileWriter("CCCResults.csv");
 
+			// write header info
+			writer.append("Student");
+			writer.append(",");
+			writer.append("ID");
+			writer.append(",");
+			writer.append("Green");
+			writer.append(",");
+			writer.append("Yellow");
+			writer.append(",");
+			writer.append("Red");
+			writer.append("\n");
+
+			// write data for each student
+			for (Student s : pe.getStudents()) {
+				writer.append(s.getName());
+				writer.append(",");
+				writer.append(String.valueOf(s.getID()));
+				writer.append(",");
+				writer.append(String.valueOf(s.getGreenNum()));
+				writer.append(",");
+				writer.append(String.valueOf(s.getYellowNum()));
+				writer.append(",");
+				writer.append(String.valueOf(s.getRedNum()));
+				writer.append("\n");
+			}
+
+			// publish
+			writer.flush();
+			writer.close();
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
 }

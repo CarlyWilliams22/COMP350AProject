@@ -8,12 +8,11 @@ import java.util.Scanner;
 
 public class PlagiarismEngine {
 
-	private ArrayList<File> files;
+	private ArrayList<File> files; // projects to process
 	private ArrayList<Student> students;
-	/*
-	 * Keywords taken from the Wikipedia article List of Java keywords Link:
-	 * https://en.wikipedia.org/wiki/List_of_Java_keywords
-	 */
+
+	// Keywords taken from the Wikipedia article List of Java keywords Link:
+	// https://en.wikipedia.org/wiki/List_of_Java_keywords
 	private static String primitiveTypeKeywords[] = { "abstract", "assert", "boolean", "break", "byte", "case", "catch",
 			"char", "class", "const", "continue", "default", "do", "double", "else", "enum", "extends", "final",
 			"finally", "float", "for", "goto", "if", "implements", "import", "instanceof", " int", "interface", "long",
@@ -21,15 +20,9 @@ public class PlagiarismEngine {
 			"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void",
 			"volatile", "while", "true", "false", "null" };
 	private static String commonNonprimitiveTypeKeywords[] = { "String", "ArrayList", "Map" };
-	/*
-	 * Took this out because it was causing double counting private static String
-	 * controlStructureKeywords[] = { "if", "else", "if else", "for", "while", "do",
-	 * "switch", "case", "break", "continue" };
-	 */
-
 	private final double GREEN = .25; // 25% match
 	private final double YELLOW = .5; // 50% match
-	private final double RED = 1; // 100% match
+	private final double RED = .75; // 75% match
 
 	public PlagiarismEngine() {
 		files = new ArrayList<File>();

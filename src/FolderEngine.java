@@ -62,7 +62,8 @@ public class FolderEngine {
 			} // while
 
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			System.err.println("Works only on a single zip folder with regular files.");
+//			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
