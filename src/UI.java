@@ -1,3 +1,4 @@
+
 /**
  * @author Nathan Beam
  * @author Tirzah Lloyd
@@ -48,7 +49,7 @@ public class UI extends Application {
 	}
 
 	/**
-	 * 
+	 * Starts the UI
 	 */
 	@Override
 	public void start(Stage primary) throws Exception {
@@ -61,12 +62,12 @@ public class UI extends Application {
 	}
 
 	/**
-	 * 
+	 * Renders the File Upload Screen
 	 * @param primary
 	 */
 	private void renderFileScreen(Stage primary) {
 
-		Label label = new Label("Copied Code Catcher");
+		Label label = new Label("File Upload");
 		label.setMinSize(50, 50);
 		label.setAlignment(Pos.CENTER);
 
@@ -143,12 +144,12 @@ public class UI extends Application {
 	}
 
 	/**
-	 * 
+	 * Renders the Students' Results Screen
 	 * @param primary
 	 */
 	private void renderResultsScreen(Stage primary) {
 
-		Label label = new Label("Student Results");
+		Label label = new Label("Students' Results");
 		label.setMinSize(50, 50);
 		label.setAlignment(Pos.CENTER);
 
@@ -228,7 +229,7 @@ public class UI extends Application {
 	}
 
 	/**
-	 * 
+	 * Gets the students' results
 	 * @return
 	 */
 	private ObservableList<Student> getResults() {
