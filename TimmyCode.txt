@@ -1,0 +1,21 @@
+//Some basic code
+
+public class HelloWorld {
+
+	public static void main(String[] args) {
+		if(true) {
+			//create String array of guys
+			String[] names = {"Billy", "Bob", "Joe", "Jeff"};
+		} else {
+			//create String array of girls
+			String[] names = {"Lucy", "Lily", "Mary", "Martha"};
+		}
+		
+		for(name : names) {
+			System.out.println("Hello, " + name);
+		} 
+
+	}
+
+}
+
