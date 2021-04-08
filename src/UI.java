@@ -1,6 +1,17 @@
+
+/**
+ * @author Nathan Beam
+ * @author Tirzah Lloyd
+ * @author Matthew Moody
+ * @author Carly Williams
+ * 
+ * Copied Code Catcher Sprint 1 Working Increment
+ * 
+ */
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -8,170 +19,228 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.stage.FileChooser;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class UI extends Application {
 
+	// Constants
+	private final Dimension window = Toolkit.getDefaultToolkit().getScreenSize();
+	private final double WINDOW_WIDTH = window.getWidth();
+	private final double WINDOW_HEIGHT = window.getHeight();
+	private final double BUTTON_WIDTH = 150;
+	private final double BUTTON_HEIGHT = 40;
+
 	private FolderEngine fe;
 	private PlagiarismEngine pe;
-	private TableView<Student> table = new TableView<Student>();
 
 	public UI() {
 		fe = new FolderEngine();
 		pe = new PlagiarismEngine();
 	}
 
+	public static void main(String args[]) {
+		System.out.println("Launching...");
+		System.out.println("Authors: Nathan Beam, Tirzah Lloyd, Matthew Moody, Carly Williams");
+		System.out.println("Copied Code Catcher Sprint 2 Working Increment");
+
+		launch(args);
+
+		System.out.println("Terminating...");
+		System.out.println("\n<<< STANDARD TERMINATION >>>");
+	}
+
 	@Override
 	public void start(Stage primary) throws Exception {
 
-		// Screen Dimensions
-		Rectangle2D screenSize = Screen.getPrimary().getVisualBounds();
+		primary.setTitle("Copied Code Catcher");
 
-		// Labels
-		Label fileLabel = new Label("Uploaded Files");
-		fileLabel.setFont(new Font("Arial", 20));
+		renderFileScreen(primary);
 
-		Label resultsLabel = new Label("Students' Results");
-
-		// Table for File Output
-		TableView fileTable = new TableView();
-		TableColumn fileNameColumn = new TableColumn("File");
-		fileTable.setEditable(false);
-		fileTable.getColumns().add(fileNameColumn);
-
-		TableView<Student> resultsTable = new TableView<Student>();
-
-		// Create Results Columns
-		TableColumn nameCol = new TableColumn("Name");
-		nameCol.setMinWidth(screenSize.getMaxX() / 5);
-		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
-
-		TableColumn IDCol = new TableColumn("ID");
-		IDCol.setMinWidth(screenSize.getMaxX() / 5);
-		IDCol.setCellValueFactory(new PropertyValueFactory<Student, String>("ID"));
-
-		TableColumn greenCol = new TableColumn("Green");
-		greenCol.setMinWidth(screenSize.getMaxX() / 5);
-		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Green"));
-
-		TableColumn yellowCol = new TableColumn("Yellow");
-		yellowCol.setMinWidth(screenSize.getMaxX() / 5);
-		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Yellow"));
-
-		TableColumn redCol = new TableColumn("Red");
-		redCol.setMinWidth(screenSize.getMaxX() / 5);
-		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Red"));
-
-		resultsTable.setEditable(false);
-		resultsTable.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
-
-		resultsTable.setItems(getResults());
-
-		Button upload = new Button("Upload Files");
-		Button process = new Button("Process Files");
-
-		Button save = new Button("Save to Computer");
-		Button exit = new Button("Exit");
-
-		VBox fileVBox = new VBox();
-		fileVBox.setSpacing(10);
-		fileVBox.setPadding(new Insets(10, 0, 0, 10));
-		fileVBox.getChildren().addAll(fileLabel, fileTable);
-
-		HBox fileButtons = new HBox();
-		fileButtons.getChildren().addAll(upload, process);
-
-		HBox resultsButtons = new HBox();
-		resultsButtons.getChildren().addAll(save, exit);
-
-		BorderPane filePane = new BorderPane();
-		filePane.setTop(fileLabel);
-		filePane.setCenter(fileVBox);
-		filePane.setBottom(fileButtons);
-
-		BorderPane resultsPane = new BorderPane();
-		resultsPane.setTop(resultsLabel);
-		resultsPane.setCenter(resultsTable);
-		resultsPane.setBottom(resultsButtons);
-
-		Scene mainScreen = new Scene(filePane); // width x height
-		Scene resultsScreen = new Scene(resultsPane);
-
-		FileChooser fileExplorer = new FileChooser();
-		fileExplorer.setTitle("File Explorer");
-
-		upload.setOnAction(new EventHandler<ActionEvent>() { // runs File Explorer
-			@Override
-			public void handle(final ActionEvent event) {
-				File file = fileExplorer.showOpenDialog(primary);
-				if (file != null) {
-					try {
-						String PATH = file.getCanonicalPath();
-						fe.unzipLocally(PATH);
-						pe.receiveFiles(fe.transferFiles());
-						pe.printFiles();
-//						fe.printFiles();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		});
-
-		process.setOnAction(new EventHandler<ActionEvent>() { // runs File Explorer
-			@Override
-			public void handle(final ActionEvent event) {
-				pe.createStudents();
-				pe.printStudents();
-				primary.setScene(resultsScreen);
-//				primary.setScene(resultsScreen);
-				// parse comments
-				// parse whitespace
-				// tokenize
-				// compare
-			}
-		});
-
-		save.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				// save
-			}
-		});
-
-		exit.setOnAction(e -> System.exit(0));
-
-		primary.setMaximized(true);
-		primary.setTitle("Copied Code Catcher 2021");
-		primary.setScene(mainScreen);
-		primary.show();
 	}
 
-	private ObservableList<Student> getResults() {
-		ObservableList<Student> results = null;
-		for (Student s : pe.getStudents()) {
-			results.add(s);
-		}
+	/**
+	 * 
+	 */
+	private void renderFileScreen(Stage stage) {
 
-		return results;
+		Label label = new Label();
+		label.setText("Upload Files");
+		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		VBox side = new VBox();
+		side.setPrefSize(BUTTON_WIDTH, 400);
+		side.setSpacing(30);
+		renderFileButtons();
+		side.getChildren().add(label);
+		side.getChildren().addAll(renderFileButtons());
+
+		TableView<File> table = new TableView<File>();
+		table.setPrefSize(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+		table.setVisible(true);
+
+		BorderPane pane = new BorderPane();
+		BorderPane.setMargin(table, new Insets(30, 30, 30, 30));
+		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
+		pane.setPrefSize(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3);
+		pane.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		pane.setRight(side);
+		pane.setCenter(table);
+
+		Scene uploadScreen = new Scene(pane);
+
+		stage.setScene(uploadScreen);
+		stage.show();
 	}
 
-	public static void main(String[] args) {
-		launch(args);
+	/**
+	 * 
+	 * @return
+	 */
+	private ObservableList<Button> renderFileButtons() {
+
+		ObservableList<Button> buttons = FXCollections.observableArrayList();
+
+		Button help = new Button();
+		help.setText("Help");
+		help.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button browseThisPC = new Button();
+		browseThisPC.setText("Browse This PC");
+		browseThisPC.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button browseOneDrive = new Button();
+		browseOneDrive.setText("Browse OneDrive");
+		browseOneDrive.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button done = new Button();
+		done.setText("Done");
+		done.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		addFileButtonListeners(help, browseThisPC, browseOneDrive, done);
+
+		buttons.add(help);
+		buttons.add(browseThisPC);
+		buttons.add(browseOneDrive);
+		buttons.add(done);
+
+		return buttons;
+	}
+
+	/**
+	 * 
+	 * @param help
+	 * @param browseThisPC
+	 * @param browseOneDrive
+	 * @param done
+	 */
+	private void addFileButtonListeners(Button help, Button browseThisPC, Button browseOneDrive, Button done) {
+
+		// Creates popup window
+		help.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("Help!");
+			}
+		});
+
+		// Opens File Explorer
+		browseThisPC.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("PC");
+			}
+		});
+
+		// Opens OneDrive
+		browseOneDrive.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("OneDrive");
+			}
+		});
+
+		done.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("Done!");
+			}
+		});
+	}
+
+	/**
+	 * 
+	 */
+	private void renderResultsScreen(Stage stage) {
+
+	}
+
+	/**
+	 * 
+	 */
+	private void renderTabPane() {
+
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private Tab renderResultsTab() {
+		return null;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private Tab renderGraphTab() {
+		return null;
+	}
+
+	/**
+	 * 
+	 */
+	private void renderStudentPopup() {
+
+	}
+
+	/**
+	 * 
+	 */
+	private void renderHelpPopup() {
+
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private ObservableList<Student> getClassResults() {
+		return null;
+
+	}
+
+	/**
+	 * 
+	 * @param name
+	 * @return
+	 */
+	private Student getStudentResults(String name) {
+		return null;
+	}
+
+	/**
+	 * 
+	 */
+	private void saveResults() {
+		// may want to change return value to a boolean for status check
 	}
 
 }
