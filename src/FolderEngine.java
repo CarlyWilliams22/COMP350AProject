@@ -1,18 +1,10 @@
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Scanner;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 public class FolderEngine {
@@ -21,85 +13,14 @@ public class FolderEngine {
 
 	public FolderEngine() {
 		files = new ArrayList<File>();
+
 	}
 
 	/**
-	 * Unzip
+	 * Unzips a single zip file of files in a storage folder
 	 * 
-	 * Recursively unzips files
-	 * 
-	 * @param source - absolute file path of zip file
-	 * @see Adapted from https://thetopsites.net/article/58771386.shtml
+	 * @param PATH - zip file path
 	 */
-	public void unzipRecursively(String PATH) {
-		File currentFile;
-		int MEMORY = 2048;
-
-		try {
-			// create zip file
-			ZipFile zip = new ZipFile(PATH);
-
-			// get zip file path
-			String path = PATH.substring(0, PATH.length() - 4);
-
-			// get all zip file entries
-			Enumeration zipFileEntries = zip.entries();
-
-			// unzip each entry
-			while (zipFileEntries.hasMoreElements()) {
-
-				// get zip file
-				ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
-				String currentEntry = entry.getName();
-
-				// create destination folder
-				File file = new File(path, currentEntry);
-				File parent = file.getParentFile();
-				parent.mkdirs();
-				System.out.println("Unzipping " + entry.getName());
-
-				// write data to folder
-				if (!entry.isDirectory()) {
-					int len; // bytes left to write
-					BufferedInputStream inputBuffer = new BufferedInputStream(zip.getInputStream(entry));
-					byte buffer[] = new byte[MEMORY];
-
-					// write the file
-					FileOutputStream outputStream = new FileOutputStream(
-							currentFile = new File("Storage\\" + file.getName()));
-					BufferedOutputStream outputBuffer = new BufferedOutputStream(outputStream, MEMORY);
-
-					while ((len = inputBuffer.read(buffer, 0, MEMORY)) > 0) {
-						outputStream.write(buffer, 0, len);
-					}
-
-					System.out.println(files.size());
-					files.add(currentFile);
-					System.out.println(files.size());
-
-					System.out.println("Unzipped to " + currentFile.getAbsolutePath());
-
-					outputBuffer.flush();
-					outputBuffer.close();
-					outputStream.close();
-					inputBuffer.close();
-
-					// unzip another zip file
-					if (currentEntry.endsWith(".zip")) {
-						unzipRecursively(currentFile.getCanonicalPath());
-					}
-				}
-
-			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
 	public void unzipLocally(String PATH) {
 		File currentFile;
 		FileInputStream fileInput;
@@ -107,54 +28,97 @@ public class FolderEngine {
 		byte[] buffer = new byte[1024];
 
 		try {
+			// Creates the storage folder
+			createFolder();
+
+			// Setup to access each entry in the zip file
 			fileInput = new FileInputStream(PATH);
 			ZipInputStream zipInput = new ZipInputStream(fileInput);
 			ZipEntry entry = zipInput.getNextEntry();
 
+			// Unzips
 			while (entry != null) {
 				String fileName = entry.getName();
 				File file = new File(fileName);
-				System.out.println("Unzipping " + fileName);
 
+				// Writes unzipped file to storage folder
 				FileOutputStream fileOutput = new FileOutputStream(
 						currentFile = new File("Storage\\" + file.getName()));
+
 				int len;
 
 				while ((len = zipInput.read(buffer)) > 0) {
 					fileOutput.write(buffer, 0, len);
-				} // while
+				}
 
-				System.out.println(files.size());
+				// Adds file to list for processing
 				files.add(currentFile);
-				System.out.println(files.size());
 
 				fileOutput.close();
 				zipInput.closeEntry();
 
-				System.out.println("Unzipped to " + currentFile.getCanonicalPath());
-
+				// get the next file
 				entry = zipInput.getNextEntry();
-			}
+			} // while
+
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			System.err.println("Works only on a single zip folder with regular files.");
+//			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void addFile(File file) {
-		files.add(file);
-	}
-
+	/**
+	 * Transfers a deep copy of files
+	 * 
+	 * @return deep copy of files
+	 */
 	public ArrayList<File> transferFiles() {
 		return new ArrayList<File>(files);
 	}
 
+	/**
+	 * Print files for debugging purposes
+	 */
 	public void printFiles() {
 		if (files.size() > 0) {
 			for (File file : files) {
 				System.out.println(file.getName());
 			}
+		}
+	}
+
+	/**
+	 * Partially deletes the contents of the storage folder
+	 */
+	public void deleteFolder() {
+		File folder = new File("Storage\\");
+
+		if (folder.exists()) {
+
+			File[] files = folder.listFiles();
+
+			if (files != null) {
+
+				for (File f : files) {
+					f.delete();
+				}
+			}
+			folder.delete();
+		}
+	}
+
+	/**
+	 * Creates the storage folder
+	 * 
+	 * @throws IOException
+	 */
+	private void createFolder() throws IOException {
+		File folder = new File("Storage\\");
+
+		if (!folder.exists()) {
+			folder.mkdir();
 		}
 	}
 

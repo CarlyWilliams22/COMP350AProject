@@ -7,6 +7,9 @@ public class Student {
 
 	private int ID;
 	private String name;
+	private int red;
+	private int yellow;
+	private int green;
 	private int score;
 
 	private Map<String, Integer> keywords;
@@ -55,10 +58,10 @@ public class Student {
 	public void addFile(File f) {
 		try {
 			files.add(f);
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public ArrayList<File> getFiles() {
@@ -97,28 +100,47 @@ public class Student {
 	public ArrayList<Student> getRedStudents() {
 		return new ArrayList<Student>(redStudents);
 	}
-	
+
 	public void printKeywords() {
-		for(Map.Entry<String, Integer> entry : keywords.entrySet()) {
-			System.out.println("keyword: " + entry.getKey() 
-							+ "; times appeared: " + entry.getValue());
+		for (Map.Entry<String, Integer> entry : keywords.entrySet()) {
+			System.out.println("keyword: " + entry.getKey() + "; times appeared: " + entry.getValue());
 		}
 	}
 
-    public Map<String, Integer> getKeywords() { return keywords; }
-    
-    /**Will store the comp scores for all the students compared to this 
-     * student
-     *
-     * @param key
-     * @param value
-     */
-    public void addCompScore(String key, Double value) {
-    	compScores.put(key, value);
-    }
-    
-    public void replaceFile(File fileToRemove, File fileToAdd) {
-    	this.files.remove(fileToRemove);
-    	this.files.add(fileToAdd);
-    }
+	public Map<String, Integer> getKeywords() {
+		return keywords;
+	}
+
+	/**
+	 * Will store the comp scores for all the students compared to this student
+	 *
+	 * @param key
+	 * @param value
+	 */
+	public void addCompScore(String key, Double value) {
+		compScores.put(key, value);
+	}
+
+	public void replaceFile(File fileToRemove, File fileToAdd) {
+		this.files.remove(fileToRemove);
+		this.files.add(fileToAdd);
+	}
+
+	public void setGreen() {
+		green = greenStudents.size();
+	}
+	
+	public int getGreenNum() {return greenStudents.size();}
+	
+	public void setYellow() {
+		yellow = yellowStudents.size();
+	}
+
+	public int getYellowNum() {return yellowStudents.size();}
+	
+	public void setRed() {
+		red = redStudents.size();
+	}
+
+	public int getRedNum() {return redStudents.size();}
 }
