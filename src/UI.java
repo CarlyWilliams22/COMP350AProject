@@ -37,8 +37,8 @@ public class UI extends Application {
 	private final double BUTTON_WIDTH = 150;
 	private final double BUTTON_HEIGHT = 40;
 
-	private FolderEngine fe;
-	private PlagiarismEngine pe;
+	private FolderEngine fe; 		// file functionality
+	private PlagiarismEngine pe; 	// algorithm functionality
 
 	public UI() {
 		fe = new FolderEngine();
