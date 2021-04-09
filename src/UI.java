@@ -1,3 +1,4 @@
+
 /**
  * @author Nathan Beam
  * @author Tirzah Lloyd
@@ -36,8 +37,8 @@ public class UI extends Application {
 	private final double BUTTON_WIDTH = 150;
 	private final double BUTTON_HEIGHT = 40;
 
-	private FolderEngine fe; 		// file functionality
-	private PlagiarismEngine pe; 	// algorithm functionality
+	private FolderEngine fe; // file functionality
+	private PlagiarismEngine pe; // algorithm functionality
 
 	public UI() {
 		fe = new FolderEngine();
@@ -60,14 +61,15 @@ public class UI extends Application {
 
 		primary.setTitle("Copied Code Catcher");
 
-		renderFileScreen(primary);
+//		renderUploadScreen(primary);
+		renderResultsScreen(primary);
 
 	}
 
 	/**
 	 * 
 	 */
-	private void renderFileScreen(Stage stage) {
+	private void renderUploadScreen(Stage stage) {
 
 		Label label = new Label();
 		label.setText("Upload Files");
@@ -178,6 +180,102 @@ public class UI extends Application {
 	 */
 	private void renderResultsScreen(Stage stage) {
 
+		Label label = new Label();
+		label.setText("Students' Results");
+		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		VBox side = new VBox();
+		side.setPrefSize(BUTTON_WIDTH, 400);
+		side.setSpacing(30);
+		renderFileButtons();
+		side.getChildren().add(label);
+		side.getChildren().addAll(renderResultsButtons());
+
+		TableView<File> table = new TableView<File>();
+		table.setPrefSize(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+		table.setVisible(true);
+
+		BorderPane pane = new BorderPane();
+		BorderPane.setMargin(table, new Insets(30, 30, 30, 30));
+		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
+		pane.setPrefSize(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3);
+		pane.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		pane.setRight(side);
+		pane.setCenter(table);
+
+		Scene uploadScreen = new Scene(pane);
+
+		stage.setScene(uploadScreen);
+		stage.show();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private ObservableList<Button> renderResultsButtons() {
+
+		ObservableList<Button> buttons = FXCollections.observableArrayList();
+
+		Button help = new Button();
+		help.setText("Help");
+		help.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button saveToThisPC = new Button();
+		saveToThisPC.setText("Save to This PC");
+		saveToThisPC.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button uploadToOneDrive = new Button();
+		uploadToOneDrive.setText("Upload to OneDrive");
+		uploadToOneDrive.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button newProject = new Button();
+		newProject.setText("New Project");
+		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		addResultsButtonListeners(help, saveToThisPC, uploadToOneDrive, newProject);
+
+		buttons.add(help);
+		buttons.add(saveToThisPC);
+		buttons.add(uploadToOneDrive);
+		buttons.add(newProject);
+
+		return buttons;
+	}
+
+	private void addResultsButtonListeners(Button help, Button saveToThisPC, Button uploadToOneDrive, Button newProject) {
+		
+		// Creates popup window
+		help.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("Help!");
+			}
+		});
+
+		// Opens File Explorer
+		saveToThisPC.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("PC");
+			}
+		});
+
+		// Opens OneDrive
+		uploadToOneDrive.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("OneDrive");
+			}
+		});
+
+		// Opens Upload Screen
+		newProject.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(final ActionEvent event) {
+				System.out.println("New Project!");
+			}
+		});
 	}
 
 	/**
