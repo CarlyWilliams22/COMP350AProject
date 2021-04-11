@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
@@ -26,84 +27,128 @@ public class FolderEngine {
 
 	}
 	
-	//TODO: It can't find anything that is inside a zip folder I think
-	//It can only use zip folders if they're the last thing in the path name
+	//TODO: Make it work with a zip folder that has a nonzipped folder directly inside (testCodeFromDesktop)
 	public static void main(String[] args) {
 		FolderEngine testFE = new FolderEngine();
 		String testCodeFromDesktop = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles.zip";
+		testFE.unzipThirdTry(testCodeFromDesktop, "Storage/");
 		String testCodeFromVal = "C:\\Users\\lloydta18\\Downloads\\SectA_stupidCopies.zip";
 		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
+		//testFE.unzipThirdTry(nonzippedTestCode, "Storage/");
 		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
 		String sectionBCode = "C:\\Users\\lloydta18\\Downloads\\SectB_OrigCodes.zip";
-		testFE.unzipThirdTry(sectionBCode, "Storage/");
+		//testFE.unzipThirdTry(sectionBCode, "Storage/");
 		//testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
 		System.out.println("<<NORMAL TERMINATION>>");
 	}
 	
-	//howtodoinjava article
+	//Based on howtodoinjava article code: https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
 	public void unzipThirdTry(String PATH, String targetDir) {
-		try(ZipFile zf = new ZipFile(PATH)) {
-			FileSystem fs = FileSystems.getDefault();
-			Enumeration<? extends ZipEntry> entries = zf.entries();
-			
+		if(PATH.endsWith(".zip")) {
+			try(ZipFile zf = new ZipFile(PATH)) {
+				FileSystem fs = FileSystems.getDefault();
+				Enumeration<? extends ZipEntry> entries = zf.entries();
+				
+				//String targetDir = "Storage/";
+				if(Files.notExists(fs.getPath(targetDir))) {
+					Files.createDirectory(fs.getPath(targetDir));
+				}
+				
+				
+				while(entries.hasMoreElements()) {
+					ZipEntry ze = entries.nextElement();
+					//System.out.println("This is a zip entry: " + ze.toString());
+					if(ze.isDirectory()) {
+						System.out.println("making dir: " + targetDir + ze.getName());
+						Files.createDirectories(fs.getPath(targetDir + ze.getName()));
+					}
+	//				} else if(ze.getName().endsWith(".zip")) {
+	//					System.out.println("This is a zip file\n");
+	//	
+	//					System.out.println("Another try: " + PATH + File.separator + ze.getName());
+	//				
+	//					
+	////					try(ZipFile zipf = new ZipFile(PATH+ "/" + ze.getName())) {
+	////						FileSystem files = FileSystems.getDefault();
+	////						Enumeration<? extends ZipEntry> ent = zipf.entries();
+	////						while(ent.hasMoreElements()) {
+	////							ZipEntry zipe = entries.nextElement();
+	////							System.out.println("This is a zip entry: " + zipe.toString());
+	////						}
+	////					}
+	//					//unzipThirdTry(PATH + File.separator + ze.getName());
+	//				}
+					else {
+						InputStream is = zf.getInputStream(ze);
+						BufferedInputStream bis = new BufferedInputStream(is);
+						String uncompFileName = targetDir + ze.getName();
+						Path uncompFilePath = fs.getPath(uncompFileName);
+						Path zipFileLoc = Files.createFile(uncompFilePath);
+						FileOutputStream fileOutput = new FileOutputStream(uncompFileName);
+						while(bis.available() > 0) {
+							fileOutput.write(bis.read());
+	//						if(ze.getName().contains("Ridout")) {
+	//							System.out.println("Still writing...");
+	//						}
+						}
+						if(ze.getName().endsWith(".zip")) {
+							System.out.println("Path generated: " + zipFileLoc);
+							unzipThirdTry(zipFileLoc.toString(), zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
+							//System.out.println(ze.getName() + " is a zip");
+						}
+						fileOutput.close();
+						System.out.println("Written: " + ze.getName());
+					}
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			//CALL a method to go inside a non zipped folder??
+			File nonZippedFile = new File(PATH);
+			File[] files = {nonZippedFile};
+			lookInsideNonZippedFolder(PATH, files, targetDir);
+		}
+	}//3rd try
+	
+	public void lookInsideNonZippedFolder(String PATH, File[] files, String targetDir) {
+		FileSystem fs = FileSystems.getDefault();
+		
+		//File nonZippedFile = new File(pathOfNZF);
+		try {
 			//String targetDir = "Storage/";
 			if(Files.notExists(fs.getPath(targetDir))) {
 				Files.createDirectory(fs.getPath(targetDir));
 			}
 			
-			
-			
-			
-			while(entries.hasMoreElements()) {
-				ZipEntry ze = entries.nextElement();
-				//System.out.println("This is a zip entry: " + ze.toString());
-				if(ze.isDirectory()) {
-					System.out.println("making dir: " + targetDir + ze.getName());
-					Files.createDirectories(fs.getPath(targetDir + ze.getName()));
+			for(File currFile : files) {
+				if(currFile.getName().endsWith(".zip")) {
+					unzipThirdTry(PATH, targetDir);
 				}
-//				} else if(ze.getName().endsWith(".zip")) {
-//					System.out.println("This is a zip file\n");
-//	
-//					System.out.println("Another try: " + PATH + File.separator + ze.getName());
-//				
-//					
-////					try(ZipFile zipf = new ZipFile(PATH+ "/" + ze.getName())) {
-////						FileSystem files = FileSystems.getDefault();
-////						Enumeration<? extends ZipEntry> ent = zipf.entries();
-////						while(ent.hasMoreElements()) {
-////							ZipEntry zipe = entries.nextElement();
-////							System.out.println("This is a zip entry: " + zipe.toString());
-////						}
-////					}
-//					//unzipThirdTry(PATH + File.separator + ze.getName());
-//				}
-				else {
-					InputStream is = zf.getInputStream(ze);
+				if(currFile.isDirectory()) {
+					System.out.println("making dir: " + targetDir + currFile.getName());
+					Files.createDirectories(fs.getPath(targetDir + currFile.getName()));
+					lookInsideNonZippedFolder(targetDir + currFile.getName(), currFile.listFiles(), targetDir + currFile.getName());
+				} else {
+					InputStream is = new FileInputStream(currFile);
 					BufferedInputStream bis = new BufferedInputStream(is);
-					String uncompFileName = targetDir + ze.getName();
-					Path uncompFilePath = fs.getPath(uncompFileName);
-					Path zipFileLoc = Files.createFile(uncompFilePath);
-					FileOutputStream fileOutput = new FileOutputStream(uncompFileName);
+					//String uncompFileName = targetDir + currFile.getName();
+					Path currFilePath = fs.getPath(targetDir + currFile.getName());
+					Path unzipppedFileLoc = Files.createFile(currFilePath);
+					FileOutputStream fileOutput = new FileOutputStream(currFile);
 					while(bis.available() > 0) {
 						fileOutput.write(bis.read());
-//						if(ze.getName().contains("Ridout")) {
-//							System.out.println("Still writing...");
-//						}
-					}
-					if(ze.getName().endsWith(".zip")) {
-						System.out.println("Path generated: " + zipFileLoc);
-						unzipThirdTry(zipFileLoc.toString(), zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
-						//System.out.println(ze.getName() + " is a zip");
 					}
 					fileOutput.close();
-					System.out.println("Written: " + ze.getName());
+					System.out.println("Written: " + currFile.getName());
 				}
 			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
-	}//3rd try
+	}
 	
 	public void recursiveUnzip(String pathGiven, String targetLoc) {
 		if(!(Files.exists(Paths.get(targetLoc)))) {
