@@ -23,13 +23,20 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class UI extends Application {
@@ -50,6 +57,7 @@ public class UI extends Application {
 	private ObservableList<File> files = FXCollections.observableArrayList();
 
 	public UI() {
+		primary = new Stage();
 		fe = new FolderEngine();
 		pe = new PlagiarismEngine();
 		explorer = new FileChooser();
@@ -164,6 +172,7 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("Help!");
+				renderHelpPopup();
 			}
 		});
 
@@ -227,43 +236,19 @@ public class UI extends Application {
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderResultsButtons());
 
-		TableView<Student> table = new TableView<Student>();
-
-		// Create Results Columns
-		TableColumn<Student, String> nameCol = new TableColumn<Student, String>("Name");
-		nameCol.setMinWidth(300);
-		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
-
-		TableColumn<Student, String> IDCol = new TableColumn<Student, String>("ID");
-		IDCol.setMinWidth(100);
-		IDCol.setCellValueFactory(new PropertyValueFactory<Student, String>("ID"));
-
-		TableColumn<Student, String> greenCol = new TableColumn<Student, String>("Green");
-		greenCol.setMinWidth(100);
-		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("GreenNum"));
-
-		TableColumn<Student, String> yellowCol = new TableColumn<Student, String>("Yellow");
-		yellowCol.setMinWidth(100);
-		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("YellowNum"));
-
-		TableColumn<Student, String> redCol = new TableColumn<Student, String>("Red");
-		redCol.setMinWidth(100);
-		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("RedNum"));
-
-		table.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
-
-		table.setItems(getClassResults());
+		TabPane tabs = renderTabPane();
 
 		BorderPane pane = new BorderPane();
-		BorderPane.setMargin(table, new Insets(40, 30, 40, 40));
+		BorderPane.setMargin(tabs, new Insets(40, 30, 40, 40));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
 		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		tabs.setTabMinWidth(200);
 		pane.setRight(side);
-		pane.setCenter(table);
+		pane.setCenter(tabs);
 
 		resultsScreen = new Scene(pane);
 
-		primary.setScene(uploadScreen);
+		primary.setScene(resultsScreen);
 		primary.show();
 	}
 
@@ -316,6 +301,7 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("Help!");
+				renderHelpPopup();
 			}
 		});
 
@@ -348,8 +334,12 @@ public class UI extends Application {
 	/**
 	 * 
 	 */
-	private void renderTabPane() {
-
+	private TabPane renderTabPane() {
+		TabPane tabs = new TabPane();
+		tabs.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+		tabs.setStyle("-fx-padding: 0 -1 -1 -1");
+		tabs.getTabs().addAll(renderResultsTab(), renderGraphTab());
+		return tabs;
 	}
 
 	/**
@@ -357,7 +347,44 @@ public class UI extends Application {
 	 * @return
 	 */
 	private Tab renderResultsTab() {
-		return null;
+		Tab t = new Tab("Results");
+		t.setContent(renderResultsTable());
+		return t;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private TableView renderResultsTable() {
+		TableView<Student> table = new TableView<Student>();
+
+		// Create Results Columns
+		TableColumn<Student, String> nameCol = new TableColumn<Student, String>("Name");
+		nameCol.setMinWidth(300);
+		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
+
+		TableColumn<Student, String> IDCol = new TableColumn<Student, String>("ID");
+		IDCol.setMinWidth(100);
+		IDCol.setCellValueFactory(new PropertyValueFactory<Student, String>("ID"));
+
+		TableColumn<Student, String> greenCol = new TableColumn<Student, String>("Green");
+		greenCol.setMinWidth(100);
+		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("GreenNum"));
+
+		TableColumn<Student, String> yellowCol = new TableColumn<Student, String>("Yellow");
+		yellowCol.setMinWidth(100);
+		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("YellowNum"));
+
+		TableColumn<Student, String> redCol = new TableColumn<Student, String>("Red");
+		redCol.setMinWidth(100);
+		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("RedNum"));
+
+		table.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
+
+		table.setItems(getClassResults());
+
+		return table;
 	}
 
 	/**
@@ -365,7 +392,8 @@ public class UI extends Application {
 	 * @return
 	 */
 	private Tab renderGraphTab() {
-		return null;
+		Tab t = new Tab("Graph");
+		return t;
 	}
 
 	/**
@@ -379,7 +407,21 @@ public class UI extends Application {
 	 * 
 	 */
 	private void renderHelpPopup() {
+		Stage popup = new Stage();
+		popup.setTitle("Help");
+		popup.initModality(Modality.APPLICATION_MODAL);
+		popup.initOwner(primary);
 
+		Text message = new Text("Hello, World!");
+
+		ScrollPane scroll = new ScrollPane();
+		scroll.setPadding(new Insets(20, 20, 20, 20));
+		scroll.setContent(message);
+
+		Scene dialogScene = new Scene(scroll, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+
+		popup.setScene(dialogScene);
+		popup.show();
 	}
 
 	/**
