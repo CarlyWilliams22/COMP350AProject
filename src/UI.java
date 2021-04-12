@@ -121,7 +121,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		table.setItems(files);
 
 		BorderPane pane = new BorderPane();
-		BorderPane.setMargin(table, new Insets(40, 30, 40, 40));
+		BorderPane.setMargin(table, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
 		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 		pane.setRight(side);
@@ -249,7 +249,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		TabPane tabs = renderTabPane();
 
 		BorderPane pane = new BorderPane();
-		BorderPane.setMargin(tabs, new Insets(40, 30, 40, 40));
+		BorderPane.setMargin(tabs, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
 		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 		tabs.setTabMinWidth(200);
@@ -404,7 +404,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private Tab renderGraphTab() {
 		Tab t = new Tab("Graph");
-//		t.setContent(renderGraph());
 		ScrollPane scroll = new ScrollPane();
 		scroll.setFitToHeight(true);
 		scroll.setFitToWidth(true);
@@ -414,12 +413,11 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	private BarChart renderGraph() {
-
 		NumberAxis x = new NumberAxis();
 		CategoryAxis y = new CategoryAxis();
 
 		BarChart<Number, String> chart = new BarChart<Number, String>(x, y);
-		chart.setTitle("Students");
+//		chart.setTitle("Students");
 
 		x.setLabel("Files");
 		y.setLabel("Students");
@@ -442,6 +440,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		chart.getData().add(red);
 		chart.getData().add(yellow);
 		chart.getData().add(green);
+		chart.setLegendVisible(false);;
 
 		return chart;
 	}
