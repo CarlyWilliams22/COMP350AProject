@@ -11,6 +11,7 @@
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 
@@ -20,7 +21,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -31,6 +39,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -39,7 +48,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class UI extends Application {
+public class UI extends Application implements EventHandler<KeyEvent> {
 
 	// Constants
 	private final Dimension window = Toolkit.getDefaultToolkit().getScreenSize();
@@ -119,6 +128,7 @@ public class UI extends Application {
 		pane.setCenter(table);
 
 		uploadScreen = new Scene(pane);
+		uploadScreen.setOnKeyPressed(this);
 
 		primary.setScene(uploadScreen);
 		primary.show();
@@ -247,6 +257,7 @@ public class UI extends Application {
 		pane.setCenter(tabs);
 
 		resultsScreen = new Scene(pane);
+		resultsScreen.setOnKeyPressed(this);
 
 		primary.setScene(resultsScreen);
 		primary.show();
@@ -393,7 +404,46 @@ public class UI extends Application {
 	 */
 	private Tab renderGraphTab() {
 		Tab t = new Tab("Graph");
+//		t.setContent(renderGraph());
+		ScrollPane scroll = new ScrollPane();
+		scroll.setFitToHeight(true);
+		scroll.setFitToWidth(true);
+		scroll.setContent(renderGraph());
+		t.setContent(scroll);
 		return t;
+	}
+
+	private BarChart renderGraph() {
+
+		NumberAxis x = new NumberAxis();
+		CategoryAxis y = new CategoryAxis();
+
+		BarChart<Number, String> chart = new BarChart<Number, String>(x, y);
+		chart.setTitle("Students");
+
+		x.setLabel("Files");
+		y.setLabel("Students");
+
+		XYChart.Series<Number, String> red = new Series<Number, String>();
+		red.setName("Red");
+
+		XYChart.Series<Number, String> yellow = new Series<Number, String>();
+		yellow.setName("Yellow");
+
+		XYChart.Series<Number, String> green = new Series<Number, String>();
+		green.setName("Green");
+
+		for (Student s : pe.getStudents()) {
+			red.getData().add(new Data<Number, String>(s.getRedNum(), s.getName()));
+			yellow.getData().add(new Data<Number, String>(s.getYellowNum(), s.getName()));
+			green.getData().add(new Data<Number, String>(s.getGreenNum(), s.getName()));
+		}
+
+		chart.getData().add(red);
+		chart.getData().add(yellow);
+		chart.getData().add(green);
+
+		return chart;
 	}
 
 	/**
@@ -450,6 +500,33 @@ public class UI extends Application {
 	 */
 	private void saveResults() {
 		// may want to change return value to a boolean for status check
+	}
+
+	/**
+	 * Hot Keys WIP
+	 */
+	@Override
+	public void handle(KeyEvent e) {
+		if (e.getCode() == e.getCode().W && e.isControlDown()) {
+			System.exit(0);
+		}
+
+		else if (e.getCode() == e.getCode().H && e.isControlDown()) {
+			renderHelpPopup();
+		}
+
+		else if (e.getCode() == e.getCode().N && e.isControlDown()) {
+			if (primary.getScene().equals(resultsScreen)) {
+				// trigger new project button
+			}
+		}
+
+		else if (e.getCode() == e.getCode().S && e.isControlDown()) {
+			if (primary.getScene().equals(resultsScreen)) {
+				// save button; default file explorer
+			}
+		}
+
 	}
 
 }
