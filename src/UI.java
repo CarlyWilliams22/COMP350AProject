@@ -11,7 +11,10 @@
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.KeyListener;
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -19,16 +22,35 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class UI extends Application {
+public class UI extends Application implements EventHandler<KeyEvent> {
 
 	// Constants
 	private final Dimension window = Toolkit.getDefaultToolkit().getScreenSize();
@@ -37,12 +59,20 @@ public class UI extends Application {
 	private final double BUTTON_WIDTH = 150;
 	private final double BUTTON_HEIGHT = 40;
 
+	private Stage primary;
+	private Scene uploadScreen;
+	private Scene resultsScreen;
 	private FolderEngine fe; // file functionality
 	private PlagiarismEngine pe; // algorithm functionality
+	private FileChooser explorer;
+	private ObservableList<File> files = FXCollections.observableArrayList();
 
 	public UI() {
+		primary = new Stage();
 		fe = new FolderEngine();
 		pe = new PlagiarismEngine();
+		explorer = new FileChooser();
+		explorer.setTitle("File Explorer");
 	}
 
 	public static void main(String args[]) {
@@ -57,47 +87,53 @@ public class UI extends Application {
 	}
 
 	@Override
-	public void start(Stage primary) throws Exception {
+	public void start(Stage stage) throws Exception {
+
+		primary = stage;
 
 		primary.setTitle("Copied Code Catcher");
 
-//		renderUploadScreen(primary);
-		renderResultsScreen(primary);
+		renderUploadScreen();
+//		renderResultsScreen(primary);
 
 	}
 
 	/**
 	 * 
 	 */
-	private void renderUploadScreen(Stage stage) {
+	private void renderUploadScreen() {
 
 		Label label = new Label();
 		label.setText("Upload Files");
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox();
-		side.setPrefSize(BUTTON_WIDTH, 400);
-		side.setSpacing(30);
+		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
+		side.setSpacing(60);
 		renderFileButtons();
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderFileButtons());
 
 		TableView<File> table = new TableView<File>();
-		table.setPrefSize(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
-		table.setVisible(true);
+
+		TableColumn<File, String> column = new TableColumn<File, String>("Files");
+		column.setMinWidth(300);
+		column.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
+		table.getColumns().add(column);
+		table.setItems(files);
 
 		BorderPane pane = new BorderPane();
 		BorderPane.setMargin(table, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
-		pane.setPrefSize(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3);
-		pane.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 		pane.setRight(side);
 		pane.setCenter(table);
 
-		Scene uploadScreen = new Scene(pane);
+		uploadScreen = new Scene(pane);
+		uploadScreen.setOnKeyPressed(this);
 
-		stage.setScene(uploadScreen);
-		stage.show();
+		primary.setScene(uploadScreen);
+		primary.show();
 	}
 
 	/**
@@ -148,6 +184,7 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("Help!");
+				renderHelpPopup();
 			}
 		});
 
@@ -156,11 +193,27 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("PC");
+				List<File> folders = explorer.showOpenMultipleDialog(primary);
+
+				for (File file : folders) {
+					if (file != null) {
+						try {
+							files.add(file);
+							String PATH = file.getCanonicalPath();
+							fe.unzipLocally(PATH);
+							pe.receiveFiles(fe.transferFiles());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
 			}
+
 		});
 
 		// Opens OneDrive
 		browseOneDrive.setOnAction(new EventHandler<ActionEvent>() {
+
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("OneDrive");
@@ -171,6 +224,12 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("Done!");
+				pe.createStudents();
+				pe.parseAllFiles();
+				pe.countAllKeywords();
+				pe.compareAll();
+				renderResultsScreen();
+				primary.setScene(resultsScreen);
 			}
 		});
 	}
@@ -178,35 +237,34 @@ public class UI extends Application {
 	/**
 	 * 
 	 */
-	private void renderResultsScreen(Stage stage) {
+	private void renderResultsScreen() {
 
 		Label label = new Label();
 		label.setText("Students' Results");
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox();
-		side.setPrefSize(BUTTON_WIDTH, 400);
-		side.setSpacing(30);
+		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
+		side.setSpacing(60);
 		renderFileButtons();
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderResultsButtons());
 
-		TableView<File> table = new TableView<File>();
-		table.setPrefSize(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
-		table.setVisible(true);
+		TabPane tabs = renderTabPane();
 
 		BorderPane pane = new BorderPane();
-		BorderPane.setMargin(table, new Insets(30, 30, 30, 30));
+		BorderPane.setMargin(tabs, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
-		pane.setPrefSize(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3);
-		pane.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		tabs.setTabMinWidth(200);
 		pane.setRight(side);
-		pane.setCenter(table);
+		pane.setCenter(tabs);
 
-		Scene uploadScreen = new Scene(pane);
+		resultsScreen = new Scene(pane);
+		resultsScreen.setOnKeyPressed(this);
 
-		stage.setScene(uploadScreen);
-		stage.show();
+		primary.setScene(resultsScreen);
+		primary.show();
 	}
 
 	/**
@@ -243,13 +301,22 @@ public class UI extends Application {
 		return buttons;
 	}
 
-	private void addResultsButtonListeners(Button help, Button saveToThisPC, Button uploadToOneDrive, Button newProject) {
-		
+	/**
+	 * 
+	 * @param help
+	 * @param saveToThisPC
+	 * @param uploadToOneDrive
+	 * @param newProject
+	 */
+	private void addResultsButtonListeners(Button help, Button saveToThisPC, Button uploadToOneDrive,
+			Button newProject) {
+
 		// Creates popup window
 		help.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("Help!");
+				renderHelpPopup();
 			}
 		});
 
@@ -274,6 +341,8 @@ public class UI extends Application {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("New Project!");
+				files.clear();
+				primary.setScene(uploadScreen);
 			}
 		});
 	}
@@ -281,8 +350,12 @@ public class UI extends Application {
 	/**
 	 * 
 	 */
-	private void renderTabPane() {
-
+	private TabPane renderTabPane() {
+		TabPane tabs = new TabPane();
+		tabs.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+		tabs.setStyle("-fx-padding: 0 -1 -1 -1");
+		tabs.getTabs().addAll(renderResultsTab(), renderGraphTab());
+		return tabs;
 	}
 
 	/**
@@ -290,7 +363,44 @@ public class UI extends Application {
 	 * @return
 	 */
 	private Tab renderResultsTab() {
-		return null;
+		Tab t = new Tab("Results");
+		t.setContent(renderResultsTable());
+		return t;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private TableView renderResultsTable() {
+		TableView<Student> table = new TableView<Student>();
+
+		// Create Results Columns
+		TableColumn<Student, String> nameCol = new TableColumn<Student, String>("Name");
+		nameCol.setMinWidth(300);
+		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
+
+		TableColumn<Student, String> IDCol = new TableColumn<Student, String>("ID");
+		IDCol.setMinWidth(100);
+		IDCol.setCellValueFactory(new PropertyValueFactory<Student, String>("ID"));
+
+		TableColumn<Student, String> greenCol = new TableColumn<Student, String>("Green");
+		greenCol.setMinWidth(100);
+		greenCol.setCellValueFactory(new PropertyValueFactory<Student, String>("GreenNum"));
+
+		TableColumn<Student, String> yellowCol = new TableColumn<Student, String>("Yellow");
+		yellowCol.setMinWidth(100);
+		yellowCol.setCellValueFactory(new PropertyValueFactory<Student, String>("YellowNum"));
+
+		TableColumn<Student, String> redCol = new TableColumn<Student, String>("Red");
+		redCol.setMinWidth(100);
+		redCol.setCellValueFactory(new PropertyValueFactory<Student, String>("RedNum"));
+
+		table.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
+
+		table.setItems(getClassResults());
+
+		return table;
 	}
 
 	/**
@@ -298,7 +408,50 @@ public class UI extends Application {
 	 * @return
 	 */
 	private Tab renderGraphTab() {
-		return null;
+		Tab t = new Tab("Graph");
+		ScrollPane scroll = new ScrollPane();
+		scroll.setFitToHeight(true);
+		scroll.setFitToWidth(true);
+		scroll.setContent(renderGraph());
+		t.setContent(scroll);
+		return t;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	private BarChart renderGraph() {
+		NumberAxis x = new NumberAxis();
+		CategoryAxis y = new CategoryAxis();
+
+		BarChart<Number, String> chart = new BarChart<Number, String>(x, y);
+//		chart.setTitle("Students");
+		x.setLabel("Files");
+		y.setLabel("Students");
+
+		XYChart.Series<Number, String> red = new Series<Number, String>();
+		red.setName("Red");
+
+		XYChart.Series<Number, String> yellow = new Series<Number, String>();
+		yellow.setName("Yellow");
+
+		XYChart.Series<Number, String> green = new Series<Number, String>();
+		green.setName("Green");
+
+		for (Student s : pe.getStudents()) {
+			red.getData().add(new Data<Number, String>(s.getRedNum(), s.getName()));
+			yellow.getData().add(new Data<Number, String>(s.getYellowNum(), s.getName()));
+			green.getData().add(new Data<Number, String>(s.getGreenNum(), s.getName()));
+		}
+
+		chart.getData().add(red);
+		chart.getData().add(yellow);
+		chart.getData().add(green);
+//		chart.setLegendVisible(false);
+		chart.setHorizontalGridLinesVisible(false);
+
+		return chart;
 	}
 
 	/**
@@ -312,7 +465,21 @@ public class UI extends Application {
 	 * 
 	 */
 	private void renderHelpPopup() {
+		Stage popup = new Stage();
+		popup.setTitle("Help");
+		popup.initModality(Modality.APPLICATION_MODAL);
+		popup.initOwner(primary);
 
+		Text message = new Text("Hello, World!");
+
+		ScrollPane scroll = new ScrollPane();
+		scroll.setPadding(new Insets(20, 20, 20, 20));
+		scroll.setContent(message);
+
+		Scene dialogScene = new Scene(scroll, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+
+		popup.setScene(dialogScene);
+		popup.show();
 	}
 
 	/**
@@ -320,8 +487,11 @@ public class UI extends Application {
 	 * @return
 	 */
 	private ObservableList<Student> getClassResults() {
-		return null;
-
+		ObservableList<Student> results = FXCollections.observableArrayList();
+		for (Student s : pe.getStudents()) {
+			results.add(s);
+		}
+		return results;
 	}
 
 	/**
@@ -338,6 +508,33 @@ public class UI extends Application {
 	 */
 	private void saveResults() {
 		// may want to change return value to a boolean for status check
+	}
+
+	/**
+	 * Hot Keys WIP
+	 */
+	@Override
+	public void handle(KeyEvent e) {
+		if (e.getCode() == e.getCode().W && e.isControlDown()) {
+			System.exit(0);
+		}
+
+		else if (e.getCode() == e.getCode().H && e.isControlDown()) {
+			renderHelpPopup();
+		}
+
+		else if (e.getCode() == e.getCode().N && e.isControlDown()) {
+			if (primary.getScene().equals(resultsScreen)) {
+				// trigger new project button
+			}
+		}
+
+		else if (e.getCode() == e.getCode().S && e.isControlDown()) {
+			if (primary.getScene().equals(resultsScreen)) {
+				// save button; default file explorer
+			}
+		}
+
 	}
 
 }
