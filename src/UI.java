@@ -14,6 +14,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -21,6 +22,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
@@ -191,16 +193,18 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("PC");
+				List<File> folders = explorer.showOpenMultipleDialog(primary);
 
-				File file = explorer.showOpenDialog(primary);
-				if (file != null) {
-					try {
-						files.add(file);
-						String PATH = file.getCanonicalPath();
-						fe.unzipLocally(PATH);
-						pe.receiveFiles(fe.transferFiles());
-					} catch (IOException e) {
-						e.printStackTrace();
+				for (File file : folders) {
+					if (file != null) {
+						try {
+							files.add(file);
+							String PATH = file.getCanonicalPath();
+							fe.unzipLocally(PATH);
+							pe.receiveFiles(fe.transferFiles());
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -337,6 +341,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			@Override
 			public void handle(final ActionEvent event) {
 				System.out.println("New Project!");
+				files.clear();
 				primary.setScene(uploadScreen);
 			}
 		});
@@ -412,13 +417,16 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		return t;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	private BarChart renderGraph() {
 		NumberAxis x = new NumberAxis();
 		CategoryAxis y = new CategoryAxis();
 
 		BarChart<Number, String> chart = new BarChart<Number, String>(x, y);
 //		chart.setTitle("Students");
-
 		x.setLabel("Files");
 		y.setLabel("Students");
 
@@ -440,7 +448,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		chart.getData().add(red);
 		chart.getData().add(yellow);
 		chart.getData().add(green);
-		chart.setLegendVisible(false);;
+//		chart.setLegendVisible(false);
+		chart.setHorizontalGridLinesVisible(false);
 
 		return chart;
 	}
