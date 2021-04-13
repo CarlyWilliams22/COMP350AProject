@@ -13,13 +13,52 @@ public class PlagiarismEngine {
 
 	// Keywords taken from the Wikipedia article List of Java keywords Link:
 	// https://en.wikipedia.org/wiki/List_of_Java_keywords
-	private static String primitiveTypeKeywords[] = { "abstract", "assert", "boolean", "break", "byte", "case", "catch",
-			"char", "class", "const", "continue", "default", "do", "double", "else", "enum", "extends", "final",
-			"finally", "float", "for", "goto", "if", "implements", "import", "instanceof", " int", "interface", "long",
-			"native", "new", "non-sealed", "package", "private", "protected", "public", "return", "short", "static",
-			"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void",
-			"volatile", "while", "true", "false", "null" };
-	private static String commonNonprimitiveTypeKeywords[] = { "String", "ArrayList", "Map" };
+	private static String primitiveTypeKeywords[] = {"class", "import",
+			"public", "private", "new", "package", "return", "static",
+			"abstract", "assert", "continue", "private", "protected",
+			"break", "const", "enum", "extends", "final", "implements",
+			"instanceof", "interface", "native", "non-sealed",
+			"strictfp", "super", "synchronized", "this", "transient",
+			"volatile", "catch", "finally", "throw", "try", "throws",
+			"true", "false", "null", "String", "ArrayList", "Map",
+			"boolean", "byte", "char", "double", "float",
+			" int", "long", "short", "void", "selection",
+			"itteration"};
+	
+	private static String commonKeywords[] = {"class", "import",
+			"public", "private", "new", "package", "return", "static"};
+	private final int COMMON_WEIGHT = 1;
+	
+	private static String uncommonKeywords[] = {"abstract", "assert",
+			"continue", "private", "protected", "break", "const",
+			"enum", "extends", "final", "implements", "instanceof",
+			"interface", "native", "non-sealed", "strictfp", "super",
+			"synchronized", "this", "transient", "volatile"};
+	private final int UNCOMMON_WEIGHT = 5;
+	
+	private static String selectionKeywords[] = {"case", "else",
+			"goto", "if", "switch", "default",};
+	private final int SELECTION_WEIGHT = 3;
+	
+	private static String itterationKeywords[] = {"do", "for",
+			"while"};
+	private final int ITTERATION_WEIGHT = 3;
+	
+	private static String errorHandlingKeywords[] = {"catch",
+			"finally", "throw", "try", "throws"};
+	private final int ERROR_HANDLING_WEIGHT = 4;
+	
+	private static String dataValueKeywords[] = {"true", "false",
+			"null"};
+	private final int DATA_VALUE_WEIGHT = 2;
+	
+	private static String dataTypeKeywords[] = {"String", "ArrayList",
+			"Map", "boolean", "byte", "char", "double", "float",
+			" int", "long", "short", "void"};
+	private final int DATA_TYPE_WEIGHT = 2;
+	
+	private static String commonNonprimitiveTypeKeywords[] = {};
+	
 	private final double GtoY = .70; // Green to yellow threshold
 	private final double YtoR = .85; // Yellow to red threshold
 
@@ -304,7 +343,63 @@ public class PlagiarismEngine {
 			student2.addRedStudent(student1);
 		}
 	}
+	
+	private boolean isCommonKeyword(String keyword) {
+		for(String word: commonKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
+	
+	private boolean isUncommonKeyword(String keyword) {
+		for(String word: uncommonKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
+	
+	private boolean isSelectionKeyword(String keyword) {
+		for(String word: selectionKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
 
+	private boolean isItterationKeyword(String keyword) {
+		for(String word: itterationKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isErrorHandlingKeyword(String keyword) {
+		for(String word: errorHandlingKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isDataValueKeyword(String keyword) {
+		for(String word: dataValueKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isDataTypeKeyword(String keyword) {
+		for(String word: dataTypeKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * Compares all the students in the students ArrayList
 	 */
