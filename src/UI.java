@@ -118,7 +118,8 @@ public class UI extends Application {
 						uploadTable.setItems(files);
 
 						String PATH = file.getCanonicalPath();
-						fe.unzipLocally(PATH);
+						//fe.unzipLocally(PATH);
+						fe.unzipRecursive(PATH, "Storage/");
 						pe.receiveFiles(fe.transferFiles());
 					} catch (IOException e) {
 						e.printStackTrace();

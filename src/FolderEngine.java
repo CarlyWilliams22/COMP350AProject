@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -20,7 +21,7 @@ import java.util.zip.ZipInputStream;
 
 public class FolderEngine {
 
-	private ArrayList<File> files;
+	private static ArrayList<File> files;
 
 	public FolderEngine() {
 		files = new ArrayList<File>();
@@ -44,7 +45,14 @@ public class FolderEngine {
 		
 		//This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\Downloads\\SectB_OrigCodes.zip";
-		testFE.unzipRecursive(sectionBCode, "Storage/");
+		testFE.unzipRecursive(sectionBCode, "Storage\\");
+		
+//		System.out.println("size of file array: " + files.size());
+//		
+//		System.out.println("\n\nPrinting out files array: ");
+//		for(int i = 0; i < files.size(); i++) {
+//			System.out.println(files.get(i).getName());
+//		}
 		
 		//testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
 		System.out.println("<<NORMAL TERMINATION>>");
@@ -69,24 +77,35 @@ public class FolderEngine {
 						Files.createDirectories(fs.getPath(targetDir + ze.getName()));
 					}
 					else {
-						InputStream is = zf.getInputStream(ze);
-						BufferedInputStream bis = new BufferedInputStream(is);
-						String uncompFileName = targetDir + ze.getName();
-						Path uncompFilePath = fs.getPath(uncompFileName);
-						Path zipFileLoc = Files.createFile(uncompFilePath);
-						FileOutputStream fileOutput = new FileOutputStream(uncompFileName);
-						while(bis.available() > 0) {
-							fileOutput.write(bis.read());
+						if(ze.getName().endsWith(".zip") || ze.getName().endsWith(".java")) {
+							InputStream is = zf.getInputStream(ze);
+							BufferedInputStream bis = new BufferedInputStream(is);
+							String uncompFileName = targetDir + ze.getName();
+							Path uncompFilePath = fs.getPath(uncompFileName);
+							Path zipFileLoc = Files.createFile(uncompFilePath);
+							FileOutputStream fileOutput = new FileOutputStream(uncompFileName);
+							while(bis.available() > 0) {
+								fileOutput.write(bis.read());
+							}
+							if(ze.getName().endsWith(".zip")) {
+								System.out.println("Path generated: " + zipFileLoc);
+								unzipRecursive(zipFileLoc.toString(), zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
+							}
+							fileOutput.close();
+							System.out.println("Written: " + ze.getName());
+							System.out.println(zipFileLoc.toFile().getAbsolutePath());
+
+							if(zipFileLoc.toFile().getAbsolutePath().endsWith(".java")) {
+								files.add(zipFileLoc.toFile());
+							}
 						}
-						if(ze.getName().endsWith(".zip")) {
-							System.out.println("Path generated: " + zipFileLoc);
-							unzipRecursive(zipFileLoc.toString(), zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
-						}
-						fileOutput.close();
-						System.out.println("Written: " + ze.getName());
 					}
 				}
-			} catch (IOException e) {
+			} catch (FileAlreadyExistsException faee) {
+				faee.printStackTrace();
+			}catch (IOException ioe) {
+				ioe.printStackTrace();
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else {
