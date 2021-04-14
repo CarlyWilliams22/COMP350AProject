@@ -30,7 +30,7 @@ public class PlagiarismEngine {
 	private final int COMMON_WEIGHT = 1;
 	
 	private static String uncommonKeywords[] = {"abstract", "assert",
-			"continue", "private", "protected", "break", "const",
+			"continue", "protected", "break", "const",
 			"enum", "extends", "final", "implements", "instanceof",
 			"interface", "native", "non-sealed", "strictfp", "super",
 			"synchronized", "this", "transient", "volatile"};
@@ -344,7 +344,7 @@ public class PlagiarismEngine {
 		}
 	}
 	
-	private boolean isCommonKeyword(String keyword) {
+	public boolean isCommonKeyword(String keyword) {
 		for(String word: commonKeywords) {
 			if(word.equals(keyword))
 				return true;
@@ -352,7 +352,7 @@ public class PlagiarismEngine {
 		return false;
 	}
 	
-	private boolean isUncommonKeyword(String keyword) {
+	public boolean isUncommonKeyword(String keyword) {
 		for(String word: uncommonKeywords) {
 			if(word.equals(keyword))
 				return true;
@@ -360,7 +360,7 @@ public class PlagiarismEngine {
 		return false;
 	}
 	
-	private boolean isSelectionKeyword(String keyword) {
+	public boolean isSelectionKeyword(String keyword) {
 		for(String word: selectionKeywords) {
 			if(word.equals(keyword))
 				return true;
@@ -368,7 +368,7 @@ public class PlagiarismEngine {
 		return false;
 	}
 
-	private boolean isItterationKeyword(String keyword) {
+	public boolean isItterationKeyword(String keyword) {
 		for(String word: itterationKeywords) {
 			if(word.equals(keyword))
 				return true;
@@ -376,7 +376,7 @@ public class PlagiarismEngine {
 		return false;
 	}
 
-	private boolean isErrorHandlingKeyword(String keyword) {
+	public boolean isErrorHandlingKeyword(String keyword) {
 		for(String word: errorHandlingKeywords) {
 			if(word.equals(keyword))
 				return true;
@@ -384,7 +384,7 @@ public class PlagiarismEngine {
 		return false;
 	}
 
-	private boolean isDataValueKeyword(String keyword) {
+	public boolean isDataValueKeyword(String keyword) {
 		for(String word: dataValueKeywords) {
 			if(word.equals(keyword))
 				return true;
@@ -392,7 +392,7 @@ public class PlagiarismEngine {
 		return false;
 	}
 
-	private boolean isDataTypeKeyword(String keyword) {
+	public boolean isDataTypeKeyword(String keyword) {
 		for(String word: dataTypeKeywords) {
 			if(word.equals(keyword))
 				return true;
