@@ -284,7 +284,56 @@ public class PlagiarismEngine {
 			countKeywords(students.get(i));
 		}
 	}
+	
+	public int getWeight(String keyword) {
+		if(isCommonKeyword(keyword)) {
+			return 1;
+		}
+		else if(isUncommonKeyword(keyword)) {
+			return 5;
+		}
+		else if(keyword.equals("selection")) {
+			return 3;
+		}
+		else if(keyword.equals("itteration")) {
+			 return 3;
+		}
+		else if(isDataTypeKeyword(keyword)) {
+			return 2;
+		}
+		else if(isDataValueKeyword(keyword)) {
+			return 2;
+		}
+		else{
+			return 4;
+		}
+	}
 
+	public int createCompScore(Student s1, Student s2) {
+		Iterator<Map.Entry<String, Integer>> keywordIterator = s1.getKeywords().entrySet().iterator();
+		Map<String, Integer> student2Dictionary = s2.getKeywords();
+		int score = 0;
+		int weight = 0;
+		String keyword;
+		
+		while (keywordIterator.hasNext()) {
+			Map.Entry<String, Integer> word = (Map.Entry<String, Integer>) keywordIterator.next();
+			keyword = word.getKey();
+			if (student2Dictionary.containsKey(keyword)) {
+				weight = getWeight(keyword);
+				
+				if ((int) word.getValue() < student2Dictionary.get(word.getKey())) {
+					score += (int) word.getValue() * weight;
+				} else {
+					score += student2Dictionary.get(word.getKey()) * weight;
+				}
+				
+			}
+		}
+		
+		return score;
+	}
+	
 	/**
 	 * Takes two students finds the overlap of keywords and sorts them into the
 	 * appropriate categories

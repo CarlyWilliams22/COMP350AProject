@@ -1,3 +1,4 @@
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -94,6 +95,66 @@ class PlagiarismEngineTest {
 		assertFalse(pe.isSelectionKeyword("test"));
 	}
 	
+	@Test
+	void getCommonWeightTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(1, pe.getWeight("public"));
+	}
 	
+	@Test
+	void getUncommonWeightTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(5, pe.getWeight("assert"));
+	}
+	
+	@Test
+	void getSelectionWeightTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(3, pe.getWeight("selection"));
+	}
+	
+	@Test
+	void getitterationWeightTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(3, pe.getWeight("itteration"));
+	}
+	
+	@Test
+	void getErrorHandlingWeightTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(4, pe.getWeight("try"));
+	}
+	
+	@Test
+	void getDataValueTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(2, pe.getWeight("false"));
+	}
+	
+	@Test
+	void getDataTypeWeightTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(2, pe.getWeight(" int"));
+	}
+	
+	@Test
+	void testCreateCompScore() {
+		Student s1 = new Student(0, "one");
+		s1.addKeyword("public");
+		s1.addKeyword("public");
+		s1.addKeyword("selection");
+		s1.addKeyword("catch");
+		s1.addKeyword("class");
+		Student s2 = new Student(1, "two");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("selection");
+		s2.addKeyword("for");
+		s2.addKeyword("class");
+		PlagiarismEngine pe = new PlagiarismEngine();
+		int score = pe.createCompScore(s1, s2);
+		assertEquals(6, score);
+	}
 	
 }
