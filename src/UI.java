@@ -200,7 +200,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 						try {
 							files.add(file);
 							String PATH = file.getCanonicalPath();
-							fe.unzipLocally(PATH);
+							fe.unzipRecursive(PATH, "Storage/");
 							pe.receiveFiles(fe.transferFiles());
 						} catch (IOException e) {
 							e.printStackTrace();

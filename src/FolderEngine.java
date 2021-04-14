@@ -29,6 +29,7 @@ public class FolderEngine {
 	}
 	
 	//TODO: Make it work with a zip folder that has a nonzipped folder directly inside (testCodeFromDesktop)
+	//TODO: make it actually put it in one storage folder instead of lots of packages
 	public static void main(String[] args) {
 		FolderEngine testFE = new FolderEngine();
 		//This set of test code is the one that doesn't work
@@ -68,6 +69,7 @@ public class FolderEngine {
 				if(Files.notExists(fs.getPath(targetDir))) {
 					Files.createDirectory(fs.getPath(targetDir));
 				}
+				
 				
 				
 				while(entries.hasMoreElements()) {
