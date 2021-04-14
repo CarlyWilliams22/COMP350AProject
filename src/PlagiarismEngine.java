@@ -20,9 +20,8 @@ public class PlagiarismEngine {
 			"strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try", "void",
 			"volatile", "while", "true", "false", "null" };
 	private static String commonNonprimitiveTypeKeywords[] = { "String", "ArrayList", "Map" };
-	private final double GREEN = .25; // 25% match
-	private final double YELLOW = .5; // 50% match
-	private final double RED = .75; // 75% match
+	private final double GtoY = .70; // Green to yellow threshold
+	private final double YtoR = .85; // Yellow to red threshold
 
 	public PlagiarismEngine() {
 		files = new ArrayList<File>();
@@ -289,17 +288,17 @@ public class PlagiarismEngine {
 
 		// place the students in the proper columns
 		// student 1
-		if (percent1 <= GREEN) {
+		if (percent1 <= GtoY) {
 			student1.addGreenStudent(student2);
-		} else if (percent1 <= YELLOW) {
+		} else if (percent1 <= YtoR) {
 			student1.addYellowStudent(student2);
 		} else {
 			student1.addRedStudent(student2);
 		}
 		// student 2
-		if (percent2 <= GREEN) {
+		if (percent2 <= GtoY) {
 			student2.addGreenStudent(student1);
-		} else if (percent2 <= YELLOW) {
+		} else if (percent2 <= YtoR) {
 			student2.addYellowStudent(student1);
 		} else {
 			student2.addRedStudent(student1);
