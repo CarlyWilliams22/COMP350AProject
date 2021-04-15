@@ -157,4 +157,14 @@ class PlagiarismEngineTest {
 		assertEquals(6, score);
 	}
 	
+	@Test
+	void countKeywordsTest() {
+		Student s1 = new Student(0, "one");
+		File f = new File("test");
+		s1.addFile(f);
+		PlagiarismEngine pe = new PlagiarismEngine();
+		pe.countKeywords(s1);
+		assertEquals(10, s1.getScore());
+	}
+	
 }

@@ -13,7 +13,7 @@ public class PlagiarismEngine {
 
 	// Keywords taken from the Wikipedia article List of Java keywords Link:
 	// https://en.wikipedia.org/wiki/List_of_Java_keywords
-	private static String primitiveTypeKeywords[] = {"class", "import",
+	private static String keywords[] = {"class", "import",
 			"public", "private", "new", "package", "return", "static",
 			"abstract", "assert", "continue", "private", "protected",
 			"break", "const", "enum", "extends", "final", "implements",
@@ -57,7 +57,6 @@ public class PlagiarismEngine {
 			" int", "long", "short", "void"};
 	private final int DATA_TYPE_WEIGHT = 2;
 	
-	private static String commonNonprimitiveTypeKeywords[] = {};
 	
 	private final double GtoY = .70; // Green to yellow threshold
 	private final double YtoR = .85; // Yellow to red threshold
@@ -113,7 +112,7 @@ public class PlagiarismEngine {
 	 * 
 	 * @param s - a student
 	 */
-	private void parseFile(Student s) {
+	public void parseFile(Student s) {
 
 		for (File codeFile : s.getFiles()) {
 			try {
@@ -244,26 +243,25 @@ public class PlagiarismEngine {
 	 * 
 	 * @param s
 	 */
-	private void countKeywords(Student s) {
+	public void countKeywords(Student s) {
 		Scanner fileScnr;
 		String currLine;
-		int numKeywords = 0;
+		int weight = 0;
 		for (File codeFile : s.getFiles()) {
 			try {
 				fileScnr = new Scanner(codeFile);
-//				System.out.println(codeFile.getName());
 				while (fileScnr.hasNextLine()) {
 					currLine = fileScnr.nextLine();
-					for (String word : primitiveTypeKeywords) {
+					for (String word : keywords) {
 						if (currLine.contains(word)) {
+							if(isItterationKeyword(word)) {
+								word = "itteration";
+							}
+							else if(isSelectionKeyword(word)) {
+								word = "selection";
+							}
 							s.addKeyword(word);
-							numKeywords++;
-						}
-					}
-					for (String word : commonNonprimitiveTypeKeywords) {
-						if (currLine.contains(word)) {
-							s.addKeyword(word);
-							numKeywords++;
+							weight += getWeight(word);
 						}
 					}
 				}
@@ -273,8 +271,8 @@ public class PlagiarismEngine {
 			}
 		}
 
-		s.setScore(numKeywords);
-	}// countKeywords
+		s.setScore(weight);
+	}
 
 	/**
 	 * Calls the countKeywords function for all the students
@@ -342,28 +340,13 @@ public class PlagiarismEngine {
 	 * @param student2
 	 */
 	private void compare(Student student1, Student student2) {
-		// Used to walk through the words in student 1's code
-		Iterator<Map.Entry<String, Integer>> keywordIterator = student1.getKeywords().entrySet().iterator();
-		// Copy of student 2's dictionary
-		Map<String, Integer> student2Dictionary = student2.getKeywords();
 		// How many words do the two java codes have in common
-		int compScore = 0;
+		int compScore;
 		// the percentage of keyword overlap
 		double percent1, percent2;
-
-		while (keywordIterator.hasNext()) {
-			// Current entry being compared
-			Map.Entry<String, Integer> word = (Map.Entry<String, Integer>) keywordIterator.next();
-			// checks if student 2 has also used this word
-			if (student2Dictionary.containsKey(word.getKey())) {
-				// Finds the overlap of times this word is used
-				if ((int) word.getValue() < student2Dictionary.get(word.getKey())) {
-					compScore += (int) word.getValue();
-				} else {
-					compScore += student2Dictionary.get(word.getKey());
-				}
-			}
-		}
+		
+		compScore = createCompScore(student1, student2);
+	
 		// calculate student 1s percentage
 		percent1 = ((double) compScore) / (double) student2.getScore();
 		// add the comparison score to the correct student
@@ -373,7 +356,12 @@ public class PlagiarismEngine {
 		percent2 = ((double) compScore) / (double) student1.getScore();
 		// add the comparison score to the correct student
 		student2.addCompScore(student1.getName(), percent2);
+		
+		colorPlacement(student1, student2, percent1, percent2);
 
+	}
+	
+	public void colorPlacement(Student student1, Student student2, double percent1, double percent2) {
 		// place the students in the proper columns
 		// student 1
 		if (percent1 <= GtoY) {
