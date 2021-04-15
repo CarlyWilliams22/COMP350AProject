@@ -233,9 +233,6 @@ public class PlagiarismEngine {
 	public void parseAllFiles() {
 		for (int i = 0; i < students.size(); i++) {
 			parseFile(students.get(i));
-//			for (File codeFile : students.get(i).getFiles()) {
-//				System.out.println(codeFile.getName());
-//			}
 		}
 	}
 
@@ -244,24 +241,28 @@ public class PlagiarismEngine {
 	 * @param s
 	 */
 	public void countKeywords(Student s) {
-		Scanner fileScnr;
-		String currLine;
+		Scanner fileScnr, lineScnr;
+		String currLine, currToken;
 		int weight = 0;
 		for (File codeFile : s.getFiles()) {
 			try {
 				fileScnr = new Scanner(codeFile);
 				while (fileScnr.hasNextLine()) {
 					currLine = fileScnr.nextLine();
-					for (String word : keywords) {
-						if (currLine.contains(word)) {
-							if(isItterationKeyword(word)) {
-								word = "itteration";
+					lineScnr = new Scanner(currLine);
+					while(lineScnr.hasNext()) {
+						currToken = lineScnr.next();
+						for (String word : keywords) {
+							if (currToken.contains(word)) {
+								if(isItterationKeyword(word)) {
+									word = "itteration";
+								}
+								else if(isSelectionKeyword(word)) {
+									word = "selection";
+								}
+								s.addKeyword(word);
+								weight += getWeight(word);
 							}
-							else if(isSelectionKeyword(word)) {
-								word = "selection";
-							}
-							s.addKeyword(word);
-							weight += getWeight(word);
 						}
 					}
 				}
