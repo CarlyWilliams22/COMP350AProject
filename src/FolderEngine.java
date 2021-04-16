@@ -35,48 +35,48 @@ public class FolderEngine {
 	// inside (testCodeFromDesktop)
 	// TODO: make it actually put it in one storage folder instead of lots of
 	// packages
-	public static void main(String[] args) {
-		FolderEngine testFE = new FolderEngine();
-		// This set of test code is the one that doesn't work
-		String testCodeFromDesktop = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles.zip";
-		// testFE.unzipRecursive(testCodeFromDesktop, "Storage/");
-
-		String testCodeFromVal = "C:\\Users\\lloydta18\\Downloads\\SectA_stupidCopies.zip";
-
-		// This set of nonzipped test code works
-		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		// testFE.unzipRecursive(nonzippedTestCode, "Storage/");
-
-		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
-
-		// This set of code (sectionBCode) works
-		String sectionBCode = "C:\\Users\\lloydta18\\Downloads\\SectB_OrigCodes.zip";
-		testFE.unzipRecursive(sectionBCode, "Storage\\");
-
-		for (int i = 0; i < files.size(); i++) {
-			System.out.println(files.get(i).toString());
-		}
-
-//		try {
-//			testFE.fourthTry(sectionBCode);
-//		} catch (ZipException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
+//	public static void main(String[] args) {
+//		FolderEngine testFE = new FolderEngine();
+//		// This set of test code is the one that doesn't work
+//		String testCodeFromDesktop = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles.zip";
+//		// testFE.unzipRecursive(testCodeFromDesktop, "Storage/");
+//
+//		String testCodeFromVal = "C:\\Users\\lloydta18\\Downloads\\SectA_stupidCopies.zip";
+//
+//		// This set of nonzipped test code works
+//		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
+//		// testFE.unzipRecursive(nonzippedTestCode, "Storage/");
+//
+//		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
+//
+//		// This set of code (sectionBCode) works
+//		String sectionBCode = "C:\\Users\\lloydta18\\Downloads\\SectB_OrigCodes.zip";
+//		testFE.unzipRecursive(sectionBCode, "Storage\\");
+//
+//		for (int i = 0; i < files.size(); i++) {
+//			System.out.println(files.get(i).toString());
 //		}
-
-//		System.out.println("size of file array: " + files.size());
-//		
-//		System.out.println("\n\nPrinting out files array: ");
-//		for(int i = 0; i < files.size(); i++) {
-//			System.out.println(files.get(i).getName());
-//		}
-
-		// testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
-		System.out.println("<<NORMAL TERMINATION>>");
-	}
+//
+////		try {
+////			testFE.fourthTry(sectionBCode);
+////		} catch (ZipException e) {
+////			// TODO Auto-generated catch block
+////			e.printStackTrace();
+////		} catch (IOException e) {
+////			// TODO Auto-generated catch block
+////			e.printStackTrace();
+////		}
+//
+////		System.out.println("size of file array: " + files.size());
+////		
+////		System.out.println("\n\nPrinting out files array: ");
+////		for(int i = 0; i < files.size(); i++) {
+////			System.out.println(files.get(i).getName());
+////		}
+//
+//		// testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
+//		System.out.println("<<NORMAL TERMINATION>>");
+//	}
 
 	// Based on howtodoinjava article code:
 	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
@@ -87,7 +87,9 @@ public class FolderEngine {
 				Enumeration<? extends ZipEntry> entries = zf.entries();
 
 				if (Files.notExists(fs.getPath(targetDir))) {
-					Files.createDirectory(fs.getPath(targetDir));
+//					Files.createDirectory(fs.getPath(targetDir));
+					File storage = new File(targetDir);
+					storage.mkdir();
 				}
 
 				while (entries.hasMoreElements()) {
