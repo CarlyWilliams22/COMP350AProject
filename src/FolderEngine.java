@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
@@ -29,75 +30,93 @@ public class FolderEngine {
 	}
 	
 	//TODO: Make it work with a zip folder that has a nonzipped folder directly inside (testCodeFromDesktop)
-	//TODO: make it actually put it in one storage folder instead of lots of packages
+
+	// TODO: Make it work with a zip folder that has a nonzipped folder directly
+	// inside (testCodeFromDesktop)
+	// TODO: make it actually put it in one storage folder instead of lots of
+	// packages
 	public static void main(String[] args) {
 		FolderEngine testFE = new FolderEngine();
-		//This set of test code is the one that doesn't work
+		// This set of test code is the one that doesn't work
 		String testCodeFromDesktop = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles.zip";
-		//testFE.unzipRecursive(testCodeFromDesktop, "Storage/");
-		
+		// testFE.unzipRecursive(testCodeFromDesktop, "Storage/");
+
 		String testCodeFromVal = "C:\\Users\\lloydta18\\Downloads\\SectA_stupidCopies.zip";
-		
-		//This set of nonzipped test code works
+
+		// This set of nonzipped test code works
 		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		//testFE.unzipRecursive(nonzippedTestCode, "Storage/");
-		
+		// testFE.unzipRecursive(nonzippedTestCode, "Storage/");
+
 		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
-		
-		//This set of code (sectionBCode) works
+
+		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\Downloads\\SectB_OrigCodes.zip";
 		testFE.unzipRecursive(sectionBCode, "Storage\\");
-		
+
+		for (int i = 0; i < files.size(); i++) {
+			System.out.println(files.get(i).toString());
+		}
+
+//		try {
+//			testFE.fourthTry(sectionBCode);
+//		} catch (ZipException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
 //		System.out.println("size of file array: " + files.size());
 //		
 //		System.out.println("\n\nPrinting out files array: ");
 //		for(int i = 0; i < files.size(); i++) {
 //			System.out.println(files.get(i).getName());
 //		}
-		
-		//testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
+
+		// testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
 		System.out.println("<<NORMAL TERMINATION>>");
 	}
-	
-	//Based on howtodoinjava article code: https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
+
+	// Based on howtodoinjava article code:
+	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
 	public void unzipRecursive(String PATH, String targetDir) {
-		if(PATH.endsWith(".zip")) {
-			try(ZipFile zf = new ZipFile(PATH)) {
+		if (PATH.endsWith(".zip")) {
+			try (ZipFile zf = new ZipFile(PATH)) {
 				FileSystem fs = FileSystems.getDefault();
 				Enumeration<? extends ZipEntry> entries = zf.entries();
-				
-				if(Files.notExists(fs.getPath(targetDir))) {
+
+				if (Files.notExists(fs.getPath(targetDir))) {
 					Files.createDirectory(fs.getPath(targetDir));
 				}
-				
-				
-				
-				while(entries.hasMoreElements()) {
+
+				while (entries.hasMoreElements()) {
 					ZipEntry ze = entries.nextElement();
-					if(ze.isDirectory()) {
+					if (ze.isDirectory()) {
 						System.out.println("making dir: " + targetDir + ze.getName());
 						Files.createDirectories(fs.getPath(targetDir + ze.getName()));
-					}
-					else {
-						if(ze.getName().endsWith(".zip") || ze.getName().endsWith(".java")) {
+						// Files.createFile(fs.getPath(targetDir + ze.getName()));
+					} else {
+						if (ze.getName().endsWith(".zip") || ze.getName().endsWith(".java")) {
 							InputStream is = zf.getInputStream(ze);
 							BufferedInputStream bis = new BufferedInputStream(is);
 							String uncompFileName = targetDir + ze.getName();
 							Path uncompFilePath = fs.getPath(uncompFileName);
 							Path zipFileLoc = Files.createFile(uncompFilePath);
 							FileOutputStream fileOutput = new FileOutputStream(uncompFileName);
-							while(bis.available() > 0) {
+							while (bis.available() > 0) {
 								fileOutput.write(bis.read());
 							}
-							if(ze.getName().endsWith(".zip")) {
+							if (ze.getName().endsWith(".zip")) {
 								System.out.println("Path generated: " + zipFileLoc);
-								unzipRecursive(zipFileLoc.toString(), zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
+								unzipRecursive(zipFileLoc.toString(),
+										zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
 							}
 							fileOutput.close();
 							System.out.println("Written: " + ze.getName());
-							System.out.println(zipFileLoc.toFile().getAbsolutePath());
+							//System.out.println(zipFileLoc.toFile().getAbsolutePath());
 
-							if(zipFileLoc.toFile().getAbsolutePath().endsWith(".java")) {
+							if (zipFileLoc.toFile().getAbsolutePath().endsWith(".java")) {
 								files.add(zipFileLoc.toFile());
 							}
 						}
@@ -105,59 +124,59 @@ public class FolderEngine {
 				}
 			} catch (FileAlreadyExistsException faee) {
 				faee.printStackTrace();
-			}catch (IOException ioe) {
+			} catch (IOException ioe) {
 				ioe.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} else {
 			File nonZippedFile = new File(PATH);
-			File[] files = {nonZippedFile};
-			lookInsideNonZippedFolder(PATH, files, targetDir);
+			File[] arrayOfFiles = { nonZippedFile };
+			lookInsideNonZippedFolder(PATH, arrayOfFiles, targetDir);
 		}
-	}//3rd try
-	
-	public void lookInsideNonZippedFolder(String PATH, File[] files, String targetDir) {
+	}// 3rd try
+
+
+
+	public void lookInsideNonZippedFolder(String PATH, File[] fileArray, String targetDir) {
 		FileSystem fs = FileSystems.getDefault();
-		
+
 		try {
-			if(Files.notExists(fs.getPath(targetDir))) {
+			if (Files.notExists(fs.getPath(targetDir))) {
 				Files.createDirectory(fs.getPath(targetDir));
 			}
-			
-			for(File currFile : files) {
-				if(currFile.getName().endsWith(".zip")) {
+
+			for (File currFile : fileArray) {
+				if (currFile.getName().endsWith(".zip")) {
 					unzipRecursive(PATH, targetDir);
 				}
-				if(currFile.isDirectory()) {
+				if (currFile.isDirectory()) {
 					System.out.println("making dir: " + targetDir + currFile.getName());
 					Files.createDirectories(fs.getPath(targetDir + currFile.getName()));
-					lookInsideNonZippedFolder(targetDir + currFile.getName(), currFile.listFiles(), targetDir + currFile.getName());
+					lookInsideNonZippedFolder(targetDir + currFile.getName(), currFile.listFiles(),
+							targetDir + currFile.getName());
 				} else {
 					InputStream is = new FileInputStream(currFile);
 					BufferedInputStream bis = new BufferedInputStream(is);
 					Path currFilePath = fs.getPath(targetDir + currFile.getName());
 					Path unzipppedFileLoc = Files.createFile(currFilePath);
 					FileOutputStream fileOutput = new FileOutputStream(currFile);
-					while(bis.available() > 0) {
+					while (bis.available() > 0) {
 						fileOutput.write(bis.read());
 					}
 					fileOutput.close();
 					System.out.println("Written: " + currFile.getName());
 				}
 			}
-			
-		} catch(Exception e) {
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
-
 
 	/**
-	 * Unzips a single zip file of files in a storage folder
-	 * NOTE: I left this in, but as of now, I don't use it
+	 * Unzips a single zip file of files in a storage folder NOTE: I left this in,
+	 * but as of now, I don't use it
 	 * 
 	 * @param PATH - zip file path
 	 */
@@ -208,9 +227,6 @@ public class FolderEngine {
 			e.printStackTrace();
 		}
 	}
-	
-
-	
 
 	/**
 	 * Transfers a deep copy of files
@@ -251,8 +267,6 @@ public class FolderEngine {
 			folder.delete();
 		}
 	}
-	
-	
 
 	/**
 	 * Creates the storage folder
