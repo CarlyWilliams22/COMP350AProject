@@ -1,10 +1,8 @@
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -12,11 +10,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
@@ -28,8 +24,9 @@ public class FolderEngine {
 		files = new ArrayList<File>();
 
 	}
-	
-	//TODO: Make it work with a zip folder that has a nonzipped folder directly inside (testCodeFromDesktop)
+
+	// TODO: Make it work with a zip folder that has a nonzipped folder directly
+	// inside (testCodeFromDesktop)
 
 	// TODO: Make it work with a zip folder that has a nonzipped folder directly
 	// inside (testCodeFromDesktop)
@@ -116,7 +113,7 @@ public class FolderEngine {
 							}
 							fileOutput.close();
 							System.out.println("Written: " + ze.getName());
-							//System.out.println(zipFileLoc.toFile().getAbsolutePath());
+							// System.out.println(zipFileLoc.toFile().getAbsolutePath());
 
 							if (zipFileLoc.toFile().getAbsolutePath().endsWith(".java")) {
 								files.add(zipFileLoc.toFile());
@@ -137,8 +134,6 @@ public class FolderEngine {
 			lookInsideNonZippedFolder(PATH, arrayOfFiles, targetDir);
 		}
 	}// 3rd try
-
-
 
 	public void lookInsideNonZippedFolder(String PATH, File[] fileArray, String targetDir) {
 		FileSystem fs = FileSystems.getDefault();
@@ -190,7 +185,7 @@ public class FolderEngine {
 
 		try {
 			// Creates the storage folder
-			createFolder();
+//			createFolder();
 
 			// Setup to access each entry in the zip file
 			fileInput = new FileInputStream(PATH);
@@ -271,16 +266,9 @@ public class FolderEngine {
 	}
 
 	/**
-	 * Creates the storage folder
 	 * 
-	 * @throws IOException
 	 */
-	private void createFolder() throws IOException {
-		File folder = new File("Storage\\");
-
-		if (!folder.exists()) {
-			folder.mkdir();
-		}
+	public void clearFiles() {
+		files.clear();
 	}
-
 }
