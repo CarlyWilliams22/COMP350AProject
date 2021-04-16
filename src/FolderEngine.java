@@ -136,7 +136,136 @@ public class FolderEngine {
 		}
 	}// 3rd try
 
+	// Based on howtodoinjava article code:
+		// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
+		public void unzipRecursivewithMods(String PATH, String targetDir) {
+			if (PATH.endsWith(".zip")) {
+				try (ZipFile zf = new ZipFile(PATH)) {
+					FileSystem fs = FileSystems.getDefault();
+					Enumeration<? extends ZipEntry> entries = zf.entries();
 
+//					if(Files.notExists(fs.getPath(targetDir))) {
+//						Files.createDirectory(fs.getPath(targetDir));
+//					}
+					String storageFolderName = targetDir;
+					File storageDir = new File(storageFolderName);
+					if (storageDir.createNewFile()) {
+						System.out.println(storageDir.getName() + " file created");
+					} else {
+						System.out.println(storageDir.getName() + " file already exists");
+					}
+
+					while (entries.hasMoreElements()) {
+						ZipEntry ze = entries.nextElement();
+						if (ze.isDirectory()) {
+							System.out.println("making dir: " + targetDir + ze.getName());
+							// Files.createDirectories(fs.getPath(targetDir + ze.getName()));
+							// Files.createFile(fs.getPath(targetDir + ze.getName()));
+							File currDir = new File(storageDir, ze.getName());
+						} else {
+							if (ze.getName().endsWith(".zip") || ze.getName().endsWith(".java")) {
+								InputStream is = zf.getInputStream(ze);
+								BufferedInputStream bis = new BufferedInputStream(is);
+								String uncompFileName = targetDir + ze.getName();
+								File currFile = new File(uncompFileName);
+//								if(currFile.createNewFile()) {
+//									System.out.println(currFile.getName() + " file created");
+//								} else {
+//									System.out.println(currFile.getName() + " file already exists");
+//								}
+								String currFileLoc = currFile.getPath();
+								// Path uncompFilePath = fs.getPath(uncompFileName);
+								// Path zipFileLoc = Files.createFile(uncompFilePath);
+								// FileOutputStream fileOutput = new FileOutputStream(uncompFileName);
+								FileOutputStream fileOutput = new FileOutputStream(currFile);
+								while (bis.available() > 0) {
+									fileOutput.write(bis.read());
+								}
+								if (ze.getName().endsWith(".zip")) {
+									// System.out.println("Path generated: " + zipFileLoc);
+									System.out.println("Path generated: " + currFileLoc);
+									// unzipRecursive(zipFileLoc.toString(), zipFileLoc.toString().substring(0,
+									// zipFileLoc.toString().length() - 4));
+									unzipRecursive(currFileLoc, currFileLoc.substring(0, currFileLoc.length() - 4));
+								}
+								fileOutput.close();
+								System.out.println("Written: " + ze.getName());
+								// System.out.println(zipFileLoc.toFile().getAbsolutePath());
+								System.out.println(currFile.getAbsolutePath());
+
+//								if(zipFileLoc.toFile().getAbsolutePath().endsWith(".java")) {
+//									files.add(zipFileLoc.toFile());
+//								}
+								if (currFile.getAbsolutePath().endsWith(".java")) {
+									files.add(currFile);
+								}
+							}
+						}
+					}
+				} catch (FileAlreadyExistsException faee) {
+					faee.printStackTrace();
+				} catch (IOException ioe) {
+					ioe.printStackTrace();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				File nonZippedFile = new File(PATH);
+				File[] files = { nonZippedFile };
+				lookInsideNonZippedFolder(PATH, files, targetDir);
+			}
+		}// 3rd try
+
+		// based on StackOverflow:
+		// https://stackoverflow.com/questions/981578/how-to-unzip-files-recursively-in-java
+		public void fourthTry(String zipFile) throws ZipException, IOException {
+			System.out.println(zipFile);
+			int BUFF = 2048;
+			File file = new File(zipFile);
+
+			ZipFile zip = new ZipFile(file);
+			System.out.println("Zip name: " + zip.getName());
+			String newPath = zipFile.substring(0, zipFile.length() - 4);
+
+			new File(newPath).mkdir();
+			Enumeration zipFileEntries = zip.entries();
+
+			// process each entry
+			while (zipFileEntries.hasMoreElements()) {
+				// grab a zip file entry
+				ZipEntry entry = (ZipEntry) zipFileEntries.nextElement();
+				String currentEntry = entry.getName();
+				File destFile = new File(newPath, currentEntry);
+				File destinationParent = destFile.getParentFile();
+
+				// create the parent directory structure if needed
+				destinationParent.mkdirs();
+
+				if (!entry.isDirectory()) {
+					BufferedInputStream is = new BufferedInputStream(zip.getInputStream(entry));
+					int currentByte;
+					// establish buffer for writing file
+					byte data[] = new byte[BUFF];
+
+					// write the current file to disk
+					FileOutputStream fos = new FileOutputStream(destFile);
+					BufferedOutputStream dest = new BufferedOutputStream(fos, BUFF);
+
+					// read and write until last byte is encountered
+					while ((currentByte = is.read(data, 0, BUFF)) != -1) {
+						dest.write(data, 0, currentByte);
+					}
+					dest.flush();
+					dest.close();
+					is.close();
+				}
+
+				if (currentEntry.endsWith(".zip")) {
+					// found a zipFile, try to open
+					fourthTry(destFile.getAbsolutePath());
+				}
+			}
+		}
 
 	public void lookInsideNonZippedFolder(String PATH, File[] fileArray, String targetDir) {
 		FileSystem fs = FileSystems.getDefault();
