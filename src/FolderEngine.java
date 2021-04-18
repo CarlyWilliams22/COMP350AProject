@@ -31,29 +31,26 @@ public class FolderEngine {
 	}
 	
 	//TODO: Make it work with a zip folder that has a nonzipped folder directly inside (testCodeFromDesktop)
-
-	// TODO: Make it work with a zip folder that has a nonzipped folder directly
-	// inside (testCodeFromDesktop)
-	// TODO: make it actually put it in one storage folder instead of lots of
-	// packages
+	// TODO: make it work with a non zipped folder
 	public static void main(String[] args) {
 		FolderEngine testFE = new FolderEngine();
 		// This set of test code is the one that doesn't work
 		String testCodeFromDesktop = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles.zip";
 		//testFE.unzipRecursive(testCodeFromDesktop, "Storage/");
 
+		//Still gets stuck on Tyler Ridout's folder, even though it skips files
 		String testCodeFromVal = "C:\\Users\\lloydta18\\Downloads\\SectA_stupidCopies.zip";
 		//testFE.unzipRecursive(testCodeFromVal, "Storage/");
 		
-		// This set of nonzipped test code works
+		// This set of nonzipped test code doesn't work
 		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		// testFE.unzipRecursive(nonzippedTestCode, "Storage/");
+		//testFE.unzipRecursive(nonzippedTestCode, "Storage/");
 
 		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
 
 		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\Downloads\\SectB_OrigCodes.zip";
-		testFE.unzipRecursive(sectionBCode, "Storage\\");
+		//testFE.unzipRecursive(sectionBCode, "Storage\\");
 		//testFE.unzipRecursiveWithOneFile(sectionBCode, "Storage\\");
 		//testFE.unzipRecursiveWithTempDirs(sectionBCode, "Storage\\");
 		//testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
@@ -89,7 +86,8 @@ public class FolderEngine {
 				while (entries.hasMoreElements()) {
 					ZipEntry ze = entries.nextElement();
 					String tempFileNameForStudent;
-					if (ze.isDirectory()) {
+					if (ze.isDirectory() && !ze.getName().contains(".settings")
+							&& !ze.getName().contains("bin")) {
 						System.out.println("making dir: " + targetDir + ze.getName());
 						//Files.createDirectories(fs.getPath(targetDir + ze.getName()));
 						File newDir = new File(targetDir + ze.getName());
@@ -212,6 +210,7 @@ public class FolderEngine {
 			if (Files.notExists(fs.getPath(targetDir))) {
 				Files.createDirectory(fs.getPath(targetDir));
 			}
+		
 
 			for (File currFile : fileArray) {
 				if (currFile.getName().endsWith(".zip")) {
@@ -235,6 +234,87 @@ public class FolderEngine {
 					System.out.println("Written: " + currFile.getName());
 				}
 			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	} //look inside nonzipped without temp files or writing to files array
+	
+	public void lookInsideNonZippedFolderMoreWork(String PATH, File[] fileArray, String targetDir) {
+		FileSystem fs = FileSystems.getDefault();
+
+		try {
+			if (Files.notExists(fs.getPath(targetDir))) {
+				//Files.createDirectories(fs.getPath(targetDir));
+				File storage = new File(targetDir);
+				storage.mkdir();
+			}
+
+			for (File currFile : fileArray) {
+				if (currFile.getName().endsWith(".zip")) {
+					unzipRecursive(PATH, targetDir);
+				}
+				String tempFileNameForStudent;
+				if (currFile.isDirectory() && !currFile.getName().contains(".settings")
+						&& !currFile.getName().contains("bin")) {
+					System.out.println("making dir: " + targetDir + currFile.getName());
+					//Files.createDirectories(fs.getPath(targetDir + ze.getName()));
+					File newDir = new File(targetDir + currFile.getName());
+					newDir.mkdir();
+					tempFileNameForStudent = newDir.getName();
+					//File combinedCode = new File(newDir.getName() + ".txt");
+					//combinedCode.createNewFile();
+					File combinedCode;
+					combinedCode = File.createTempFile(newDir.getName(), null, newDir);
+					System.out.println("This is the name of the combinedCode file: " + combinedCode.getName());
+					System.out.println("This is the parent of the .txt file: " + combinedCode.getParent());
+					lookInsideNonZippedFolder(newDir.getName(), currFile.listFiles(),
+							newDir.getName());
+					// Files.createFile(fs.getPath(targetDir + ze.getName()));
+				} else {
+					InputStream is = new FileInputStream(currFile);
+					BufferedInputStream bis = new BufferedInputStream(is);
+					String uncompFileName = "";
+					System.out.println("This is the value of targetDir: " + targetDir);
+					//System.out.println("This is the zip entry name: " + ze.getName());
+					uncompFileName = targetDir + File.separator + currFile.getName();
+					Path uncompFilePath = fs.getPath(uncompFileName);
+//					Path zipFileLoc;
+//					if(Files.notExists(uncompFilePath)) {
+//						 zipFileLoc = Files.createFile(uncompFilePath);
+//					} else {
+//						zipFileLoc = uncompFilePath.toFile();
+//					}
+						
+					File fileToWrite = uncompFilePath.toFile();
+					File compilationFile = null;
+					FileOutputStream fileOutput;
+					if(fileToWrite.getParent() != null) {
+						File[] filesInParent = fileToWrite.getParentFile().listFiles();
+						for(File f : filesInParent) {
+							if(f.getName().endsWith(".tmp")) {
+								compilationFile = new File(f.getName());
+								System.out.println("Found a tmp file! " + f.getName());
+							} else {
+								System.out.println("This isn't a tmp file: " + f.getName());
+							}
+						}
+						System.out.println("File: " + fileToWrite.getName() + " has a parent: " + fileToWrite.getParent());
+					}
+					System.out.println("THIS IS IN NONZIPPED METH: " + fileToWrite.getName());
+					System.out.println(compilationFile.getName());
+					if(!compilationFile.equals(null) && fileToWrite.getName().endsWith(".java")) {
+						fileOutput = new FileOutputStream(compilationFile, true);
+					} else {
+						fileOutput = new FileOutputStream(fileToWrite);
+					}
+					while (bis.available() > 0) {
+						fileOutput.write(bis.read());
+					}
+					fileOutput.close();
+					System.out.println("Written: " + currFile.getName());
+				}//else close
+			}//for close
 
 		} catch (Exception e) {
 			e.printStackTrace();
