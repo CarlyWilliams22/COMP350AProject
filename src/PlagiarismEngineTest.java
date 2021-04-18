@@ -96,6 +96,18 @@ class PlagiarismEngineTest {
 	}
 	
 	@Test
+	void testIsSymbolKeywordValid() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertTrue(pe.isSymbolKeyword("=="));
+	}
+	
+	@Test
+	void testIsSymbolKeywordInvalid() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertFalse(pe.isSymbolKeyword("test"));
+	}
+	
+	@Test
 	void getCommonWeightTest() {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		assertEquals(1, pe.getWeight("public"));
@@ -126,7 +138,7 @@ class PlagiarismEngineTest {
 	}
 	
 	@Test
-	void getDataValueTest() {
+	void getDataValueWeightTest() {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		assertEquals(2, pe.getWeight("false"));
 	}
@@ -135,6 +147,12 @@ class PlagiarismEngineTest {
 	void getDataTypeWeightTest() {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		assertEquals(2, pe.getWeight(" int"));
+	}
+	
+	@Test
+	void getSymbolWeightTest() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		assertEquals(3, pe.getWeight("--"));
 	}
 	
 	@Test
@@ -161,7 +179,7 @@ class PlagiarismEngineTest {
 	void countKeywordsTest() {
 		Student s1 = new Student(0, "one");
 		File f = new File("test");
-		s1.addFile(f);
+		s1.setFile(f);
 		PlagiarismEngine pe = new PlagiarismEngine();
 		pe.countKeywords(s1);
 		assertEquals(10, s1.getScore());
