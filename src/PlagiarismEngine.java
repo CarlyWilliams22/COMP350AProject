@@ -11,8 +11,9 @@ public class PlagiarismEngine {
 	private ArrayList<File> files; // projects to process
 	private ArrayList<Student> students;
 
-	// Keywords taken from the Wikipedia article List of Java keywords Link:
-	// https://en.wikipedia.org/wiki/List_of_Java_keywords
+	/* Many of these keywords taken from the Wikipedia article List of 
+	Java keywords*/
+	//Link: https://en.wikipedia.org/wiki/List_of_Java_keywords
 	private static String keywords[] = {"class", "import",
 			"public", "private", "new", "package", "return", "static",
 			"abstract", "assert", "continue", "private", "protected",
@@ -23,10 +24,16 @@ public class PlagiarismEngine {
 			"true", "false", "null", "String", "ArrayList", "Map",
 			"boolean", "byte", "char", "double", "float",
 			" int", "long", "short", "void", "selection",
-			"itteration"};
+			"itteration", "IOException", "FileInputStream", 
+			"FileOutputStream", "ArrayList", "File", "==", ">=", "<=", 
+			"!=", ">", "<", "&&", "||", "++", "+=", "--", "-=", "=", 
+			"BufferedInputStream", "BufferedOutputStream", 
+			"DataInputStream", "DataOutputStream", "EOFException", 
+			"System.out.println", "System.out.print", "Random"};
 	
 	private static String commonKeywords[] = {"class", "import",
-			"public", "private", "new", "package", "return", "static"};
+			"public", "private", "new", "package", "return", "static", 
+			"System.out.println", "System.out.print"};
 	private final int COMMON_WEIGHT = 1;
 	
 	private static String uncommonKeywords[] = {"abstract", "assert",
@@ -45,7 +52,7 @@ public class PlagiarismEngine {
 	private final int ITTERATION_WEIGHT = 3;
 	
 	private static String errorHandlingKeywords[] = {"catch",
-			"finally", "throw", "try", "throws"};
+			"finally", "throw", "try", "throws", "IOException"};
 	private final int ERROR_HANDLING_WEIGHT = 4;
 	
 	private static String dataValueKeywords[] = {"true", "false",
@@ -54,8 +61,17 @@ public class PlagiarismEngine {
 	
 	private static String dataTypeKeywords[] = {"String", "ArrayList",
 			"Map", "boolean", "byte", "char", "double", "float",
-			" int", "long", "short", "void"};
+			" int", "long", "short", "void", "ArrayList", "File", 
+			"FileInputStream", "FileOutputStream", 
+			"BufferedInputStream", "BufferedOutputStream", 
+			"DataInputStream", "DataOutputStream", "EOFException", 
+			"Random"};
 	private final int DATA_TYPE_WEIGHT = 2;
+	
+	//TODO add to weight calc
+	private static String symbolKeywords[] = {"==", ">=", "<=", "!=", 
+			">", "<", "&&", "||", "++", "+=", "--", "-=", "="};
+	private final int SYMBOL_WEIGHT = 3;
 	
 	
 	private final double GtoY = .70; // Green to yellow threshold
@@ -83,7 +99,7 @@ public class PlagiarismEngine {
 		int ID = 0;
 		for (File file : files) {
 			students.add(currentStudent = new Student(ID, file.getName()));
-			currentStudent.addFile(file);
+			currentStudent.setFile(file);
 			ID++;
 		}
 	}
@@ -107,14 +123,15 @@ public class PlagiarismEngine {
 		return new ArrayList<Student>(students);
 	}
 
+	//TODO FIX
 	/**
 	 * Removes comments and excess white space from a file
-	 * 
+	 * TODO refactor
 	 * @param s - a student
 	 */
 	public void parseFile(Student s) {
 
-		for (File codeFile : s.getFiles()) {
+		File codeFile = s.getFile();
 			try {
 
 				// create a new scanner
@@ -218,12 +235,11 @@ public class PlagiarismEngine {
 				scnr.close();
 
 				// replace the file with the stripped file in the student
-				s.replaceFile(codeFile, strippedSub);
+				s.setFile(strippedSub);
 				s.setName(strippedSub.getName());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} // for method
 
 	}// stripFile method
 
@@ -244,7 +260,7 @@ public class PlagiarismEngine {
 		Scanner fileScnr, lineScnr;
 		String currLine, currToken;
 		int weight = 0;
-		for (File codeFile : s.getFiles()) {
+		File codeFile = s.getFile();
 			try {
 				fileScnr = new Scanner(codeFile);
 				while (fileScnr.hasNextLine()) {
@@ -270,7 +286,6 @@ public class PlagiarismEngine {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
 
 		s.setScore(weight);
 	}
@@ -286,25 +301,28 @@ public class PlagiarismEngine {
 	
 	public int getWeight(String keyword) {
 		if(isCommonKeyword(keyword)) {
-			return 1;
+			return COMMON_WEIGHT;
 		}
 		else if(isUncommonKeyword(keyword)) {
-			return 5;
+			return UNCOMMON_WEIGHT;
 		}
 		else if(keyword.equals("selection")) {
-			return 3;
+			return SELECTION_WEIGHT;
 		}
 		else if(keyword.equals("itteration")) {
-			 return 3;
+			 return ITTERATION_WEIGHT;
 		}
 		else if(isDataTypeKeyword(keyword)) {
-			return 2;
+			return DATA_TYPE_WEIGHT;
 		}
 		else if(isDataValueKeyword(keyword)) {
-			return 2;
+			return DATA_VALUE_WEIGHT;
+		}
+		else if(isSymbolKeyword(keyword)) {
+			return SYMBOL_WEIGHT;
 		}
 		else{
-			return 4;
+			return ERROR_HANDLING_WEIGHT;
 		}
 	}
 
@@ -340,7 +358,7 @@ public class PlagiarismEngine {
 	 * @param student1
 	 * @param student2
 	 */
-	private void compare(Student student1, Student student2) {
+	public void compare(Student student1, Student student2) {
 		// How many words do the two java codes have in common
 		int compScore;
 		// the percentage of keyword overlap
@@ -349,12 +367,14 @@ public class PlagiarismEngine {
 		compScore = createCompScore(student1, student2);
 	
 		// calculate student 1s percentage
-		percent1 = ((double) compScore) / (double) student2.getScore();
+		int score = student2.getScore();
+		percent1 = ((double) compScore) / (double) score;
 		// add the comparison score to the correct student
 		student1.addCompScore(student2.getName(), percent1);
 
 		// calculate student 2s percentage
-		percent2 = ((double) compScore) / (double) student1.getScore();
+		score = student1.getScore();
+		percent2 = ((double) compScore) / (double) score;
 		// add the comparison score to the correct student
 		student2.addCompScore(student1.getName(), percent2);
 		
@@ -432,6 +452,14 @@ public class PlagiarismEngine {
 
 	public boolean isDataTypeKeyword(String keyword) {
 		for(String word: dataTypeKeywords) {
+			if(word.equals(keyword))
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean isSymbolKeyword(String keyword) {
+		for(String word: symbolKeywords) {
 			if(word.equals(keyword))
 				return true;
 		}
