@@ -11,11 +11,11 @@ public class Student {
 	private int yellow;
 	private int green;
 	private int score;
+	private File file;
 
 	private Map<String, Integer> keywords;
 	private Map<String, Double> compScores;
 
-	private ArrayList<File> files;
 	private ArrayList<Student> greenStudents;
 	private ArrayList<Student> yellowStudents;
 	private ArrayList<Student> redStudents;
@@ -23,7 +23,6 @@ public class Student {
 	public Student(int ID, String name) {
 		this.ID = ID;
 		this.name = name;
-		this.files = new ArrayList<File>();
 		this.greenStudents = new ArrayList<Student>();
 		this.yellowStudents = new ArrayList<Student>();
 		this.redStudents = new ArrayList<Student>();
@@ -55,17 +54,12 @@ public class Student {
 		this.score = score;
 	}
 
-	public void addFile(File f) {
-		try {
-			files.add(f);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+	public void setFile(File f) {
+		file = f;
 	}
 
-	public ArrayList<File> getFiles() {
-		return new ArrayList<File>(files);
+	public File getFile() {
+		return file;
 	}
 
 	public void addKeyword(String s) {
@@ -120,10 +114,9 @@ public class Student {
 	public void addCompScore(String key, Double value) {
 		compScores.put(key, value);
 	}
-
-	public void replaceFile(File fileToRemove, File fileToAdd) {
-		this.files.remove(fileToRemove);
-		this.files.add(fileToAdd);
+	
+	public Map<String, Double> getCompScores(){
+		return compScores;
 	}
 
 	public void setGreen() {
