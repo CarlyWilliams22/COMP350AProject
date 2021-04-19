@@ -3,6 +3,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -184,5 +185,138 @@ class PlagiarismEngineTest {
 		pe.countKeywords(s1);
 		assertEquals(10, s1.getScore());
 	}
+	
+	@Test
+	void testCreateStudents() {
+		File f = new File("test");
+		PlagiarismEngine pe = new PlagiarismEngine();
+		ArrayList<File> fs = new ArrayList<File>();
+		fs.add(f);
+		pe.receiveFiles(fs);
+		pe.createStudents();
+		Student student = pe.getStudents().get(0);
+		assertEquals(0, student.getID());
+		assertEquals("test", student.getName());
+		assertEquals(f, student.getFile());
+	}
+	
+	@Test
+	void testColorPlacementGreenAndGreen(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .5, .5);
+		assertEquals(1, s1.getGreenNum());
+		assertEquals(1, s2.getGreenNum());
+	}
+	
+	@Test
+	void testColorPlacementGreenAndYellow(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .5, .8);
+		assertEquals(1, s1.getGreenNum());
+		assertEquals(1, s2.getYellowNum());
+	}
+	
+	@Test
+	void testColorPlacementGreenAndRed(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .5, .9);
+		assertEquals(1, s1.getGreenNum());
+		assertEquals(1, s2.getRedNum());
+	}
+	
+	@Test
+	void testColorPlacementYellowAndYellow(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .8, .8);
+		assertEquals(1, s1.getYellowNum());
+		assertEquals(1, s2.getYellowNum());
+	}
+	
+	@Test
+	void testColorPlacementYellowAndGreen(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .8, .5);
+		assertEquals(1, s1.getYellowNum());
+		assertEquals(1, s2.getGreenNum());
+	}
+	
+	@Test
+	void testColorPlacementYellowAndRed(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .8, .9);
+		assertEquals(1, s1.getYellowNum());
+		assertEquals(1, s2.getRedNum());
+	}
+	
+	@Test
+	void testColorPlacementRedAndRed(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .9, .9);
+		assertEquals(1, s1.getRedNum());
+		assertEquals(1, s2.getRedNum());
+	}
+	
+	@Test
+	void testColorPlacementRedAndGreen(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .9, .5);
+		assertEquals(1, s1.getRedNum());
+		assertEquals(1, s2.getGreenNum());
+	}
+	
+	@Test
+	void testColorPlacementRedAndYellow(){
+		PlagiarismEngine pe = new PlagiarismEngine();
+		Student s1 = new Student(0, "0");
+		Student s2 = new Student(1, "1");
+		pe.colorPlacement(s1, s2, .9, .8);
+		assertEquals(1, s1.getRedNum());
+		assertEquals(1, s2.getYellowNum());
+	}
+	
+	@Test
+	void testForAccurateComparison() {
+		Student s1 = new Student(0, "one");
+		File f1 = new File("Student1Test");
+		s1.setFile(f1);
+		Student s2 = new Student(1, "two");
+		File f2 = new File("Student2Test");
+		s2.setFile(f2);
+		PlagiarismEngine pe = new PlagiarismEngine();
+		pe.countKeywords(s1);
+		pe.countKeywords(s2);
+		pe.compare(s1, s2);
+		double value = s1.getCompScores().get(s2.getName());
+		assertEquals(.5, value, .0001);
+		value = s2.getCompScores().get(s1.getName());
+		assertEquals(.5, value, .0001);
+	}
+	
+//	@Test
+//	void testCommentsAreIgnoredWhenScored() {
+//		PlagiarismEngine pe = new PlagiarismEngine();
+//		File f = new File("testForParseFile");
+//		Student s = new Student(0, "s");
+//		s.setFile(f);
+//		pe.parseFile(s);
+//		pe.countKeywords(s);
+//		assertEquals(2, s.getScore());
+//	}
 	
 }

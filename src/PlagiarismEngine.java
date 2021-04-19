@@ -123,6 +123,7 @@ public class PlagiarismEngine {
 		return new ArrayList<Student>(students);
 	}
 
+	//TODO FIX
 	/**
 	 * Removes comments and excess white space from a file
 	 * TODO refactor
@@ -357,7 +358,7 @@ public class PlagiarismEngine {
 	 * @param student1
 	 * @param student2
 	 */
-	private void compare(Student student1, Student student2) {
+	public void compare(Student student1, Student student2) {
 		// How many words do the two java codes have in common
 		int compScore;
 		// the percentage of keyword overlap
@@ -366,12 +367,14 @@ public class PlagiarismEngine {
 		compScore = createCompScore(student1, student2);
 	
 		// calculate student 1s percentage
-		percent1 = ((double) compScore) / (double) student2.getScore();
+		int score = student2.getScore();
+		percent1 = ((double) compScore) / (double) score;
 		// add the comparison score to the correct student
 		student1.addCompScore(student2.getName(), percent1);
 
 		// calculate student 2s percentage
-		percent2 = ((double) compScore) / (double) student1.getScore();
+		score = student1.getScore();
+		percent2 = ((double) compScore) / (double) score;
 		// add the comparison score to the correct student
 		student2.addCompScore(student1.getName(), percent2);
 		
