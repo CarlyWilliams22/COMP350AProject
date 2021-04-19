@@ -35,6 +35,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
@@ -46,7 +47,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class UI extends Application implements EventHandler<KeyEvent> {
-
+	
 	// Constants
 	private final Dimension window = Toolkit.getDefaultToolkit().getScreenSize();
 	private final double WINDOW_WIDTH = window.getWidth();
@@ -339,6 +340,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 				System.out.println("New Project!");
 				files.clear();
 				fe.clearFiles();
+				pe.clearFiles();
 				pe.clearStudents();
 				primary.setScene(uploadScreen);
 			}
@@ -398,7 +400,27 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		table.setItems(getClassResults());
 
+		addTableSelection(table);
+
 		return table;
+	}
+
+	/**
+	 * Enables table values to be clicked and triggers a pop up window
+	 * 
+	 * @param table
+	 */
+	private void addTableSelection(TableView<Student> table) {
+		table.setRowFactory(tv -> {
+			TableRow<Student> row = new TableRow<>();
+			row.setOnMouseClicked(event -> {
+				if (!row.isEmpty()) {
+					Student rowData = row.getItem();
+					renderStudentPopup(rowData.getName());
+				}
+			});
+			return row;
+		});
 	}
 
 	/**
@@ -453,14 +475,28 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
-	 * 
+	 * Creates a pop up window of the student's similarity scores
 	 */
-	private void renderStudentPopup() {
+	private void renderStudentPopup(String name) {
+		Stage popup = new Stage();
+		popup.setTitle(name);
+		popup.initModality(Modality.APPLICATION_MODAL);
+		popup.initOwner(primary);
 
+		Text message = new Text("Records.");
+
+		ScrollPane scroll = new ScrollPane();
+		scroll.setPadding(new Insets(20, 20, 20, 20));
+		scroll.setContent(message);
+
+		Scene dialogScene = new Scene(scroll, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+
+		popup.setScene(dialogScene);
+		popup.show();
 	}
 
 	/**
-	 * 
+	 * Creates a pop up window with instructions
 	 */
 	private void renderHelpPopup() {
 		Stage popup = new Stage();
