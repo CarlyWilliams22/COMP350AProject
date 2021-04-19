@@ -103,6 +103,13 @@ public class PlagiarismEngine {
 			ID++;
 		}
 	}
+	
+	/**
+	 * Removes all of the students from memory
+	 */
+	public void clearStudents() {
+		students.clear();
+	}
 
 	/**
 	 * Prints the ID of the students for debugging purposes
@@ -482,6 +489,10 @@ public class PlagiarismEngine {
 			// move to the next student
 			currStudent++;
 		}
+	}
+	
+	public void clearFiles() {
+		files.clear();
 	}
 
 	/**
