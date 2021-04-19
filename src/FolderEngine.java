@@ -44,7 +44,7 @@ public class FolderEngine {
 		
 		// This set of nonzipped test code doesn't work
 		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		//testFE.unzipRecursive(nonzippedTestCode, "Storage/");
+		testFE.unzipRecursive(nonzippedTestCode, "Storage/");
 
 		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
 
@@ -56,7 +56,7 @@ public class FolderEngine {
 		//testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
 		
 		System.out.println("Trying to access cleanup method");
-		testFE.cleanUpFoldersCreated();
+		//testFE.cleanUpFoldersCreated();
 		System.out.println("Got to the line past the cleanup method");
 		
 
@@ -164,7 +164,7 @@ public class FolderEngine {
 		} else {
 			File nonZippedFile = new File(PATH);
 			File[] arrayOfFiles = { nonZippedFile };
-			lookInsideNonZippedFolder(PATH, arrayOfFiles, targetDir);
+			lookInsideNonZippedFolderMoreWork(PATH, arrayOfFiles, targetDir);
 		}
 	}// one file method
 		
@@ -211,7 +211,6 @@ public class FolderEngine {
 				Files.createDirectory(fs.getPath(targetDir));
 			}
 		
-
 			for (File currFile : fileArray) {
 				if (currFile.getName().endsWith(".zip")) {
 					unzipRecursive(PATH, targetDir);
@@ -268,7 +267,7 @@ public class FolderEngine {
 					combinedCode = File.createTempFile(newDir.getName(), null, newDir);
 					System.out.println("This is the name of the combinedCode file: " + combinedCode.getName());
 					System.out.println("This is the parent of the .txt file: " + combinedCode.getParent());
-					lookInsideNonZippedFolder(newDir.getName(), currFile.listFiles(),
+					lookInsideNonZippedFolderMoreWork(newDir.getName(), currFile.listFiles(),
 							newDir.getName());
 					// Files.createFile(fs.getPath(targetDir + ze.getName()));
 				} else {
@@ -285,7 +284,7 @@ public class FolderEngine {
 //					} else {
 //						zipFileLoc = uncompFilePath.toFile();
 //					}
-						
+					System.out.println("This is the uncompFilePath: " + uncompFilePath.toString());
 					File fileToWrite = uncompFilePath.toFile();
 					File compilationFile = null;
 					FileOutputStream fileOutput;
@@ -299,11 +298,25 @@ public class FolderEngine {
 								System.out.println("This isn't a tmp file: " + f.getName());
 							}
 						}
+						if(compilationFile == null) {
+							if(fileToWrite.getParentFile().getParentFile() != null) {
+								File grandparent = fileToWrite.getParentFile().getParentFile();
+								File[] filesInGParent = grandparent.listFiles();
+								for(File f : filesInGParent) {
+									if(f.getName().endsWith(".tmp")) {
+										compilationFile = new File(f.getName());
+										System.out.println("Found a tmp file! " + f.getName());
+									} else {
+										System.out.println("This isn't a tmp file: " + f.getName());
+									}
+								}
+							}
+						}
 						System.out.println("File: " + fileToWrite.getName() + " has a parent: " + fileToWrite.getParent());
 					}
 					System.out.println("THIS IS IN NONZIPPED METH: " + fileToWrite.getName());
-					System.out.println(compilationFile.getName());
-					if(!compilationFile.equals(null) && fileToWrite.getName().endsWith(".java")) {
+					//System.out.println(compilationFile.getName());
+					if(!(compilationFile == null) && fileToWrite.getName().endsWith(".java")) {
 						fileOutput = new FileOutputStream(compilationFile, true);
 					} else {
 						fileOutput = new FileOutputStream(fileToWrite);
