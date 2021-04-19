@@ -114,6 +114,10 @@ public class Student {
 	public void addCompScore(String key, Double value) {
 		compScores.put(key, value);
 	}
+	
+	public Map<String, Double> getCompScores(){
+		return compScores;
+	}
 
 	public void setGreen() {
 		green = greenStudents.size();
