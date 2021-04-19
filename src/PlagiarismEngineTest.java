@@ -4,9 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 
@@ -308,15 +306,15 @@ class PlagiarismEngineTest {
 		assertEquals(.5, value, .0001);
 	}
 	
-//	@Test
-//	void testCommentsAreIgnoredWhenScored() {
-//		PlagiarismEngine pe = new PlagiarismEngine();
-//		File f = new File("testForParseFile");
-//		Student s = new Student(0, "s");
-//		s.setFile(f);
-//		pe.parseFile(s);
-//		pe.countKeywords(s);
-//		assertEquals(2, s.getScore());
-//	}
+	@Test
+	void testCommentsAreIgnoredWhenScored() {
+		PlagiarismEngine pe = new PlagiarismEngine();
+		File f = new File("testForParseFile");
+		Student s = new Student(0, "s");
+		s.setFile(f);
+		pe.parseFile(s);
+		pe.countKeywords(s);
+		assertEquals(2, s.getScore());
+	}
 	
 }
