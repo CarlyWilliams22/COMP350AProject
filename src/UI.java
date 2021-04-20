@@ -18,7 +18,6 @@ import java.util.List;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -47,7 +46,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class UI extends Application implements EventHandler<KeyEvent> {
-	
+
 	// Constants
 	private final Dimension window = Toolkit.getDefaultToolkit().getScreenSize();
 	private final double WINDOW_WIDTH = window.getWidth();
@@ -152,16 +151,16 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		browseOneDrive.setText("Browse OneDrive");
 		browseOneDrive.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button done = new Button();
-		done.setText("Done");
-		done.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+		Button process = new Button();
+		process.setText("Process");
+		process.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addFileButtonListeners(help, browseThisPC, browseOneDrive, done);
+		addFileButtonListeners(help, browseThisPC, browseOneDrive, process);
 
 		buttons.add(help);
 		buttons.add(browseThisPC);
 		buttons.add(browseOneDrive);
-		buttons.add(done);
+		buttons.add(process);
 
 		return buttons;
 	}
@@ -173,62 +172,61 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param browseOneDrive
 	 * @param done
 	 */
-	private void addFileButtonListeners(Button help, Button browseThisPC, Button browseOneDrive, Button done) {
+	private void addFileButtonListeners(Button help, Button browseThisPC, Button browseOneDrive, Button process) {
 
-		// Creates popup window
-		help.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("Help!");
-				renderHelpPopup();
-			}
+		// Opens Help Popup
+		help.setOnAction((event) -> {
+			renderHelpPopup();
 		});
 
 		// Opens File Explorer
-		browseThisPC.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("PC");
-				List<File> folders = explorer.showOpenMultipleDialog(primary);
-
-				for (File file : folders) {
-					if (file != null) {
-						try {
-							files.add(file);
-							String PATH = file.getCanonicalPath();
-//							fe.unzipRecursive(PATH, "Storage/");
-							fe.unzipRecursive(PATH, "Storage\\");
-							pe.receiveFiles(fe.transferFiles());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-
+		browseThisPC.setOnAction((event) -> {
+			upload();
 		});
 
 		// Opens OneDrive
-		browseOneDrive.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("OneDrive");
-			}
+		browseOneDrive.setOnAction((event) -> {
+			upload();
 		});
 
-		done.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("Done!");
-				pe.createStudents();
-				pe.parseAllFiles();
-				pe.countAllKeywords();
-				pe.compareAll();
-				renderResultsScreen();
-				primary.setScene(resultsScreen);
-			}
+		process.setOnAction((event) -> {
+			process();
 		});
+	}
+
+	/**
+	 * 
+	 */
+	private void upload() {
+		List<File> folders = explorer.showOpenMultipleDialog(primary);
+
+		if (folders != null) {
+			for (File file : folders) {
+				if (file != null) {
+					try {
+						files.add(file);
+						String PATH = file.getCanonicalPath();
+						fe.unzipRecursive(PATH, "Storage\\");
+						pe.receiveFiles(fe.transferFiles());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void process() {
+		System.out.println("Done!");
+		pe.createStudents();
+		pe.parseAllFiles();
+		pe.countAllKeywords();
+		pe.compareAll();
+		renderResultsScreen();
+		primary.setScene(resultsScreen);
 	}
 
 	/**
@@ -309,42 +307,38 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			Button newProject) {
 
 		// Creates popup window
-		help.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("Help!");
-				renderHelpPopup();
-			}
+		help.setOnAction((event) -> {
+			renderHelpPopup();
 		});
 
 		// Opens File Explorer
-		saveToThisPC.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("PC");
-			}
+		saveToThisPC.setOnAction((event) -> {
+			System.out.println("Save to ThisPC.");
 		});
 
 		// Opens OneDrive
-		uploadToOneDrive.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("OneDrive");
-			}
+		uploadToOneDrive.setOnAction((event) -> {
+			System.out.println("Upload to OneDrive");
 		});
 
 		// Opens Upload Screen
-		newProject.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(final ActionEvent event) {
-				System.out.println("New Project!");
-				files.clear();
-				fe.clearFiles();
-				pe.clearFiles();
-				pe.clearStudents();
-				primary.setScene(uploadScreen);
-			}
+		newProject.setOnAction((event) -> {
+			newProject();
 		});
+	}
+
+	/**
+	 * 
+	 */
+	private void newProject() {
+		primary.close();
+		System.out.println("Creating new project...");
+		files.clear();
+		fe.clearFiles();
+		pe.clearFiles();
+		pe.clearStudents();
+		primary.setScene(uploadScreen);
+		primary.show();
 	}
 
 	/**
@@ -468,7 +462,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		chart.getData().add(red);
 		chart.getData().add(yellow);
 		chart.getData().add(green);
-//		chart.setLegendVisible(false);
 		chart.setHorizontalGridLinesVisible(false);
 
 		return chart;
@@ -483,7 +476,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
 
-		Text message = new Text("Records.");
+		Text message = new Text(getStudentResults(name));
 
 		ScrollPane scroll = new ScrollPane();
 		scroll.setPadding(new Insets(20, 20, 20, 20));
@@ -533,8 +526,27 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param name
 	 * @return
 	 */
-	private Student getStudentResults(String name) {
-		return null;
+	private String getStudentResults(String name) {
+		Student s = pe.getStudent(name);
+		String results = "";
+
+		results += "\nRed\n";
+		for (Student i : s.getRedStudents()) {
+			results += i.getName() + ": " + i.getScore() + "\n";
+		}
+
+		results += "\nYellow\n";
+		for (Student i : s.getYellowStudents()) {
+			results += i.getName() + ": " + i.getScore() + "\n";
+		}
+
+		results += "\nGreen\n";
+		for (Student i : s.getGreenStudents()) {
+			results += i.getName() + ": " + i.getScore() + "\n";
+
+		}
+
+		return results;
 	}
 
 	/**
@@ -550,6 +562,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	@Override
 	public void handle(KeyEvent e) {
 		if (e.getCode() == e.getCode().W && e.isControlDown()) {
+			System.out.println("Terminating...");
+			System.out.println("\n<<< STANDARD TERMINATION >>>");
 			System.exit(0);
 		}
 
@@ -559,13 +573,18 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		else if (e.getCode() == e.getCode().N && e.isControlDown()) {
 			if (primary.getScene().equals(resultsScreen)) {
-				// trigger new project button
+				newProject();
 			}
+		}
+
+		else if (e.getCode() == e.getCode().R && e.isControlDown()) {
+			System.out.println("Restarting application...");
+			newProject();
 		}
 
 		else if (e.getCode() == e.getCode().S && e.isControlDown()) {
 			if (primary.getScene().equals(resultsScreen)) {
-				// save button; default file explorer
+				System.out.println("Saving results...");
 			}
 		}
 
