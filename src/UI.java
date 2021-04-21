@@ -9,22 +9,39 @@
  * 
  */
 
+import java.awt.AWTException;
+import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+
+//import com.sun.security.sasl.ServerFactoryImpl;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
@@ -49,6 +66,8 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 
 public class UI extends Application implements EventHandler<KeyEvent> {
 
@@ -94,7 +113,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		primary.setTitle("Copied Code Catcher");
 
 		renderUploadScreen();
-//		renderResultsScreen(primary);
+//		renderScreen(primary);
 
 	}
 
@@ -166,6 +185,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		buttons.add(browseThisPC);
 		buttons.add(browseOneDrive);
 		buttons.add(done);
+		
 
 		return buttons;
 	}
@@ -290,13 +310,18 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		Button newProject = new Button();
 		newProject.setText("New Project");
 		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+		
+		Button saveGraph = new Button();
+		saveGraph.setText("Save Graph");
+		saveGraph.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addResultsButtonListeners(help, saveToThisPC, uploadToOneDrive, newProject);
+		addResultsButtonListeners(help, saveToThisPC, uploadToOneDrive, newProject, saveGraph);
 
 		buttons.add(help);
 		buttons.add(saveToThisPC);
 		buttons.add(uploadToOneDrive);
 		buttons.add(newProject);
+		buttons.add(saveGraph);
 
 		return buttons;
 	}
@@ -307,9 +332,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param saveToThisPC
 	 * @param uploadToOneDrive
 	 * @param newProject
+	 * @param saveGraph 
 	 */
 	private void addResultsButtonListeners(Button help, Button saveToThisPC, Button uploadToOneDrive,
-			Button newProject) {
+			Button newProject, Button saveGraph) {
 
 		// Creates popup window
 		help.setOnAction(new EventHandler<ActionEvent>() {
@@ -324,7 +350,21 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveToThisPC.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(final ActionEvent event) {
-				System.out.println("PC");
+				FileChooser.ExtensionFilter exFiller = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
+				explorer.getExtensionFilters().add(exFiller);
+				File savedResults = explorer.showSaveDialog(primary);
+				
+				if(savedResults != null) {
+					saveResults(savedResults);
+				}
+				
+			}
+		});
+		
+		saveGraph.setOnAction(new EventHandler<ActionEvent>(){
+			@Override
+			public void handle(final ActionEvent event) {
+		//		saveTest(resultsScreen);
 			}
 		});
 
@@ -451,6 +491,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 //		chart.setLegendVisible(false);
 		chart.setHorizontalGridLinesVisible(false);
 
+		
 		return chart;
 	}
 
@@ -506,10 +547,81 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * 
 	 */
-	private void saveResults() {
+	private void saveResults(File file) {
 		// may want to change return value to a boolean for status check
+		try {
+			FileWriter writer = new FileWriter(file);
+			
+			// write header info
+			writer.append("Student");
+			writer.append(",");
+			writer.append("ID");
+			writer.append(",");
+			writer.append("Green");
+			writer.append(",");
+			writer.append("Yellow");
+			writer.append(",");
+			writer.append("Red");
+			writer.append("\n");
+			
+			
+			// write data for each student
+			for (Student s : pe.getStudents()) {
+				writer.append(s.getName());
+				writer.append(",");
+				writer.append(String.valueOf(s.getID()));
+				writer.append(",");
+				writer.append(String.valueOf(s.getGreenNum()));
+				writer.append(",");
+				writer.append(String.valueOf(s.getYellowNum()));
+				writer.append(",");
+				writer.append(String.valueOf(s.getRedNum()));
+				writer.append("\n");
+			}
+			
+			//finish
+			writer.flush();
+			writer.close();
+		}catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
+
+	/*public BufferedImage saveGraph()
+	{
+	 WritableImage snapshot = resultsScreen.snapshot(null);
+	 BufferedImage fromFXImage = SwingFXUtils.fromFXImage(snapshot, null);
+	 BufferedImage pngImage = null;
+	 byte[] imageInByte;
+	 try
+	 {
+	   ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+	   ImageIO.write(fromFXImage, "jpg", byteArrayOutputStream);
+	   byteArrayOutputStream.flush();
+	   imageInByte = byteArrayOutputStream.toByteArray();
+	   byteArrayOutputStream.close();
+	   InputStream in = new ByteArrayInputStream(imageInByte);
+	   pngImage = ImageIO.read(in);
+	 }
+	 catch (IOException e)
+	 {
+	   e.printStackTrace();
+	 }
+	 return pngImage;
+	}
+	
+	public void saveTest(Scene scene) {
+		WritableImage image = scene.snapshot(null);
+	    File file = new File("Chart.png");
+	    try {
+			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "PNG", file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    System.out.println("Image Saved");
+	}*/
 	/**
 	 * Hot Keys WIP
 	 */
