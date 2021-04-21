@@ -11,7 +11,6 @@
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -22,8 +21,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.geometry.Side;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
@@ -39,11 +36,9 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -200,7 +195,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 						try {
 							files.add(file);
 							String PATH = file.getCanonicalPath();
-							fe.unzipRecursive(PATH, "Storage/");
+//							fe.unzipRecursive(PATH, "Storage/");
+							fe.unzipRecursive(PATH, "Storage\\");
 							pe.receiveFiles(fe.transferFiles());
 						} catch (IOException e) {
 							e.printStackTrace();
@@ -342,6 +338,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			public void handle(final ActionEvent event) {
 				System.out.println("New Project!");
 				files.clear();
+				fe.clearFiles();
+				pe.clearStudents();
 				primary.setScene(uploadScreen);
 			}
 		});
