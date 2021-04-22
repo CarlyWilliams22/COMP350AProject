@@ -480,8 +480,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		NumberAxis x = new NumberAxis();
 		CategoryAxis y = new CategoryAxis();
 
-		BarChart<Number, String> chart = new BarChart<Number, String>(x, y);
-//		chart.setTitle("Students");
+		BarChart<Number, String> graph = new BarChart<Number, String>(x, y);
+		graph.setTitle("Students");
 		x.setLabel("Files");
 		y.setLabel("Students");
 
@@ -500,12 +500,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			green.getData().add(new Data<Number, String>(s.getGreenNum(), String.valueOf(s.getID())));
 		}
 
-		chart.getData().add(red);
-		chart.getData().add(yellow);
-		chart.getData().add(green);
-		chart.setHorizontalGridLinesVisible(false); // removes unncessary lines
+		graph.getData().add(red);
+		graph.getData().add(yellow);
+		graph.getData().add(green);
+		graph.setHorizontalGridLinesVisible(false); // removes unncessary lines
 
-		return chart;
+		return graph;
 	}
 
 	/**
