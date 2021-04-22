@@ -495,9 +495,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		green.setName("Green");
 
 		for (Student s : pe.getStudents()) {
-			red.getData().add(new Data<Number, String>(s.getRedNum(), s.getName()));
-			yellow.getData().add(new Data<Number, String>(s.getYellowNum(), s.getName()));
-			green.getData().add(new Data<Number, String>(s.getGreenNum(), s.getName()));
+			red.getData().add(new Data<Number, String>(s.getRedNum(), String.valueOf(s.getID())));
+			yellow.getData().add(new Data<Number, String>(s.getYellowNum(), String.valueOf(s.getID())));
+			green.getData().add(new Data<Number, String>(s.getGreenNum(), String.valueOf(s.getID())));
 		}
 
 		chart.getData().add(red);
