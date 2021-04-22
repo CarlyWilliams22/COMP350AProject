@@ -268,6 +268,10 @@ public class FolderEngine {
 		for(File fl : allFilesInDir) {
 			System.out.println(fl.toString());
 			if(fl.toString().endsWith("Storage")) {
+				File[] filesInStorage = fl.listFiles();
+				for(File fis : filesInStorage) {
+					fis.delete();
+				}
 				deleteDir(fl);
 				System.out.println("FOUND STORAGE FILE");
 			}
