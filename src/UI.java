@@ -334,7 +334,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		primary.close();
 		System.out.println("Creating new project...");
 		files.clear();
-		fe.clearFiles();
+		//fe.clearFiles();
+		fe.cleanUpFoldersCreated();
 		pe.clearFiles();
 		pe.clearStudents();
 		primary.setScene(uploadScreen);
