@@ -19,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -48,8 +49,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -369,6 +375,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private void newProject() {
 		primary.close();
 		System.out.println("Creating new project...");
+
 		files.clear(); // clear uploads
 		fe.clearFiles(); // clear files in the folder engine
 		fe.cleanUpFoldersCreated(); // erase stored files
@@ -517,13 +524,52 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
 
-		Text message = new Text(getStudentResults(name));
+		//Set up the text for the red students
+		Text redTitle = new Text("Red\n");
+		redTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		redTitle.setUnderline(true);
+		redTitle.setFill(Color.RED);
+		redTitle.setStrokeWidth(.5);
+		redTitle.setStroke(Color.BLACK);
+		String veryRedStudentsTxt = getVeryRedStudents(name);
+		Text veryRedStudents = null;
+		if(veryRedStudentsTxt != null) {
+			veryRedStudents = new Text();
+			veryRedStudents.setFill(Color.RED);
+		}
+		Text redStudents = new Text(getRedStudents(name));
+		
+		//Set up the text for the yellow students
+		Text yellowTitle = new Text("\nYellow\n");
+		yellowTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		yellowTitle.setUnderline(true);
+		yellowTitle.setFill(Color.YELLOW);
+		yellowTitle.setStrokeWidth(.5);
+		yellowTitle.setStroke(Color.BLACK);
+		Text yellowStudents = new Text(getYellowStudents(name));
+		
+		//Set up the text for the green students
+		Text greenTitle = new Text("\nGreen\n");
+		greenTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		greenTitle.setUnderline(true);
+		greenTitle.setFill(Color.GREEN);
+		greenTitle.setStrokeWidth(.5);
+		greenTitle.setStroke(Color.BLACK);
+		Text greenStudents = new Text(getGreenStudents(name));
+		
+		VBox textBoxes = new VBox();
+		if(veryRedStudentsTxt == null) {
+			textBoxes.getChildren().addAll(redTitle, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
+		}
+		else {
+			textBoxes.getChildren().addAll(redTitle, veryRedStudents, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
 
-		ScrollPane scroll = new ScrollPane();
-		scroll.setPadding(new Insets(20, 20, 20, 20));
-		scroll.setContent(message);
-
-		Scene dialogScene = new Scene(scroll, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+		}
+		textBoxes.setSpacing(10);
+		textBoxes.setPadding(new Insets(10));
+		ScrollPane sp = new ScrollPane(textBoxes);
+		Scene dialogScene = new Scene(sp, WINDOW_WIDTH/1.5, WINDOW_HEIGHT/1.5);
+		
 
 		popup.setScene(dialogScene);
 		popup.show();
@@ -563,34 +609,67 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		return results;
 	}
 
-	/**
-	 * Retrieve a specific student's data
-	 * 
-	 * @param name the desired student
-	 * @return results the student's data
-	 */
-	private String getStudentResults(String name) {
+
+	
+	private String getVeryRedStudents(String name) {
 		Student s = pe.getStudent(name);
+		Map<String, Double> comparisons = s.getCompScores();
 		String results = "";
-
-		results += "\nRed\n";
-		for (Student i : s.getRedStudents()) {
-			results += i.getName() + ": " + i.getScore() + "\n";
+		
+		for(Student i : s.getRedStudents()) {
+			if(Math.abs(100 - comparisons.get(i.getName())) < .00001){
+				results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+			}
 		}
-
-		results += "\nYellow\n";
-		for (Student i : s.getYellowStudents()) {
-			results += i.getName() + ": " + i.getScore() + "\n";
+		
+		if(results.equals("")) {
+			return null;
 		}
-
-		results += "\nGreen\n";
-		for (Student i : s.getGreenStudents()) {
-			results += i.getName() + ": " + i.getScore() + "\n";
-
-		}
-
+		
 		return results;
 	}
+	
+	private String getRedStudents(String name) {
+		Student s = pe.getStudent(name);
+		Map<String, Double> comparisons = s.getCompScores();
+		String results = "";
+		
+		for(Student i : s.getRedStudents()) {
+			if(Math.abs(100 - comparisons.get(i.getName())) > .00001){
+				results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+			}
+		}
+		
+		
+		return results;
+	}
+	
+	private String getYellowStudents(String name) {
+		Student s = pe.getStudent(name);
+		Map<String, Double> comparisons = s.getCompScores();
+		String results = "";
+		
+		for(Student i : s.getYellowStudents()) {
+			results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+		}
+		
+		
+		return results;
+	}
+	
+	private String getGreenStudents(String name) {
+		Student s = pe.getStudent(name);
+		Map<String, Double> comparisons = s.getCompScores();
+		String results = "";
+		
+		for(Student i : s.getGreenStudents()) {
+			results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+		}
+		
+		
+		return results;
+	}
+	
 
 	/**
 	 * Saves an excel spreadsheet of the results table. TODO add IO errors,
