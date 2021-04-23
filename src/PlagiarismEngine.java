@@ -126,6 +126,7 @@ public class PlagiarismEngine {
 
 	/**
 	 * Returns a student with matching name
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -315,6 +316,11 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public int getWeight(String keyword) {
 		if (isCommonKeyword(keyword)) {
 			return COMMON_WEIGHT;
@@ -335,6 +341,12 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
 	public int createCompScore(Student s1, Student s2) {
 		Iterator<Map.Entry<String, Integer>> keywordIterator = s1.getKeywords().entrySet().iterator();
 		Map<String, Integer> student2Dictionary = s2.getKeywords();
@@ -391,6 +403,13 @@ public class PlagiarismEngine {
 
 	}
 
+	/**
+	 * 
+	 * @param student1
+	 * @param student2
+	 * @param percent1
+	 * @param percent2
+	 */
 	public void colorPlacement(Student student1, Student student2, double percent1, double percent2) {
 		// place the students in the proper columns
 		// student 1
@@ -411,6 +430,11 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isCommonKeyword(String keyword) {
 		for (String word : commonKeywords) {
 			if (word.equals(keyword))
@@ -419,6 +443,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isUncommonKeyword(String keyword) {
 		for (String word : uncommonKeywords) {
 			if (word.equals(keyword))
@@ -427,6 +456,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isSelectionKeyword(String keyword) {
 		for (String word : selectionKeywords) {
 			if (word.equals(keyword))
@@ -435,6 +469,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isItterationKeyword(String keyword) {
 		for (String word : itterationKeywords) {
 			if (word.equals(keyword))
@@ -443,6 +482,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isErrorHandlingKeyword(String keyword) {
 		for (String word : errorHandlingKeywords) {
 			if (word.equals(keyword))
@@ -451,6 +495,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isDataValueKeyword(String keyword) {
 		for (String word : dataValueKeywords) {
 			if (word.equals(keyword))
@@ -459,6 +508,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isDataTypeKeyword(String keyword) {
 		for (String word : dataTypeKeywords) {
 			if (word.equals(keyword))
@@ -467,6 +521,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isSymbolKeyword(String keyword) {
 		for (String word : symbolKeywords) {
 			if (word.equals(keyword))
@@ -493,6 +552,9 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * Clears files for new set of data
+	 */
 	public void clearFiles() {
 		files.clear();
 	}
