@@ -79,9 +79,20 @@ public class PlagiarismEngine {
 	 */
 	public void createStudents() {
 		Student currentStudent;
+		String currentStudentName;
+		int currIndex;
 		int ID = 0;
 		for (File file : files) {
-			students.add(currentStudent = new Student(ID, file.getName()));
+			String nameOfCurrFile = file.getName();
+			for(currIndex = 0; currIndex < file.getName().length(); currIndex++) {
+				if(Character.isDigit(nameOfCurrFile.charAt(currIndex))) {
+					break;
+				}
+			}
+			currentStudentName = file.getName().substring(0, currIndex);
+			System.out.println("This is the student name: " + currentStudentName);
+			students.add(currentStudent = new Student(ID, currentStudentName));
+//			students.add(currentStudent = new Student(ID, file.getName()));
 			currentStudent.setFile(file);
 			ID++;
 		}
@@ -115,6 +126,7 @@ public class PlagiarismEngine {
 
 	/**
 	 * Returns a student with matching name
+	 * 
 	 * @param name
 	 * @return
 	 */
@@ -242,7 +254,7 @@ public class PlagiarismEngine {
 
 			// replace the file with the stripped file in the student
 			s.setFile(strippedSub);
-			s.setName(strippedSub.getName());
+			//s.setName(strippedSub.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -304,6 +316,11 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public int getWeight(String keyword) {
 		if (isCommonKeyword(keyword)) {
 			return COMMON_WEIGHT;
@@ -324,6 +341,12 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
 	public int createCompScore(Student s1, Student s2) {
 		Iterator<Map.Entry<String, Integer>> keywordIterator = s1.getKeywords().entrySet().iterator();
 		Map<String, Integer> student2Dictionary = s2.getKeywords();
@@ -380,6 +403,13 @@ public class PlagiarismEngine {
 
 	}
 
+	/**
+	 * 
+	 * @param student1
+	 * @param student2
+	 * @param percent1
+	 * @param percent2
+	 */
 	public void colorPlacement(Student student1, Student student2, double percent1, double percent2) {
 		// place the students in the proper columns
 		// student 1
@@ -400,6 +430,11 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isCommonKeyword(String keyword) {
 		for (String word : commonKeywords) {
 			if (word.equals(keyword))
@@ -408,6 +443,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isUncommonKeyword(String keyword) {
 		for (String word : uncommonKeywords) {
 			if (word.equals(keyword))
@@ -416,6 +456,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isSelectionKeyword(String keyword) {
 		for (String word : selectionKeywords) {
 			if (word.equals(keyword))
@@ -424,6 +469,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isItterationKeyword(String keyword) {
 		for (String word : itterationKeywords) {
 			if (word.equals(keyword))
@@ -432,6 +482,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isErrorHandlingKeyword(String keyword) {
 		for (String word : errorHandlingKeywords) {
 			if (word.equals(keyword))
@@ -440,6 +495,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isDataValueKeyword(String keyword) {
 		for (String word : dataValueKeywords) {
 			if (word.equals(keyword))
@@ -448,6 +508,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isDataTypeKeyword(String keyword) {
 		for (String word : dataTypeKeywords) {
 			if (word.equals(keyword))
@@ -456,6 +521,11 @@ public class PlagiarismEngine {
 		return false;
 	}
 
+	/**
+	 * 
+	 * @param keyword
+	 * @return
+	 */
 	public boolean isSymbolKeyword(String keyword) {
 		for (String word : symbolKeywords) {
 			if (word.equals(keyword))
@@ -482,6 +552,9 @@ public class PlagiarismEngine {
 		}
 	}
 
+	/**
+	 * Clears files for new set of data
+	 */
 	public void clearFiles() {
 		files.clear();
 	}
