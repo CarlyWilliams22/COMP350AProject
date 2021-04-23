@@ -79,9 +79,20 @@ public class PlagiarismEngine {
 	 */
 	public void createStudents() {
 		Student currentStudent;
+		String currentStudentName;
+		int currIndex;
 		int ID = 0;
 		for (File file : files) {
-			students.add(currentStudent = new Student(ID, file.getName()));
+			String nameOfCurrFile = file.getName();
+			for(currIndex = 0; currIndex < file.getName().length(); currIndex++) {
+				if(Character.isDigit(nameOfCurrFile.charAt(currIndex))) {
+					break;
+				}
+			}
+			currentStudentName = file.getName().substring(0, currIndex);
+			System.out.println("This is the student name: " + currentStudentName);
+			students.add(currentStudent = new Student(ID, currentStudentName));
+//			students.add(currentStudent = new Student(ID, file.getName()));
 			currentStudent.setFile(file);
 			ID++;
 		}
@@ -242,7 +253,7 @@ public class PlagiarismEngine {
 
 			// replace the file with the stripped file in the student
 			s.setFile(strippedSub);
-			s.setName(strippedSub.getName());
+			//s.setName(strippedSub.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
