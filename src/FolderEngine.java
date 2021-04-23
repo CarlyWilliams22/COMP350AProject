@@ -540,5 +540,12 @@ public class FolderEngine {
 			folder.mkdir();
 		}
 	}
+	
+	/**
+	 * Clears files for new set of data
+	 */
+	public void clearFiles() {
+		files.clear();
+	}
 
 }
