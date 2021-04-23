@@ -48,6 +48,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -377,7 +379,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		System.out.println("Creating new project...");
 
 		files.clear(); // clear uploads
-		fe.clearFiles(); // clear files in the folder engine
+		//fe.clearFiles(); // clear files in the folder engine
 		fe.cleanUpFoldersCreated(); // erase stored files
 		pe.clearFiles(); // clear files in plagiarism engine
 		pe.clearStudents(); // clear student data
@@ -520,13 +522,23 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void renderStudentPopup(String name) {
 		Stage popup = new Stage();
-		popup.setTitle(name);
+		//popup.setTitle(name);
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
+		
+		BackgroundFill bg_fill = new BackgroundFill(Color.DIMGRAY, null, null);
+		Background bg = new Background(bg_fill);
+		
+		Label studentName = new Label(name);
+		studentName.setMinWidth(WINDOW_WIDTH);
+		studentName.setMinHeight(50);
+		studentName.setBackground(bg);
+		studentName.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		studentName.setTextFill(Color.WHITE);
 
 		//Set up the text for the red students
 		Text redTitle = new Text("Red\n");
-		redTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		redTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		redTitle.setUnderline(true);
 		redTitle.setFill(Color.RED);
 		redTitle.setStrokeWidth(.5);
@@ -541,7 +553,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		//Set up the text for the yellow students
 		Text yellowTitle = new Text("\nYellow\n");
-		yellowTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		yellowTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		yellowTitle.setUnderline(true);
 		yellowTitle.setFill(Color.YELLOW);
 		yellowTitle.setStrokeWidth(.5);
@@ -550,25 +562,26 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		//Set up the text for the green students
 		Text greenTitle = new Text("\nGreen\n");
-		greenTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		greenTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		greenTitle.setUnderline(true);
 		greenTitle.setFill(Color.GREEN);
 		greenTitle.setStrokeWidth(.5);
 		greenTitle.setStroke(Color.BLACK);
 		Text greenStudents = new Text(getGreenStudents(name));
 		
+		
 		VBox textBoxes = new VBox();
 		if(veryRedStudentsTxt == null) {
-			textBoxes.getChildren().addAll(redTitle, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
+			textBoxes.getChildren().addAll(studentName, redTitle, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
 		}
 		else {
-			textBoxes.getChildren().addAll(redTitle, veryRedStudents, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
+			textBoxes.getChildren().addAll(studentName, redTitle, veryRedStudents, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
 
 		}
 		textBoxes.setSpacing(10);
 		textBoxes.setPadding(new Insets(10));
 		ScrollPane sp = new ScrollPane(textBoxes);
-		Scene dialogScene = new Scene(sp, WINDOW_WIDTH/1.5, WINDOW_HEIGHT/1.5);
+		Scene dialogScene = new Scene(sp, WINDOW_WIDTH/3, WINDOW_HEIGHT/1.5);
 		
 
 		popup.setScene(dialogScene);
@@ -618,7 +631,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		for(Student i : s.getRedStudents()) {
 			if(Math.abs(100 - comparisons.get(i.getName())) < .00001){
-				results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 			}
 		}
 		
@@ -636,7 +649,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		for(Student i : s.getRedStudents()) {
 			if(Math.abs(100 - comparisons.get(i.getName())) > .00001){
-				results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 			}
 		}
 		
@@ -650,7 +663,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 		
 		for(Student i : s.getYellowStudents()) {
-			results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 		}
 		
 		
@@ -663,7 +676,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 		
 		for(Student i : s.getGreenStudents()) {
-			results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 		}
 		
 		
