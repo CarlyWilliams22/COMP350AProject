@@ -57,6 +57,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -115,6 +116,30 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void renderUploadScreen() {
 
+		TextFlow title = new TextFlow();
+		title.setLayoutX(WINDOW_WIDTH/1.5);
+		title.setLayoutY(50);
+		
+		Text welcome = new Text("  Welcome To ");
+		welcome.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		Text c1 = new Text("C");
+		c1.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c1.setFill(Color.GREEN);
+		c1.setStrokeWidth(.5);
+		c1.setStroke(Color.BLACK);
+		Text c2 = new Text("C");
+		c2.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c2.setFill(Color.YELLOW);
+		c2.setStrokeWidth(.5);
+		c2.setStroke(Color.BLACK);
+		Text c3 = new Text("C");
+		c3.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c3.setFill(Color.RED);
+		c3.setStrokeWidth(.5);
+		c3.setStroke(Color.BLACK);
+		
+		title.getChildren().addAll(welcome, c1, c2, c3);
+		
 		Label label = new Label(); // screen information
 		label.setText("Upload Files");
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -122,7 +147,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		VBox side = new VBox(); // holds the buttons on the right side
 		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
 		side.setSpacing(60);
-		renderFileButtons();
+		renderFileButtons(); //What does this do?
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderFileButtons());
 
@@ -140,8 +165,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 		pane.setRight(side);
 		pane.setCenter(table);
+		
+		VBox frame = new VBox();
+		frame.setPrefSize(BUTTON_WIDTH/.25, BUTTON_HEIGHT/.25);
+		frame.getChildren().addAll(title, pane);
 
-		uploadScreen = new Scene(pane);
+		uploadScreen = new Scene(frame);
 		uploadScreen.setOnKeyPressed(this); // adds hot keys listener
 
 		primary.setScene(uploadScreen);
@@ -621,8 +650,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		}
 		return results;
 	}
-
-
 	
 	private String getVeryRedStudents(String name) {
 		Student s = pe.getStudent(name);
