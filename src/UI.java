@@ -51,6 +51,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -155,7 +156,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		TableView<File> table = new TableView<File>(); // upload directory
 
 		TableColumn<File, String> column = new TableColumn<File, String>("Files");
-		column.setMinWidth(300);
+		column.setMinWidth(400);
 		column.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
 		table.getColumns().add(column);
 		table.setItems(files);
@@ -168,7 +169,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		pane.setCenter(table);
 		
 		VBox frame = new VBox();
-		frame.setPrefSize(BUTTON_WIDTH/.25, BUTTON_HEIGHT/.25);
+		frame.setPrefSize(WINDOW_WIDTH *.5, WINDOW_HEIGHT *.65);
 		frame.getChildren().addAll(title, pane);
 
 		uploadScreen = new Scene(frame);
@@ -285,6 +286,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		Label label = new Label(); // screen information
 		label.setText("Students' Results");
+		label.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 15));
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox(); // holds buttons on the right side
@@ -299,7 +301,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		BorderPane pane = new BorderPane(); // UI layout
 		BorderPane.setMargin(tabs, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
-		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		pane.setPrefSize(WINDOW_WIDTH * .7, WINDOW_HEIGHT * .65);
 		tabs.setTabMinWidth(200);
 		pane.setRight(side);
 		pane.setCenter(tabs);
@@ -449,7 +451,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		// Create Results Columns
 		TableColumn<Student, String> nameCol = new TableColumn<Student, String>("Name");
-		nameCol.setMinWidth(300);
+		nameCol.setMinWidth(257);
 		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
 
 		TableColumn<Student, String> IDCol = new TableColumn<Student, String>("ID");
@@ -556,15 +558,14 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
 		
-		BackgroundFill bg_fill = new BackgroundFill(Color.DIMGRAY, null, null);
+		BackgroundFill bg_fill = new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(10), null);
 		Background bg = new Background(bg_fill);
 		
-		Label studentName = new Label(name);
+		Label studentName = new Label("  " + name);
 		studentName.setMinWidth(WINDOW_WIDTH);
 		studentName.setMinHeight(50);
 		studentName.setBackground(bg);
-		studentName.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
-		studentName.setTextFill(Color.WHITE);
+		studentName.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 25));
 
 		//Set up the text for the red students
 		Text redTitle = new Text("Red\n");
