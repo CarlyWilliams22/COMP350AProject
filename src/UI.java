@@ -142,6 +142,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		Label label = new Label(); // screen information
 		label.setText("Upload Files");
+		label.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 20));
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox(); // holds the buttons on the right side
