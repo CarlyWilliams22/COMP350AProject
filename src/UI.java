@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -80,6 +81,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private PlagiarismEngine pe; // algorithm functionality
 	private FileChooser explorer;
 	private ObservableList<File> files = FXCollections.observableArrayList();
+	private ObservableList<File> errorFiles = FXCollections.observableArrayList();
+
+	
 
 	public UI() {
 		primary = new Stage();
@@ -168,9 +172,18 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		pane.setRight(side);
 		pane.setCenter(table);
 		
+		TableView<File> unprocessedTable = new TableView<File>();
+		
+		TableColumn<File, String> unprocessedColumn = new TableColumn<File, String>("Could not read files:");
+		unprocessedColumn.setMinWidth(WINDOW_WIDTH *.5);
+		unprocessedColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
+		unprocessedTable.getColumns().add(unprocessedColumn);
+		unprocessedTable.setMinHeight(100);
+		unprocessedTable.setItems(errorFiles);
+		
 		VBox frame = new VBox();
-		frame.setPrefSize(WINDOW_WIDTH *.5, WINDOW_HEIGHT *.65);
-		frame.getChildren().addAll(title, pane);
+		frame.setPrefSize(WINDOW_WIDTH *.5, WINDOW_HEIGHT *.75);
+		frame.getChildren().addAll(title, pane, unprocessedTable);
 
 		uploadScreen = new Scene(frame);
 		uploadScreen.setOnKeyPressed(this); // adds hot keys listener
@@ -258,6 +271,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 						String PATH = file.getCanonicalPath(); // get location
 						fe.unzipRecursive(PATH, "Storage\\"); // unzip
 						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
+						ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
+						for(int i = 0; i < unprocessedFiles.size(); i++) {
+							errorFiles.add(unprocessedFiles.get(i));
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
