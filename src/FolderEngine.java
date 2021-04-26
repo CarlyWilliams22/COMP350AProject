@@ -24,13 +24,14 @@ import java.util.zip.ZipInputStream;
 public class FolderEngine {
 
 	private static ArrayList<File> files;
-//	private static long averageSizeOfFile;
-//	private static int numOfFiles;
+	private static long averageSizeOfFile;
+	private static int numOfFiles;
+	
 
 	public FolderEngine() {
 		files = new ArrayList<File>();
-//		averageSizeOfFile = 0;
-//		numOfFiles = 0;
+		averageSizeOfFile = 2500;
+		numOfFiles = 1;
 	}
 	
 	//TODO: Make it work with a zip folder that has a nonzipped folder directly inside (testCodeFromDesktop)
@@ -43,7 +44,12 @@ public class FolderEngine {
 
 		//Still gets stuck on Tyler Ridout's folder, even though it skips files
 		String testCodeFromVal = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectA_stupidCopies.zip";
-		//testFE.unzipRecursive(testCodeFromVal, "Storage/");
+		try {
+			testFE.unzipRecursive(testCodeFromVal, "Storage/");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		// This set of nonzipped test code doesn't work
 		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
@@ -53,7 +59,7 @@ public class FolderEngine {
 
 		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectB_OrigCodes.zip";
-		testFE.unzipRecursive(sectionBCode, "Storage\\");
+		//testFE.unzipRecursive(sectionBCode, "Storage\\");
 		//testFE.unzipRecursiveWithOneFile(sectionBCode, "Storage\\");
 		//testFE.unzipRecursiveWithTempDirs(sectionBCode, "Storage\\");
 		//testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
@@ -74,7 +80,7 @@ public class FolderEngine {
 	
 	// Loosely based on howtodoinjava article code:
 	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
-	public void unzipRecursive(String PATH, String targetDir) {
+	public void unzipRecursive(String PATH, String targetDir) throws IOException {
 		//check to see if folder passed in is a zip folder
 		if (PATH.endsWith(".zip")) {
 			//create a new zip file object with the path passed in
@@ -93,161 +99,184 @@ public class FolderEngine {
 
 				//iterate over the entries in the zip folder
 				while (entries.hasMoreElements()) {
-					//get next entry
-					ZipEntry ze = entries.nextElement();
-					long sizeOfCurrentFile = ze.getSize();
-					System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
-					//holds the potential unzipped parent of the zip entry that's gotten ignored
-					File unzippedParent;
-					
-					//check for nonzipped parent folder that's getting ignored
-					if(ze.getName().contains("/")) {
-						//find the name of the potential parent folder using the index of the slash
-						String possibleParentFolder = ze.getName().substring(0, ze.getName().indexOf("/") + 1);
-						//if the possible parent dir doesn't exist, create it
-						if (Files.notExists(fs.getPath(targetDir + possibleParentFolder))) {
-							unzippedParent = new File(targetDir + File.separator + possibleParentFolder);
-							unzippedParent.mkdir();
-							System.out.println("Path of parent folder made: " + unzippedParent.getAbsolutePath());
-						}
-						System.out.println("Possible parent: " + possibleParentFolder);					
-					}
-					//if the zip entry is a directory and not a .settings or bin folder
-					if (ze.isDirectory() && !ze.getName().contains(".settings")
-							&& !ze.getName().contains("bin")) {
-						//create a new directory
-						File newDir = new File(targetDir + File.separator + ze.getName());
-						newDir.mkdir();
-						System.out.println("making dir: " + newDir.getName());
-						//find the name for the temp file
-						String nameForTempFile = newDir.getAbsolutePath().substring(newDir.getAbsolutePath().indexOf("Storage"));
-						//create a temp file in the dir to hold that student's code
-						File combinedCode;
-						combinedCode = File.createTempFile(nameForTempFile, null, newDir.getAbsoluteFile());
-						System.out.println("This is the name of the combinedCode file: " + combinedCode.getName());
-						System.out.println("This is the parent of the .txt file: " + combinedCode.getParent());
-					} else {
-						//if it's a zip folder or a java file
-						if (ze.getName().endsWith(".zip") || ze.getName().endsWith(".java")) {
-							//get the input stream and make a buffered input stream
-							InputStream is = zf.getInputStream(ze);
-							BufferedInputStream bis = new BufferedInputStream(is);
-							//get the name of the file
-							String uncompFileName = "";
-							System.out.println("This is the value of targetDir: " + targetDir);
-							//System.out.println("This is the zip entry name: " + ze.getName());
-							uncompFileName = targetDir + File.separator + ze.getName();
-							//get the path of the file name
-							Path uncompFilePath = fs.getPath(uncompFileName);
-							Path zipFileLoc;
-							//if the file associated with that path doesn't exist, create it
-							if(Files.notExists(uncompFilePath)) {
-								zipFileLoc = Files.createFile(uncompFilePath);
+					try {
+						//get next entry
+						ZipEntry ze = entries.nextElement();
+						long sizeOfCurrentFile = ze.getSize();
+						if(sizeOfCurrentFile != 0) {
+							if(sizeOfCurrentFile < (4*averageSizeOfFile)) {
+								System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
+								averageSizeOfFile *= numOfFiles;
+								averageSizeOfFile += sizeOfCurrentFile;
+								numOfFiles++;
+								averageSizeOfFile /= numOfFiles;
+								System.out.println("Average size so far: " + averageSizeOfFile);
 							} else {
-								zipFileLoc = uncompFilePath;
+								System.out.println("File is too large");
+								System.out.println("Size of file: " + sizeOfCurrentFile);
+								throw new IOException("File is too large. Cannot process. Skipping.");
 							}
-							//get the file that needs to be written
-							File fileToWrite = zipFileLoc.toFile();
-							System.out.println("This is the fileToWrite name: " + fileToWrite.getName());
 							
-							//this section solves the problem of only writing to a single temporary file for every student
-							//even if their java files are multiple layers in or in a src folder
-							int firstIndexOfSlash;
-							int secondIndexOfSlash;
-							//default index is the length of the path
-							int indexToUse = fileToWrite.getAbsolutePath().length();
-							//get the index of the storage folder in the path
-							int indexOfStorage = fileToWrite.getAbsolutePath().indexOf("Storage");
-							//if there is a slash beyond the storage folder
-							if(fileToWrite.getAbsolutePath().substring(indexOfStorage).contains("\\")) {
-								
-								System.out.println("Made it inside slash if statement");
-								System.out.println("FileToWrite before getting first slash: " + fileToWrite.getAbsolutePath());
-								//get the index of the first slash after the storage folder
-								firstIndexOfSlash = fileToWrite.getAbsolutePath().indexOf("\\", indexOfStorage);
-								System.out.println("FileToWrite after getting first slash: " + fileToWrite.getAbsolutePath());
-								System.out.println("FirstIndexOfSlash value: " + firstIndexOfSlash);
-								//if after the storage folder slash there is a second slash, get that one too
-								if(fileToWrite.getAbsolutePath().substring(firstIndexOfSlash + 1, fileToWrite.getAbsolutePath().length()).contains("\\")) {
-									System.out.println("FileToWrite before getting second slash: " + fileToWrite.getAbsolutePath());
-									secondIndexOfSlash = fileToWrite.getAbsolutePath().indexOf("\\", firstIndexOfSlash+1);
-									System.out.println("SecondIndexOfSlash value: " + secondIndexOfSlash);
-									System.out.println("FileToWrite after getting second slash: " + fileToWrite.getAbsolutePath());
-									//the index of the second slash will be used later to find the head folder of the file
-									indexToUse = secondIndexOfSlash;
-									System.out.println("IndexToUse value: " + indexToUse);
+						}
+						//holds the potential unzipped parent of the zip entry that's gotten ignored
+						File unzippedParent;
+						
+						//check for nonzipped parent folder that's getting ignored
+						if(ze.getName().contains("/")) {
+							//find the name of the potential parent folder using the index of the slash
+							String possibleParentFolder = ze.getName().substring(0, ze.getName().indexOf("/") + 1);
+							//if the possible parent dir doesn't exist, create it
+							if (Files.notExists(fs.getPath(targetDir + possibleParentFolder))) {
+								unzippedParent = new File(targetDir + File.separator + possibleParentFolder);
+								unzippedParent.mkdir();
+								//System.out.println("Path of parent folder made: " + unzippedParent.getAbsolutePath());
+							}
+							//System.out.println("Possible parent: " + possibleParentFolder);					
+						}
+						//if the zip entry is a directory and not a .settings or bin folder
+						if (ze.isDirectory() && !ze.getName().contains(".settings")
+								&& !ze.getName().contains("bin")) {
+							//create a new directory
+							File newDir = new File(targetDir + File.separator + ze.getName());
+							newDir.mkdir();
+							//System.out.println("making dir: " + newDir.getName());
+							//find the name for the temp file
+							String nameForTempFile = newDir.getAbsolutePath().substring(newDir.getAbsolutePath().indexOf("Storage"));
+							//create a temp file in the dir to hold that student's code
+							File combinedCode;
+							combinedCode = File.createTempFile(nameForTempFile, null, newDir.getAbsoluteFile());
+							//System.out.println("This is the name of the combinedCode file: " + combinedCode.getName());
+							//System.out.println("This is the parent of the .txt file: " + combinedCode.getParent());
+						} else {
+							//if it's a zip folder or a java file
+							if (ze.getName().endsWith(".zip") || ze.getName().endsWith(".java")) {
+								//get the input stream and make a buffered input stream
+								InputStream is = zf.getInputStream(ze);
+								BufferedInputStream bis = new BufferedInputStream(is);
+								//get the name of the file
+								String uncompFileName = "";
+								//System.out.println("This is the value of targetDir: " + targetDir);
+								//System.out.println("This is the zip entry name: " + ze.getName());
+								uncompFileName = targetDir + File.separator + ze.getName();
+								//get the path of the file name
+								Path uncompFilePath = fs.getPath(uncompFileName);
+								Path zipFileLoc;
+								//if the file associated with that path doesn't exist, create it
+								if(Files.notExists(uncompFilePath)) {
+									zipFileLoc = Files.createFile(uncompFilePath);
+								} else {
+									zipFileLoc = uncompFilePath;
 								}
-							}
-							
-							System.out.println("Index of storage: " + fileToWrite.getAbsolutePath().indexOf("Storage"));
-							System.out.println("Index to use: " + indexToUse);
-							System.out.println("size of FileToWrite path: " + fileToWrite.getAbsolutePath().length());
-							System.out.println("file path of FileToWrite: " + fileToWrite.getAbsolutePath());
-							//get the name of the head folder using the storage index and the second index gathered
-							String headFolderName = fileToWrite.getAbsolutePath().substring(
-									fileToWrite.getAbsolutePath().indexOf("Storage"), 
-									indexToUse);
-							System.out.println(headFolderName);
-							//create a head folder file object
-							File headFolder = new File(fileToWrite.getAbsolutePath().substring(
-									fileToWrite.getAbsolutePath().indexOf("Storage"), 
-									indexToUse));
-							System.out.println("Head folder: " + headFolder.getAbsolutePath());
-							//find all the files in that head folder
-							File[] filesInParent = headFolder.listFiles();
-							//default initialize the compilation file with the file that's being written
-							File compilationFile = fileToWrite;
-							FileOutputStream fileOutput;
-							//iterate over files in the head folder
-							if(filesInParent.length > 0) {
-								for(File f : filesInParent) {
-									//if a temp file is found, use that as the compilation file 
-									//for all the student's java files
-									if(f.getName().endsWith(".tmp")) {
-										compilationFile = new File(f.getName());
-										System.out.println("Found a tmp file! " + f.getName());
-									} else {
-										System.out.println("This isn't a tmp file: " + f.getName());
+								//get the file that needs to be written
+								File fileToWrite = zipFileLoc.toFile();
+								//System.out.println("This is the fileToWrite name: " + fileToWrite.getName());
+								
+								//this section solves the problem of only writing to a single temporary file for every student
+								//even if their java files are multiple layers in or in a src folder
+								int firstIndexOfSlash;
+								int secondIndexOfSlash;
+								//default index is the length of the path
+								int indexToUse = fileToWrite.getAbsolutePath().length();
+								//get the index of the storage folder in the path
+								int indexOfStorage = fileToWrite.getAbsolutePath().indexOf("Storage");
+								//if there is a slash beyond the storage folder
+								if(fileToWrite.getAbsolutePath().substring(indexOfStorage).contains("\\")) {
+									
+									//System.out.println("Made it inside slash if statement");
+									//System.out.println("FileToWrite before getting first slash: " + fileToWrite.getAbsolutePath());
+									//get the index of the first slash after the storage folder
+									firstIndexOfSlash = fileToWrite.getAbsolutePath().indexOf("\\", indexOfStorage);
+									//System.out.println("FileToWrite after getting first slash: " + fileToWrite.getAbsolutePath());
+									//System.out.println("FirstIndexOfSlash value: " + firstIndexOfSlash);
+									//if after the storage folder slash there is a second slash, get that one too
+									if(fileToWrite.getAbsolutePath().substring(firstIndexOfSlash + 1, fileToWrite.getAbsolutePath().length()).contains("\\")) {
+										//System.out.println("FileToWrite before getting second slash: " + fileToWrite.getAbsolutePath());
+										secondIndexOfSlash = fileToWrite.getAbsolutePath().indexOf("\\", firstIndexOfSlash+1);
+										//System.out.println("SecondIndexOfSlash value: " + secondIndexOfSlash);
+										//System.out.println("FileToWrite after getting second slash: " + fileToWrite.getAbsolutePath());
+										//the index of the second slash will be used later to find the head folder of the file
+										indexToUse = secondIndexOfSlash;
+										//System.out.println("IndexToUse value: " + indexToUse);
 									}
 								}
-							}
-							System.out.println("File: " + fileToWrite.getName() + " has a parent: " + fileToWrite.getParent());
-
-							//if the file is a zip folder, don't write it to the compilation file
-							if(fileToWrite.getName().endsWith(".zip")) {
-								fileOutput = new FileOutputStream(fileToWrite);
-							} else {
-								fileOutput = new FileOutputStream(compilationFile, true);
-							}
-							//write the file
-							while (bis.available() > 0) {
-								//System.out.println("writing from " + fileToWrite.getName());
-								fileOutput.write(bis.read());
-							}
-							
-							fileOutput.close();	//close the output stream
-							System.out.println("Written: " + ze.getName());
-						
-							//if the file is a zip folder, make a recursive call
-							if (ze.getName().endsWith(".zip")) {
-								System.out.println("Path generated: " + zipFileLoc);
-								unzipRecursive(zipFileLoc.toString(),
-										zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
-							}
-							
-							//System.out.println(zipFileLoc.toFile().getAbsolutePath());
-
-							//if the compilation file contains stuff, add it to the files array
-							if(!compilationFile.equals(null)) {
-								//if it's already in the files array, remove it and re-add it
-								if(files.contains(compilationFile)) {
-									files.remove(compilationFile);
+								
+								//System.out.println("Index of storage: " + fileToWrite.getAbsolutePath().indexOf("Storage"));
+								//System.out.println("Index to use: " + indexToUse);
+								//System.out.println("size of FileToWrite path: " + fileToWrite.getAbsolutePath().length());
+								//System.out.println("file path of FileToWrite: " + fileToWrite.getAbsolutePath());
+								//get the name of the head folder using the storage index and the second index gathered
+								String headFolderName = fileToWrite.getAbsolutePath().substring(
+										fileToWrite.getAbsolutePath().indexOf("Storage"), 
+										indexToUse);
+								//System.out.println(headFolderName);
+								//create a head folder file object
+								File headFolder = new File(fileToWrite.getAbsolutePath().substring(
+										fileToWrite.getAbsolutePath().indexOf("Storage"), 
+										indexToUse));
+								//System.out.println("Head folder: " + headFolder.getAbsolutePath());
+								//find all the files in that head folder
+								File[] filesInParent = headFolder.listFiles();
+								//default initialize the compilation file with the file that's being written
+								File compilationFile = fileToWrite;
+								FileOutputStream fileOutput;
+								//iterate over files in the head folder
+								if(filesInParent.length > 0) {
+									for(File f : filesInParent) {
+										//if a temp file is found, use that as the compilation file 
+										//for all the student's java files
+										if(f.getName().endsWith(".tmp")) {
+											compilationFile = new File(f.getName());
+											//System.out.println("Found a tmp file! " + f.getName());
+										} else {
+											//System.out.println("This isn't a tmp file: " + f.getName());
+										}
+									}
 								}
-								files.add(compilationFile);
-							}
-						}//close of if statement for zip/java
+								//System.out.println("File: " + fileToWrite.getName() + " has a parent: " + fileToWrite.getParent());
+	
+								//if the file is a zip folder, don't write it to the compilation file
+								if(fileToWrite.getName().endsWith(".zip")) {
+									fileOutput = new FileOutputStream(fileToWrite);
+								} else {
+									fileOutput = new FileOutputStream(compilationFile, true);
+								}
+								//write the file
+								while (bis.available() > 0) {
+									//System.out.println("writing from " + fileToWrite.getName());
+									fileOutput.write(bis.read());
+								}
+								
+								fileOutput.close();	//close the output stream
+								//System.out.println("Written: " + ze.getName());
+							
+								//if the file is a zip folder, make a recursive call
+								if (ze.getName().endsWith(".zip")) {
+									//System.out.println("Path generated: " + zipFileLoc);
+									unzipRecursive(zipFileLoc.toString(),
+											zipFileLoc.toString().substring(0, zipFileLoc.toString().length() - 4));
+								}
+								
+								//System.out.println(zipFileLoc.toFile().getAbsolutePath());
+	
+								//if the compilation file contains stuff, add it to the files array
+								if(!compilationFile.equals(null)) {
+									//if it's already in the files array, remove it and re-add it
+									if(files.contains(compilationFile)) {
+										files.remove(compilationFile);
+									}
+									files.add(compilationFile);
+								}
+							}//close of if statement for zip/java
+						}//close of else for directory
+	//					catch(IOException fileTooLarge) {
+	//						System.out.println(fileTooLarge.getMessage());
+	//					}
+					}//close try
+					catch (Exception e) {
+						System.out.println(e.getMessage());
+						e.printStackTrace();
 					}
-				}
+				}//close of while more entries loop
 			//catch any exceptions
 			} catch (FileAlreadyExistsException faee) {
 				faee.printStackTrace();
