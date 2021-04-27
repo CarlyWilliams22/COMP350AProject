@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -48,13 +49,17 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -76,6 +81,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private PlagiarismEngine pe; // algorithm functionality
 	private FileChooser explorer;
 	private ObservableList<File> files = FXCollections.observableArrayList();
+	private ObservableList<File> errorFiles = FXCollections.observableArrayList();
+
+	
 
 	public UI() {
 		primary = new Stage();
@@ -113,21 +121,46 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void renderUploadScreen() {
 
+		TextFlow title = new TextFlow();
+		title.setLayoutX(WINDOW_WIDTH/1.5);
+		title.setLayoutY(50);
+		
+		Text welcome = new Text("  Welcome To ");
+		welcome.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		Text c1 = new Text("C");
+		c1.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c1.setFill(Color.GREEN);
+		c1.setStrokeWidth(.5);
+		c1.setStroke(Color.BLACK);
+		Text c2 = new Text("C");
+		c2.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c2.setFill(Color.YELLOW);
+		c2.setStrokeWidth(.5);
+		c2.setStroke(Color.BLACK);
+		Text c3 = new Text("C");
+		c3.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c3.setFill(Color.RED);
+		c3.setStrokeWidth(.5);
+		c3.setStroke(Color.BLACK);
+		
+		title.getChildren().addAll(welcome, c1, c2, c3);
+		
 		Label label = new Label(); // screen information
 		label.setText("Upload Files");
+		label.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 20));
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox(); // holds the buttons on the right side
 		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
 		side.setSpacing(60);
-		renderFileButtons();
+		renderFileButtons(); //What does this do?
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderFileButtons());
 
 		TableView<File> table = new TableView<File>(); // upload directory
 
 		TableColumn<File, String> column = new TableColumn<File, String>("Files");
-		column.setMinWidth(300);
+		column.setMinWidth(400);
 		column.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
 		table.getColumns().add(column);
 		table.setItems(files);
@@ -138,8 +171,21 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 		pane.setRight(side);
 		pane.setCenter(table);
+		
+		TableView<File> unprocessedTable = new TableView<File>();
+		
+		TableColumn<File, String> unprocessedColumn = new TableColumn<File, String>("Could not read files:");
+		unprocessedColumn.setMinWidth(WINDOW_WIDTH *.5);
+		unprocessedColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
+		unprocessedTable.getColumns().add(unprocessedColumn);
+		unprocessedTable.setMinHeight(100);
+		unprocessedTable.setItems(errorFiles);
+		
+		VBox frame = new VBox();
+		frame.setPrefSize(WINDOW_WIDTH *.5, WINDOW_HEIGHT *.75);
+		frame.getChildren().addAll(title, pane, unprocessedTable);
 
-		uploadScreen = new Scene(pane);
+		uploadScreen = new Scene(frame);
 		uploadScreen.setOnKeyPressed(this); // adds hot keys listener
 
 		primary.setScene(uploadScreen);
@@ -225,6 +271,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 						String PATH = file.getCanonicalPath(); // get location
 						fe.unzipRecursive(PATH, "Storage\\"); // unzip
 						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
+						ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
+						for(int i = 0; i < unprocessedFiles.size(); i++) {
+							errorFiles.add(unprocessedFiles.get(i));
+						}
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -253,6 +303,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		Label label = new Label(); // screen information
 		label.setText("Students' Results");
+		label.setFont(Font.font("Bookman Old Style",FontWeight.BOLD, FontPosture.REGULAR, 15));
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox(); // holds buttons on the right side
@@ -267,7 +318,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		BorderPane pane = new BorderPane(); // UI layout
 		BorderPane.setMargin(tabs, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
-		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		pane.setPrefSize(WINDOW_WIDTH * .7, WINDOW_HEIGHT * .65);
 		tabs.setTabMinWidth(200);
 		pane.setRight(side);
 		pane.setCenter(tabs);
@@ -377,7 +428,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		System.out.println("Creating new project...");
 
 		files.clear(); // clear uploads
-		fe.clearFiles(); // clear files in the folder engine
+		//fe.clearFiles(); // clear files in the folder engine
 		fe.cleanUpFoldersCreated(); // erase stored files
 		pe.clearFiles(); // clear files in plagiarism engine
 		pe.clearStudents(); // clear student data
@@ -417,7 +468,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		// Create Results Columns
 		TableColumn<Student, String> nameCol = new TableColumn<Student, String>("Name");
-		nameCol.setMinWidth(300);
+		nameCol.setMinWidth(257);
 		nameCol.setCellValueFactory(new PropertyValueFactory<Student, String>("Name"));
 
 		TableColumn<Student, String> IDCol = new TableColumn<Student, String>("ID");
@@ -520,13 +571,22 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void renderStudentPopup(String name) {
 		Stage popup = new Stage();
-		popup.setTitle(name);
+		//popup.setTitle(name);
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
+		
+		BackgroundFill bg_fill = new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(10), null);
+		Background bg = new Background(bg_fill);
+		
+		Label studentName = new Label("  " + name);
+		studentName.setMinWidth(WINDOW_WIDTH);
+		studentName.setMinHeight(50);
+		studentName.setBackground(bg);
+		studentName.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 25));
 
 		//Set up the text for the red students
 		Text redTitle = new Text("Red\n");
-		redTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		redTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		redTitle.setUnderline(true);
 		redTitle.setFill(Color.RED);
 		redTitle.setStrokeWidth(.5);
@@ -541,7 +601,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		//Set up the text for the yellow students
 		Text yellowTitle = new Text("\nYellow\n");
-		yellowTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		yellowTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		yellowTitle.setUnderline(true);
 		yellowTitle.setFill(Color.YELLOW);
 		yellowTitle.setStrokeWidth(.5);
@@ -550,25 +610,26 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		//Set up the text for the green students
 		Text greenTitle = new Text("\nGreen\n");
-		greenTitle.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 15));
+		greenTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		greenTitle.setUnderline(true);
 		greenTitle.setFill(Color.GREEN);
 		greenTitle.setStrokeWidth(.5);
 		greenTitle.setStroke(Color.BLACK);
 		Text greenStudents = new Text(getGreenStudents(name));
 		
+		
 		VBox textBoxes = new VBox();
 		if(veryRedStudentsTxt == null) {
-			textBoxes.getChildren().addAll(redTitle, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
+			textBoxes.getChildren().addAll(studentName, redTitle, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
 		}
 		else {
-			textBoxes.getChildren().addAll(redTitle, veryRedStudents, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
+			textBoxes.getChildren().addAll(studentName, redTitle, veryRedStudents, redStudents, yellowTitle, yellowStudents, greenTitle, greenStudents);
 
 		}
 		textBoxes.setSpacing(10);
 		textBoxes.setPadding(new Insets(10));
 		ScrollPane sp = new ScrollPane(textBoxes);
-		Scene dialogScene = new Scene(sp, WINDOW_WIDTH/1.5, WINDOW_HEIGHT/1.5);
+		Scene dialogScene = new Scene(sp, WINDOW_WIDTH/3, WINDOW_HEIGHT/1.5);
 		
 
 		popup.setScene(dialogScene);
@@ -608,8 +669,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		}
 		return results;
 	}
-
-
 	
 	private String getVeryRedStudents(String name) {
 		Student s = pe.getStudent(name);
@@ -618,7 +677,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		for(Student i : s.getRedStudents()) {
 			if(Math.abs(100 - comparisons.get(i.getName())) < .00001){
-				results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 			}
 		}
 		
@@ -636,7 +695,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		
 		for(Student i : s.getRedStudents()) {
 			if(Math.abs(100 - comparisons.get(i.getName())) > .00001){
-				results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 			}
 		}
 		
@@ -650,7 +709,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 		
 		for(Student i : s.getYellowStudents()) {
-			results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 		}
 		
 		
@@ -663,7 +722,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 		
 		for(Student i : s.getGreenStudents()) {
-			results += String.format("%-100s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
+			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName())*100);
 		}
 		
 		

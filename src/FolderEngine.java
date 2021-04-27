@@ -24,14 +24,17 @@ import java.util.zip.ZipInputStream;
 public class FolderEngine {
 
 	private static ArrayList<File> files;
+
 	private static long averageSizeOfFile;
 	private static int numOfFiles;
-	
+	public ArrayList<File> unprocessedFiles;
 
 	public FolderEngine() {
 		files = new ArrayList<File>();
+		unprocessedFiles = new ArrayList<File>();
 		averageSizeOfFile = 2500;
 		numOfFiles = 1;
+
 	}
 	
 	//TODO: Make it work with a zip folder that has a nonzipped folder directly inside (testCodeFromDesktop)
@@ -334,6 +337,7 @@ public class FolderEngine {
 
 	public void lookInsideNonZippedFolder(String PATH, File[] fileArray, String targetDir) {
 		FileSystem fs = FileSystems.getDefault();
+		File currFileName = null;
 
 		try {
 			if (Files.notExists(fs.getPath(targetDir))) {
@@ -341,6 +345,7 @@ public class FolderEngine {
 			}
 		
 			for (File currFile : fileArray) {
+				currFileName = currFile;
 				if (currFile.getName().endsWith(".zip")) {
 					unzipRecursive(PATH, targetDir);
 				}
@@ -365,11 +370,15 @@ public class FolderEngine {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			if(!unprocessedFiles.contains(currFileName)) {
+				unprocessedFiles.add(currFileName);
+			}
 		}
 	} //look inside nonzipped without temp files or writing to files array
 	
 	public void lookInsideNonZippedFolderMoreWork(String PATH, File[] fileArray, String targetDir) {
 		FileSystem fs = FileSystems.getDefault();
+		File currFileName = null;
 
 		try {
 			if (Files.notExists(fs.getPath(targetDir))) {
@@ -379,6 +388,7 @@ public class FolderEngine {
 			}
 
 			for (File currFile : fileArray) {
+				currFileName = currFile;
 				if (currFile.getName().endsWith(".zip")) {
 					unzipRecursive(PATH, targetDir);
 				}
@@ -460,6 +470,9 @@ public class FolderEngine {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			if(!unprocessedFiles.contains(currFileName)) {
+				unprocessedFiles.add(currFileName);
+			}
 		}
 	}
 
@@ -577,4 +590,8 @@ public class FolderEngine {
 		files.clear();
 	}
 
+	ArrayList<File> getUnprocessedFiles(){
+		return unprocessedFiles;
+	}
+	
 }
