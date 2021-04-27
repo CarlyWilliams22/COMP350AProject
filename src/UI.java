@@ -275,7 +275,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
 						ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
 						for(int i = 0; i < unprocessedFiles.size(); i++) {
-							errorFiles.add(unprocessedFiles.get(i));
+							if(!errorFiles.contains(unprocessedFiles.get(i))) {
+								errorFiles.add(unprocessedFiles.get(i));
+							}
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -762,6 +764,14 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 				writer.append("\n");
 
 			}
+			
+			if(!errorFiles.isEmpty()) {
+				writer.append("FAILED TO PROCESS THESE FILES:\n");
+				for(File f: errorFiles) {
+					writer.append(f.getName() + "\n");
+				}
+			}
+			
 			// finish
 			writer.flush();
 			writer.close();
