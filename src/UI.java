@@ -15,8 +15,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -256,8 +258,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 						fe.unzipRecursive(PATH, "Storage\\"); // unzip
 						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
 						ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
-						for (int i = 0; i < unprocessedFiles.size(); i++) {
-							errorFiles.add(unprocessedFiles.get(i));
+
+						for(int i = 0; i < unprocessedFiles.size(); i++) {
+							if(!errorFiles.contains(unprocessedFiles.get(i))) {
+								errorFiles.add(unprocessedFiles.get(i));
+							}
+
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -725,33 +731,36 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		// may want to change return value to a boolean for status check
 		try {
 			FileWriter writer = new FileWriter(file);
+			Iterator<Entry<String, Double>> studentIterator;
+			Map<String, Double> studentResults;
 
 			// write header info
-			writer.append("Student");
-			writer.append(",");
-			writer.append("ID");
-			writer.append(",");
-			writer.append("Green");
-			writer.append(",");
-			writer.append("Yellow");
-			writer.append(",");
-			writer.append("Red");
-			writer.append("\n");
-
-			// write data for each student
-			for (Student s : pe.getStudents()) {
-				writer.append(s.getName());
-				writer.append(",");
-				writer.append(String.valueOf(s.getID()));
-				writer.append(",");
-				writer.append(String.valueOf(s.getGreenNum()));
-				writer.append(",");
-				writer.append(String.valueOf(s.getYellowNum()));
-				writer.append(",");
-				writer.append(String.valueOf(s.getRedNum()));
+			for(Student s: pe.getStudents()) {
+				writer.append("Student:," + s.getName().toUpperCase()+ "\n");
+				studentResults = s.getCompScores();
+				writer.append("GREEN:," + s.getGreenNum() + "\n");
+				for(Student s2: s.getGreenStudents()) {
+					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
+				}
+				writer.append("YELLOW:," + s.getYellowNum()+ "\n");
+				for(Student s2: s.getYellowStudents()) {
+					writer.append("," +s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
+				}
+				writer.append("RED:," + s.getRedNum()+ "\n");
+				for(Student s2: s.getRedStudents()) {
+					writer.append("," +s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
+				}
 				writer.append("\n");
-			}
 
+			}
+			
+			if(!errorFiles.isEmpty()) {
+				writer.append("FAILED TO PROCESS THESE FILES:\n");
+				for(File f: errorFiles) {
+					writer.append(f.getName() + "\n");
+				}
+			}
+			
 			// finish
 			writer.flush();
 			writer.close();

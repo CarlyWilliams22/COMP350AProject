@@ -80,7 +80,11 @@ public class PlagiarismEngine {
 	public void createStudents() {
 		Student currentStudent;
 		String currentStudentName;
+		ArrayList<String> studentNames = new ArrayList<String>();
+		boolean dataEntered;
+		int studentNum;
 		int currIndex;
+		int nameLen;
 		int ID = 0;
 		for (File file : files) {
 			String nameOfCurrFile = file.getName();
@@ -91,9 +95,22 @@ public class PlagiarismEngine {
 			}
 			currentStudentName = file.getName().substring(0, currIndex);
 			System.out.println("This is the student name: " + currentStudentName);
-			students.add(currentStudent = new Student(ID, currentStudentName));
-//			students.add(currentStudent = new Student(ID, file.getName()));
-			currentStudent.setFile(file);
+			dataEntered = false;
+			studentNum = 2;
+			nameLen = currentStudentName.length();
+			while(!dataEntered) {
+				if(!studentNames.contains(currentStudentName)) {
+					students.add(currentStudent = new Student(ID, currentStudentName));
+					currentStudent.setFile(file);
+					studentNames.add(currentStudentName);
+					dataEntered = true;
+				}
+				else {
+					currentStudentName = currentStudentName.substring(0, nameLen) + Integer.toString(studentNum);
+					studentNum++;
+				}
+			}
+			
 			ID++;
 		}
 	}
