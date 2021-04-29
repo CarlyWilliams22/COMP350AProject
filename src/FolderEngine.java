@@ -505,7 +505,7 @@ public class FolderEngine {
 			FileOutputStream fileOutput = new FileOutputStream(f = new File("Storage\\" + f.getName()));
 			files.add(f);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			unprocessedFiles.add(f);
 			e.printStackTrace();
 		}
 
