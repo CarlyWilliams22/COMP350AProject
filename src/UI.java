@@ -11,6 +11,7 @@
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -90,6 +91,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	public static void main(String args[]) {
+
 		System.out.println("Launching...");
 		System.out.println("Authors: Nathan Beam, Tirzah Lloyd, Matthew Moody, Carly Williams");
 		System.out.println("Copied Code Catcher Sprint 2 Working Increment");
@@ -105,11 +107,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary = stage;
 
+		primary.setOnCloseRequest(event -> {
+			clear();
+		});
+
 		primary.setTitle("Copied Code Catcher");
-
 		renderUploadScreen();
-//		renderResultsScreen(primary);
-
 	}
 
 	/**
@@ -122,25 +125,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		title.setLayoutY(50);
 		title.setTextAlignment(TextAlignment.CENTER);
 
-		Text welcome = new Text("  Welcome To ");
-		welcome.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
-		Text c1 = new Text("C");
-		c1.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
-		c1.setFill(Color.GREEN);
-		c1.setStrokeWidth(.5);
-		c1.setStroke(Color.BLACK);
-		Text c2 = new Text("C");
-		c2.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
-		c2.setFill(Color.YELLOW);
-		c2.setStrokeWidth(.5);
-		c2.setStroke(Color.BLACK);
-		Text c3 = new Text("C");
-		c3.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
-		c3.setFill(Color.RED);
-		c3.setStrokeWidth(.5);
-		c3.setStroke(Color.BLACK);
-
-		title.getChildren().addAll(welcome, c1, c2, c3);
+		title.getChildren().addAll(renderTitleText());
 
 		Label label = new Label(); // screen information
 		label.setText("Upload Files");
@@ -174,7 +159,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		unprocessedColumn.setMinWidth(WINDOW_WIDTH * .5);
 		unprocessedColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
 		unprocessedTable.getColumns().add(unprocessedColumn);
-		unprocessedTable.setMinHeight(100);
+		unprocessedTable.setMaxHeight(100);
 		unprocessedTable.setItems(errorFiles);
 
 		VBox frame = new VBox();
@@ -186,6 +171,38 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(uploadScreen);
 		primary.show();
+	}
+
+	/**
+	 * Creates the welcome title textS
+	 * 
+	 * @return text
+	 */
+	private ObservableList<Text> renderTitleText() {
+
+		ObservableList<Text> title = FXCollections.observableArrayList();
+
+		Text welcome = new Text("  Welcome To ");
+		welcome.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
+		Text c1 = new Text("C");
+		c1.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c1.setFill(Color.GREEN);
+		c1.setStrokeWidth(.5);
+		c1.setStroke(Color.BLACK);
+		Text c2 = new Text("C");
+		c2.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c2.setFill(Color.YELLOW);
+		c2.setStrokeWidth(.5);
+		c2.setStroke(Color.BLACK);
+		Text c3 = new Text("C");
+		c3.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 35));
+		c3.setFill(Color.RED);
+		c3.setStrokeWidth(.5);
+		c3.setStroke(Color.BLACK);
+
+		title.addAll(welcome, c1, c2, c3);
+
+		return title;
 	}
 
 	/**
@@ -201,19 +218,21 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		help.setText("Help");
 		help.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button uploadFiles = new Button();
-		uploadFiles.setText("Upload Files");
-		uploadFiles.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+		Button uploadZips = new Button();
+		uploadZips.setText("Upload Zip Folder");
+		uploadZips.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button uploadJavaFiles = new Button();
+		uploadJavaFiles.setText("Upload Java File");
+		uploadJavaFiles.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button process = new Button();
 		process.setText("Process Files");
 		process.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addFileButtonListeners(help, uploadFiles, process);
+		addFileButtonListeners(help, uploadZips, uploadJavaFiles, process);
 
-		buttons.add(help);
-		buttons.add(uploadFiles);
-		buttons.add(process);
+		buttons.addAll(help, uploadZips, uploadJavaFiles, process);
 
 		return buttons;
 	}
@@ -225,7 +244,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param browseOneDrive
 	 * @param done
 	 */
-	private void addFileButtonListeners(Button help, Button uploadFiles, Button process) {
+	private void addFileButtonListeners(Button help, Button uploadZips, Button uploadJavaFiles, Button process) {
 
 		// Opens Help Popup
 		help.setOnAction((event) -> {
@@ -233,8 +252,17 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		});
 
 		// Opens File Explorer
-		uploadFiles.setOnAction((event) -> {
-			upload();
+		uploadZips.setOnAction((event) -> {
+			explorer.getExtensionFilters().clear();
+			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip file (*.zip)", "*.zip"));
+			uploadZip();
+		});
+
+		// Opens File Explorer
+		uploadJavaFiles.setOnAction((event) -> {
+			explorer.getExtensionFilters().clear();
+			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("Java file(*.java)", "*.java"));
+			uploadJavaFile();
 		});
 
 		// Processes Files
@@ -244,9 +272,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
-	 * Processes all of the uploaded folders
+	 * Uploads selected zip folders for processing
 	 */
-	private void upload() {
+	private void uploadZip() {
+
 		List<File> folders = explorer.showOpenMultipleDialog(primary);
 
 		if (folders != null) { // if upload directory contains folders
@@ -259,14 +288,39 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
 						ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
 
-						for(int i = 0; i < unprocessedFiles.size(); i++) {
-							if(!errorFiles.contains(unprocessedFiles.get(i))) {
+						for (int i = 0; i < unprocessedFiles.size(); i++) {
+							if (!errorFiles.contains(unprocessedFiles.get(i))) {
 								errorFiles.add(unprocessedFiles.get(i));
 							}
-
 						}
 					} catch (IOException e) {
 						e.printStackTrace();
+					}
+				} // if
+			} // for
+		} // if
+	}
+
+	/**
+	 * Uploads selected Java files for processing
+	 */
+	private void uploadJavaFile() {
+
+		List<File> javaFiles = explorer.showOpenMultipleDialog(primary);
+
+		if (javaFiles != null) { // if upload contains Java files
+			for (File file : javaFiles) {
+				if (file != null) { // if file exists
+					files.add(file); // display selected file
+//						String PATH = file.getCanonicalPath(); // get location
+					fe.uploadJavaFile(file, "Storage\\");
+					pe.receiveFiles(fe.transferFiles());
+					ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
+
+					for (int i = 0; i < unprocessedFiles.size(); i++) {
+						if (!errorFiles.contains(unprocessedFiles.get(i))) {
+							errorFiles.add(unprocessedFiles.get(i));
+						}
 					}
 				} // if
 			} // for
@@ -373,8 +427,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveResults.setOnAction((event) -> {
 			System.out.println("Saving results...");
 
-			FileChooser.ExtensionFilter exFiller = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
-			explorer.getExtensionFilters().add(exFiller);
+			explorer.getExtensionFilters().clear();
+			FileChooser.ExtensionFilter fileExtension = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
+			explorer.getExtensionFilters().add(fileExtension);
+
 			File results = explorer.showSaveDialog(primary);
 
 			if (results != null) {
@@ -385,8 +441,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveGraph.setOnAction((event) -> {
 			System.out.println("Saving graph...");
 
-			FileChooser.ExtensionFilter exFiller = new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png");
-			explorer.getExtensionFilters().add(exFiller);
+			explorer.getExtensionFilters().clear();
+			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
+			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("JPG file (*.jpg)", "*.jpg"));
+
 			File graph = explorer.showSaveDialog(primary);
 
 			if (graph != null) {
@@ -406,14 +464,20 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private void newProject() {
 		primary.close();
 		System.out.println("Creating new project...");
+		clear();
+		primary.setScene(uploadScreen); // switch to upload screen
+		primary.show(); // display
+	}
 
+	/**
+	 * Deletes all data created at runtime.
+	 */
+	private void clear() {
 		files.clear(); // clear uploads
 		fe.clearFiles(); // clear files in the folder engine
 		fe.cleanUpFoldersCreated(); // erase stored files
 		pe.clearFiles(); // clear files in plagiarism engine
 		pe.clearStudents(); // clear student data
-		primary.setScene(uploadScreen); // switch to upload screen
-		primary.show(); // display
 	}
 
 	/**
@@ -470,6 +534,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		table.getColumns().addAll(nameCol, IDCol, greenCol, yellowCol, redCol);
 
 		table.setItems(getClassResults()); // populate table if data exists
+
+		// notify user of suspect students by sorting by red counts
+		redCol.setSortable(true);
+		redCol.setSortType(TableColumn.SortType.DESCENDING);
+		table.getSortOrder().add(redCol);
+		table.sort();
 
 		addTableSelection(table); // enables student popup
 
@@ -735,32 +805,32 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			Map<String, Double> studentResults;
 
 			// write header info
-			for(Student s: pe.getStudents()) {
-				writer.append("Student:," + s.getName().toUpperCase()+ "\n");
+			for (Student s : pe.getStudents()) {
+				writer.append("Student:," + s.getName().toUpperCase() + "\n");
 				studentResults = s.getCompScores();
 				writer.append("GREEN:," + s.getGreenNum() + "\n");
-				for(Student s2: s.getGreenStudents()) {
+				for (Student s2 : s.getGreenStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
-				writer.append("YELLOW:," + s.getYellowNum()+ "\n");
-				for(Student s2: s.getYellowStudents()) {
-					writer.append("," +s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
+				writer.append("YELLOW:," + s.getYellowNum() + "\n");
+				for (Student s2 : s.getYellowStudents()) {
+					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
-				writer.append("RED:," + s.getRedNum()+ "\n");
-				for(Student s2: s.getRedStudents()) {
-					writer.append("," +s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
+				writer.append("RED:," + s.getRedNum() + "\n");
+				for (Student s2 : s.getRedStudents()) {
+					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
 				writer.append("\n");
 
 			}
-			
-			if(!errorFiles.isEmpty()) {
+
+			if (!errorFiles.isEmpty()) {
 				writer.append("FAILED TO PROCESS THESE FILES:\n");
-				for(File f: errorFiles) {
+				for (File f : errorFiles) {
 					writer.append(f.getName() + "\n");
 				}
 			}
-			
+
 			// finish
 			writer.flush();
 			writer.close();
@@ -790,7 +860,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	@Override
 	public void handle(KeyEvent e) {
 		if (e.getCode() == e.getCode().W && e.isControlDown()) {
-			fe.cleanUpFoldersCreated();
+			clear();
 			System.out.println("Terminating...");
 			System.out.println("\n<<< STANDARD TERMINATION >>>");
 			System.exit(0);
