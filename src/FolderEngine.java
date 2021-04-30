@@ -26,14 +26,17 @@ public class FolderEngine {
 	private static ArrayList<File> files;
 
 	private static long averageSizeOfFile;
+	private static long medianSizeOfFiles;
+	private static double standardDeviationOfFiles;
 	private static int numOfFiles;
 	public ArrayList<File> unprocessedFiles;
+	
 
 	public FolderEngine() {
 		files = new ArrayList<File>();
 		unprocessedFiles = new ArrayList<File>();
-		averageSizeOfFile = 2500;
-		numOfFiles = 1;
+//		averageSizeOfFile = 1;
+//		numOfFiles = 1;
 
 	}
 
@@ -48,28 +51,38 @@ public class FolderEngine {
 
 		// Still gets stuck on Tyler Ridout's folder, even though it skips files
 		String testCodeFromVal = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectA_stupidCopies.zip";
+//		try {
+//			testFE.unzipRecursive(testCodeFromVal, "Storage/");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		// This set of nonzipped test code doesn't work
+		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
 		try {
-			testFE.unzipRecursive(testCodeFromVal, "Storage/");
+			testFE.unzipRecursive(nonzippedTestCode, "Storage/");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		// This set of nonzipped test code doesn't work
-		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		// testFE.unzipRecursive(nonzippedTestCode, "Storage/");
-
 		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
 
 		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectB_OrigCodes.zip";
-		// testFE.unzipRecursive(sectionBCode, "Storage\\");
+//		try {
+//			testFE.unzipRecursive(sectionBCode, "Storage\\");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		// testFE.unzipRecursiveWithOneFile(sectionBCode, "Storage\\");
 		// testFE.unzipRecursiveWithTempDirs(sectionBCode, "Storage\\");
 		// testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
 
 		System.out.println("Trying to access cleanup method");
-		testFE.cleanUpFoldersCreated();
+		//testFE.cleanUpFoldersCreated();
 		System.out.println("Got to the line past the cleanup method");
 
 		System.out.println("\n\nPrinting out files array: ");
@@ -99,6 +112,13 @@ public class FolderEngine {
 					File storage = new File(targetDir);
 					storage.mkdir();
 				}
+				
+				if(medianSizeOfFiles == 0 && standardDeviationOfFiles == 0) {
+					medianSizeOfFiles = getMedianSize(zf.entries());
+					System.out.println("Median: " + medianSizeOfFiles);
+					standardDeviationOfFiles = getSD(zf.entries());
+					System.out.println("Standard Deviation: " + standardDeviationOfFiles);
+				}
 
 				// iterate over the entries in the zip folder
 				while (entries.hasMoreElements()) {
@@ -107,16 +127,10 @@ public class FolderEngine {
 						ZipEntry ze = entries.nextElement();
 						long sizeOfCurrentFile = ze.getSize();
 						if (sizeOfCurrentFile != 0) {
-							if (sizeOfCurrentFile < (4 * averageSizeOfFile)) {
-								System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
-								averageSizeOfFile *= numOfFiles;
-								averageSizeOfFile += sizeOfCurrentFile;
-								numOfFiles++;
-								averageSizeOfFile /= numOfFiles;
-								System.out.println("Average size so far: " + averageSizeOfFile);
-							} else {
+							if (sizeOfCurrentFile > (medianSizeOfFiles + (3*standardDeviationOfFiles))) {
 								System.out.println("File is too large");
 								System.out.println("Size of file: " + sizeOfCurrentFile);
+//								unprocessedFiles.add(ze);
 								throw new IOException("File is too large. Cannot process. Skipping.");
 							}
 
@@ -310,6 +324,104 @@ public class FolderEngine {
 			lookInsideNonZippedFolderMoreWork(PATH, arrayOfFiles, targetDir);
 		}
 	}// one file method
+	
+	
+	public long getMedianSize(Enumeration<? extends ZipEntry> zipEntries) {
+		ArrayList<ZipEntry> zipE = new ArrayList<ZipEntry>();
+		int numOfEntries;
+		int midpointEntry1;
+		int midpointEntry2;
+		long avgOfMids;
+		while (zipEntries.hasMoreElements()) {
+			try {
+				// get next entry
+				ZipEntry ze = zipEntries.nextElement();
+				zipE.add(ze);
+
+			}//try
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}//while
+		
+		numOfEntries = zipE.size();
+		midpointEntry1 = numOfEntries / 2;
+		if(numOfEntries % 2 == 0) {
+			midpointEntry2 = (numOfEntries / 2) - 1;
+		} else {
+			midpointEntry2 = 0;
+		}
+		System.out.println(numOfEntries);
+		System.out.println(midpointEntry1);
+		System.out.println(midpointEntry2);
+		if(midpointEntry2 != 0) {
+			avgOfMids = zipE.get(midpointEntry1).getSize() + zipE.get(midpointEntry2).getSize();
+			avgOfMids /= 2;
+			System.out.println(avgOfMids);
+		} else {
+			avgOfMids = zipE.get(midpointEntry1).getSize();
+		}
+		
+		return avgOfMids;
+		
+	}//getMedSize
+	
+	public double getSD(Enumeration<? extends ZipEntry> zipEntries) {
+		ArrayList<ZipEntry> zipE = new ArrayList<ZipEntry>();
+		ArrayList<Integer> zipEMidCalc = new ArrayList<Integer>();
+		int numOfEntries;
+		int midpointEntry1;
+		int midpointEntry2;
+		long avgOfMids;
+		long avg = 0;
+		int numFiles = 0;
+		long sizeOfCurrentFile;
+		double standardDev;
+		while (zipEntries.hasMoreElements()) {
+			try {
+				// get next entry
+				ZipEntry ze = zipEntries.nextElement();
+				zipE.add(ze);
+				
+				
+				sizeOfCurrentFile = ze.getSize();
+				if (sizeOfCurrentFile != 0) {
+					System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
+					avg *= numFiles;
+					avg += sizeOfCurrentFile;
+					numFiles++;
+					avg /= numFiles;
+					//System.out.println("Average size so far: " + averageSizeOfFile);
+				}//if
+			}//try
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}//while
+		
+		for(int i = 0; i < zipE.size(); i++) {
+			zipEMidCalc.add(i, (int)Math.pow((double)(avg - zipE.get(i).getSize()), 2));
+		}
+		
+		//reset avg and numfiles
+		avg = 0;
+		numFiles = 0;
+		
+		for(int i = 0; i < zipEMidCalc.size(); i++) {
+			sizeOfCurrentFile = zipEMidCalc.get(i);
+			if (sizeOfCurrentFile != 0) {
+				avg *= numFiles;
+				avg += sizeOfCurrentFile;
+				numFiles++;
+				avg /= numFiles;
+				//System.out.println("Average size so far: " + avg);
+			}//if
+		}
+		
+		standardDev = Math.sqrt(avg);
+		return standardDev;
+			
+	}//getStandardDev
 
 	public void cleanUpFoldersCreated() {
 		System.out.println("MADE IT TO CLEANUP METHOD!");
@@ -501,13 +613,15 @@ public class FolderEngine {
 				File storage = new File(targetDir);
 				storage.mkdir();
 			}
-
+		
 			FileOutputStream fileOutput = new FileOutputStream(f = new File("Storage\\" + f.getName()));
+			
 			files.add(f);
+			
 		} catch (FileNotFoundException e) {
 			unprocessedFiles.add(f);
 			e.printStackTrace();
-		}
+		} 
 
 	}
 
