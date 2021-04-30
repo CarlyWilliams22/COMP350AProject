@@ -66,9 +66,11 @@ public class FolderEngine {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 
-		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
-
+		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main.java";
+		testFE.checkInputType(aSingleJavaFile, "Storage\\");
+		
 		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectB_OrigCodes.zip";
 //		try {
@@ -93,6 +95,35 @@ public class FolderEngine {
 		// testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
 		System.out.println("<<NORMAL TERMINATION>>");
 	}
+	
+	public void checkInputType(String PATH, String targetDir) {
+		System.out.println("Made it into the method");
+		try {
+			System.out.println("Made it into the try block");
+			if(PATH.endsWith(".java")) {
+				System.out.println("It's a java file");
+				addSingleJavaFile(PATH, targetDir);
+			}
+			else if(PATH.endsWith(".zip")) {
+				System.out.println("It's a zip file");
+				unzipRecursive(PATH, targetDir);
+			}
+			else {
+				System.out.println("Made it into the else");
+				File potentialDir = new File(PATH);
+				if(potentialDir.isDirectory()) {
+					System.out.println("It's an unzipped directory");
+					File[] fileArray = {potentialDir};
+					lookInsideNonZippedFolderMoreWork(PATH, fileArray, targetDir);
+				}
+			}
+		} catch(Exception e) {
+			//add stuff here to make sure errors are reported to the user!
+			e.printStackTrace();
+		}
+		
+	}
+	
 
 	// Loosely based on howtodoinjava article code:
 	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
@@ -447,8 +478,50 @@ public class FolderEngine {
 
 	}
 
+
 	// using article from Atta:
 	// https://attacomsian.com/blog/java-delete-directory-recursively#:~:text=Using%20Java%20I%2FO%20Package,-To%20delete%20a&text=listFiles()%20method%20to%20list,delete()%20.
+
+	
+	public void addSingleJavaFile(String PATH, String targetDir) {
+		System.out.println("Made it to single java file method");
+		File storage;
+		FileSystem fs = FileSystems.getDefault();
+		//if the storage folder doesn't exist, make it
+		if (Files.notExists(fs.getPath(targetDir))) {
+			storage = new File(targetDir);
+			storage.mkdir();
+		} else {
+			storage = fs.getPath(targetDir).toFile();
+		}
+		
+		try {
+			System.out.println("Trying to create a single temp file");
+			File singleFileDest = File.createTempFile(PATH, null, storage);
+			System.out.println("Trying to get the original file");
+			File singleFileInput = new File(PATH);
+			//File singleFileInput = fs.getPath(PATH).toFile();
+			System.out.println("single file input: " + singleFileInput.toString());
+			InputStream is = new FileInputStream(singleFileInput);
+			System.out.println(is.available());
+			BufferedInputStream bis = new BufferedInputStream(is);
+			System.out.println("num of bytes in bis: " + bis.available());
+			FileOutputStream fileOutput = new FileOutputStream(singleFileDest);
+			//write the file
+			while (bis.available() > 0) {
+				//System.out.println("writing from " + fileToWrite.getName());
+				fileOutput.write(bis.read());
+			}
+			System.out.println(singleFileInput.getName() + " was written");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	//using article from Atta: 
+	//https://attacomsian.com/blog/java-delete-directory-recursively#:~:text=Using%20Java%20I%2FO%20Package,-To%20delete%20a&text=listFiles()%20method%20to%20list,delete()%20.
 	public void deleteDir(File fileToDelete) {
 		File[] filesToDelete = fileToDelete.listFiles();
 		if (filesToDelete != null) {
