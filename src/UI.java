@@ -157,7 +157,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		TableColumn<File, String> unprocessedColumn = new TableColumn<File, String>("Could not read files:");
 		unprocessedColumn.setMinWidth(WINDOW_WIDTH * .5);
-		unprocessedColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
+		unprocessedColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Path"));
 		unprocessedTable.getColumns().add(unprocessedColumn);
 		unprocessedTable.setMaxHeight(100);
 		unprocessedTable.setItems(errorFiles);
@@ -463,6 +463,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void newProject() {
 		primary.close();
+		errorFiles.clear();
 		System.out.println("Creating new project...");
 		clear();
 		primary.setScene(uploadScreen); // switch to upload screen

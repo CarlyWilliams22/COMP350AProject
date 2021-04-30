@@ -84,6 +84,7 @@ public class FolderEngine {
 	// Loosely based on howtodoinjava article code:
 	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
 	public void unzipRecursive(String PATH, String targetDir) throws IOException {
+		File badFile = null;
 		// check to see if folder passed in is a zip folder
 		if (PATH.endsWith(".zip")) {
 			// create a new zip file object with the path passed in
@@ -117,6 +118,7 @@ public class FolderEngine {
 							} else {
 								System.out.println("File is too large");
 								System.out.println("Size of file: " + sizeOfCurrentFile);
+								badFile = new File(ze.getName());
 								throw new IOException("File is too large. Cannot process. Skipping.");
 							}
 
@@ -293,6 +295,9 @@ public class FolderEngine {
 					catch (Exception e) {
 						System.out.println(e.getMessage());
 						e.printStackTrace();
+						if (!unprocessedFiles.contains(badFile)) {
+							unprocessedFiles.add(badFile);
+						}
 					}
 				} // close of while more entries loop
 					// catch any exceptions
