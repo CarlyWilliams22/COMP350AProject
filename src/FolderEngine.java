@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -489,7 +491,7 @@ public class FolderEngine {
 	}
 
 	/**
-	 * 
+	 * @see https://www.geeksforgeeks.org/java-program-to-read-content-from-one-file-and-write-it-into-another-file/
 	 * @param f
 	 */
 	public void uploadJavaFile(File f, String targetDir) {
@@ -502,9 +504,21 @@ public class FolderEngine {
 				storage.mkdir();
 			}
 
-			FileOutputStream fileOutput = new FileOutputStream(f = new File("Storage\\" + f.getName()));
+			FileReader reader = new FileReader(f.getCanonicalPath());
+			String contents = "";
+			int buffer;
+			while ((buffer = reader.read()) != -1) {
+				contents += (char) buffer;
+			}
+
+			FileWriter writer = new FileWriter("Storage\\" + f.getName());
+			writer.write(contents);
+
+			reader.close();
+			writer.close();
+
 			files.add(f);
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			unprocessedFiles.add(f);
 			e.printStackTrace();
 		}
