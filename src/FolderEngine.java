@@ -28,14 +28,17 @@ public class FolderEngine {
 	private static ArrayList<File> files;
 
 	private static long averageSizeOfFile;
+	private static long medianSizeOfFiles;
+	private static double standardDeviationOfFiles;
 	private static int numOfFiles;
 	public ArrayList<File> unprocessedFiles;
+	
 
 	public FolderEngine() {
 		files = new ArrayList<File>();
 		unprocessedFiles = new ArrayList<File>();
-		averageSizeOfFile = 2500;
-		numOfFiles = 1;
+//		averageSizeOfFile = 1;
+//		numOfFiles = 1;
 
 	}
 
@@ -50,28 +53,40 @@ public class FolderEngine {
 
 		// Still gets stuck on Tyler Ridout's folder, even though it skips files
 		String testCodeFromVal = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectA_stupidCopies.zip";
+//		try {
+//			testFE.unzipRecursive(testCodeFromVal, "Storage/");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
+		// This set of nonzipped test code doesn't work
+		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
 		try {
-			testFE.unzipRecursive(testCodeFromVal, "Storage/");
+			testFE.unzipRecursive(nonzippedTestCode, "Storage/");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 
-		// This set of nonzipped test code doesn't work
-		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		// testFE.unzipRecursive(nonzippedTestCode, "Storage/");
-
-		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main";
-
+		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main.java";
+		testFE.checkInputType(aSingleJavaFile, "Storage\\");
+		
 		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectB_OrigCodes.zip";
-		// testFE.unzipRecursive(sectionBCode, "Storage\\");
+//		try {
+//			testFE.unzipRecursive(sectionBCode, "Storage\\");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		// testFE.unzipRecursiveWithOneFile(sectionBCode, "Storage\\");
 		// testFE.unzipRecursiveWithTempDirs(sectionBCode, "Storage\\");
 		// testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
 
 		System.out.println("Trying to access cleanup method");
-		testFE.cleanUpFoldersCreated();
+		//testFE.cleanUpFoldersCreated();
 		System.out.println("Got to the line past the cleanup method");
 
 		System.out.println("\n\nPrinting out files array: ");
@@ -82,6 +97,35 @@ public class FolderEngine {
 		// testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
 		System.out.println("<<NORMAL TERMINATION>>");
 	}
+	
+	public void checkInputType(String PATH, String targetDir) {
+		System.out.println("Made it into the method");
+		try {
+			System.out.println("Made it into the try block");
+			if(PATH.endsWith(".java")) {
+				System.out.println("It's a java file");
+				addSingleJavaFile(PATH, targetDir);
+			}
+			else if(PATH.endsWith(".zip")) {
+				System.out.println("It's a zip file");
+				unzipRecursive(PATH, targetDir);
+			}
+			else {
+				System.out.println("Made it into the else");
+				File potentialDir = new File(PATH);
+				if(potentialDir.isDirectory()) {
+					System.out.println("It's an unzipped directory");
+					File[] fileArray = {potentialDir};
+					lookInsideNonZippedFolderMoreWork(PATH, fileArray, targetDir);
+				}
+			}
+		} catch(Exception e) {
+			//add stuff here to make sure errors are reported to the user!
+			e.printStackTrace();
+		}
+		
+	}
+	
 
 	// Loosely based on howtodoinjava article code:
 	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
@@ -101,6 +145,13 @@ public class FolderEngine {
 					File storage = new File(targetDir);
 					storage.mkdir();
 				}
+				
+				if(medianSizeOfFiles == 0 && standardDeviationOfFiles == 0) {
+					medianSizeOfFiles = getMedianSize(zf.entries());
+					System.out.println("Median: " + medianSizeOfFiles);
+					standardDeviationOfFiles = getSD(zf.entries());
+					System.out.println("Standard Deviation: " + standardDeviationOfFiles);
+				}
 
 				// iterate over the entries in the zip folder
 				while (entries.hasMoreElements()) {
@@ -109,16 +160,10 @@ public class FolderEngine {
 						ZipEntry ze = entries.nextElement();
 						long sizeOfCurrentFile = ze.getSize();
 						if (sizeOfCurrentFile != 0) {
-							if (sizeOfCurrentFile < (4 * averageSizeOfFile)) {
-								System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
-								averageSizeOfFile *= numOfFiles;
-								averageSizeOfFile += sizeOfCurrentFile;
-								numOfFiles++;
-								averageSizeOfFile /= numOfFiles;
-								System.out.println("Average size so far: " + averageSizeOfFile);
-							} else {
+							if (sizeOfCurrentFile > (medianSizeOfFiles + (3*standardDeviationOfFiles))) {
 								System.out.println("File is too large");
 								System.out.println("Size of file: " + sizeOfCurrentFile);
+//								unprocessedFiles.add(ze);
 								throw new IOException("File is too large. Cannot process. Skipping.");
 							}
 
@@ -312,6 +357,104 @@ public class FolderEngine {
 			lookInsideNonZippedFolderMoreWork(PATH, arrayOfFiles, targetDir);
 		}
 	}// one file method
+	
+	
+	public long getMedianSize(Enumeration<? extends ZipEntry> zipEntries) {
+		ArrayList<ZipEntry> zipE = new ArrayList<ZipEntry>();
+		int numOfEntries;
+		int midpointEntry1;
+		int midpointEntry2;
+		long avgOfMids;
+		while (zipEntries.hasMoreElements()) {
+			try {
+				// get next entry
+				ZipEntry ze = zipEntries.nextElement();
+				zipE.add(ze);
+
+			}//try
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}//while
+		
+		numOfEntries = zipE.size();
+		midpointEntry1 = numOfEntries / 2;
+		if(numOfEntries % 2 == 0) {
+			midpointEntry2 = (numOfEntries / 2) - 1;
+		} else {
+			midpointEntry2 = 0;
+		}
+		System.out.println(numOfEntries);
+		System.out.println(midpointEntry1);
+		System.out.println(midpointEntry2);
+		if(midpointEntry2 != 0) {
+			avgOfMids = zipE.get(midpointEntry1).getSize() + zipE.get(midpointEntry2).getSize();
+			avgOfMids /= 2;
+			System.out.println(avgOfMids);
+		} else {
+			avgOfMids = zipE.get(midpointEntry1).getSize();
+		}
+		
+		return avgOfMids;
+		
+	}//getMedSize
+	
+	public double getSD(Enumeration<? extends ZipEntry> zipEntries) {
+		ArrayList<ZipEntry> zipE = new ArrayList<ZipEntry>();
+		ArrayList<Integer> zipEMidCalc = new ArrayList<Integer>();
+		int numOfEntries;
+		int midpointEntry1;
+		int midpointEntry2;
+		long avgOfMids;
+		long avg = 0;
+		int numFiles = 0;
+		long sizeOfCurrentFile;
+		double standardDev;
+		while (zipEntries.hasMoreElements()) {
+			try {
+				// get next entry
+				ZipEntry ze = zipEntries.nextElement();
+				zipE.add(ze);
+				
+				
+				sizeOfCurrentFile = ze.getSize();
+				if (sizeOfCurrentFile != 0) {
+					System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
+					avg *= numFiles;
+					avg += sizeOfCurrentFile;
+					numFiles++;
+					avg /= numFiles;
+					//System.out.println("Average size so far: " + averageSizeOfFile);
+				}//if
+			}//try
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}//while
+		
+		for(int i = 0; i < zipE.size(); i++) {
+			zipEMidCalc.add(i, (int)Math.pow((double)(avg - zipE.get(i).getSize()), 2));
+		}
+		
+		//reset avg and numfiles
+		avg = 0;
+		numFiles = 0;
+		
+		for(int i = 0; i < zipEMidCalc.size(); i++) {
+			sizeOfCurrentFile = zipEMidCalc.get(i);
+			if (sizeOfCurrentFile != 0) {
+				avg *= numFiles;
+				avg += sizeOfCurrentFile;
+				numFiles++;
+				avg /= numFiles;
+				//System.out.println("Average size so far: " + avg);
+			}//if
+		}
+		
+		standardDev = Math.sqrt(avg);
+		return standardDev;
+			
+	}//getStandardDev
 
 	public void cleanUpFoldersCreated() {
 		System.out.println("MADE IT TO CLEANUP METHOD!");
@@ -337,8 +480,50 @@ public class FolderEngine {
 
 	}
 
+
 	// using article from Atta:
 	// https://attacomsian.com/blog/java-delete-directory-recursively#:~:text=Using%20Java%20I%2FO%20Package,-To%20delete%20a&text=listFiles()%20method%20to%20list,delete()%20.
+
+	
+	public void addSingleJavaFile(String PATH, String targetDir) {
+		System.out.println("Made it to single java file method");
+		File storage;
+		FileSystem fs = FileSystems.getDefault();
+		//if the storage folder doesn't exist, make it
+		if (Files.notExists(fs.getPath(targetDir))) {
+			storage = new File(targetDir);
+			storage.mkdir();
+		} else {
+			storage = fs.getPath(targetDir).toFile();
+		}
+		
+		try {
+			System.out.println("Trying to create a single temp file");
+			File singleFileDest = File.createTempFile(PATH, null, storage);
+			System.out.println("Trying to get the original file");
+			File singleFileInput = new File(PATH);
+			//File singleFileInput = fs.getPath(PATH).toFile();
+			System.out.println("single file input: " + singleFileInput.toString());
+			InputStream is = new FileInputStream(singleFileInput);
+			System.out.println(is.available());
+			BufferedInputStream bis = new BufferedInputStream(is);
+			System.out.println("num of bytes in bis: " + bis.available());
+			FileOutputStream fileOutput = new FileOutputStream(singleFileDest);
+			//write the file
+			while (bis.available() > 0) {
+				//System.out.println("writing from " + fileToWrite.getName());
+				fileOutput.write(bis.read());
+			}
+			System.out.println(singleFileInput.getName() + " was written");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	//using article from Atta: 
+	//https://attacomsian.com/blog/java-delete-directory-recursively#:~:text=Using%20Java%20I%2FO%20Package,-To%20delete%20a&text=listFiles()%20method%20to%20list,delete()%20.
 	public void deleteDir(File fileToDelete) {
 		File[] filesToDelete = fileToDelete.listFiles();
 		if (filesToDelete != null) {
@@ -521,7 +706,7 @@ public class FolderEngine {
 		} catch (IOException e) {
 			unprocessedFiles.add(f);
 			e.printStackTrace();
-		}
+		} 
 
 	}
 
