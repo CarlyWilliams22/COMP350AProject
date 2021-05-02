@@ -425,37 +425,51 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		// Opens File Explorer
 		saveResults.setOnAction((event) -> {
-			System.out.println("Saving results...");
-
-			explorer.getExtensionFilters().clear();
-			FileChooser.ExtensionFilter fileExtension = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
-			explorer.getExtensionFilters().add(fileExtension);
-
-			File results = explorer.showSaveDialog(primary);
-
-			if (results != null) {
-				saveResults(results);
-			}
+			saveResults();
 		});
 
 		saveGraph.setOnAction((event) -> {
-			System.out.println("Saving graph...");
-
-			explorer.getExtensionFilters().clear();
-			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
-			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("JPG file (*.jpg)", "*.jpg"));
-
-			File graph = explorer.showSaveDialog(primary);
-
-			if (graph != null) {
-				saveGraph(graph);
-			}
+			saveGraph();
 		});
 
 		// Opens Upload Screen
 		newProject.setOnAction((event) -> {
 			newProject();
 		});
+	}
+
+	/**
+	 * Saves results to a CSV file.
+	 */
+	private void saveResults() {
+		System.out.println("Saving results...");
+
+		explorer.getExtensionFilters().clear();
+		FileChooser.ExtensionFilter fileExtension = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
+		explorer.getExtensionFilters().add(fileExtension);
+
+		File results = explorer.showSaveDialog(primary);
+
+		if (results != null) {
+			saveResults(results);
+		}
+	}
+
+	/**
+	 * Saves an image of the UI to a jpg or png
+	 */
+	private void saveGraph() {
+		System.out.println("Saving graph...");
+
+		explorer.getExtensionFilters().clear();
+		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
+		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("JPG file (*.jpg)", "*.jpg"));
+
+		File graph = explorer.showSaveDialog(primary);
+
+		if (graph != null) {
+			saveGraph(graph);
+		}
 	}
 
 	/**
@@ -692,7 +706,14 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
 
-		Text message = new Text("Hello, World!");
+		Text message = new Text("Upload Zip Folders\n" + "Select one or more zip folders for unzipping.\n\n"
+				+ "Upload Java Files\n" + "Select one or more Java files to upload.\n\n" + "Process Files\n"
+				+ "Analyze students’ work for plagiarism.\n\n" + "Save Results\n"
+				+ "Saves results table to an Excel spreadsheet.\n\n" + "Save Graph\n"
+				+ "Select the Graph tab before clicking the button.\n" + "\n" + "New Project\n"
+				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H – help\n"
+				+ "Ctrl + N – start a new project\n" + "Ctrl + G – save graph\n" + "Ctrl + S – save results\n"
+				+ "Ctrl + W – exit\n" + "Ctrl + R – restart");
 
 		ScrollPane scroll = new ScrollPane();
 		scroll.setPadding(new Insets(20, 20, 20, 20));
@@ -881,9 +902,15 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			newProject();
 		}
 
+		else if (e.getCode() == e.getCode().G && e.isControlDown()) {
+			if (primary.getScene().equals(resultsScreen)) {
+				saveGraph();
+			}
+		}
+
 		else if (e.getCode() == e.getCode().S && e.isControlDown()) {
 			if (primary.getScene().equals(resultsScreen)) {
-				System.out.println("Saving results...");
+				saveResults();
 			}
 		}
 	} // handle
