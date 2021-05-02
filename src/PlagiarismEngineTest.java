@@ -9,66 +9,6 @@ import org.junit.jupiter.api.Test;
 
 
 class PlagiarismEngineTest {
-
-	@Test
-	void testIsCommonKeywordValid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertTrue(pe.isCommonKeyword("class"));
-	}
-	
-	@Test
-	void testIsCommonKeywordInvalid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertFalse(pe.isCommonKeyword("test"));
-	}
-	
-	@Test
-	void testIsUncommonKeywordValid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertTrue(pe.isUncommonKeyword("break"));
-	}
-	
-	@Test
-	void testIsUncommonKeywordInvalid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertFalse(pe.isUncommonKeyword("test"));
-	}
-	
-	@Test
-	void testIsDataTypeKeywordValid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertTrue(pe.isDataTypeKeyword("boolean"));
-	}
-	
-	@Test
-	void testIsDataTypeKeywordInvalid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertFalse(pe.isDataTypeKeyword("test"));
-	}
-	
-	@Test
-	void testIsDataValueKeywordValid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertTrue(pe.isDataValueKeyword("true"));
-	}
-	
-	@Test
-	void testIsDataValueKeywordInvalid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertFalse(pe.isDataValueKeyword("test"));
-	}
-	
-	@Test
-	void testIsErrorHandlingKeywordValid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertTrue(pe.isErrorHandlingKeyword("throw"));
-	}
-	
-	@Test
-	void testIsErrorHandlingKeywordInvalid() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertFalse(pe.isErrorHandlingKeyword("test"));
-	}
 	
 	@Test
 	void testIsItterationKeywordValid() {
@@ -95,63 +35,61 @@ class PlagiarismEngineTest {
 	}
 	
 	@Test
-	void testIsSymbolKeywordValid() {
+	void getWordUsageTest() {
+		Student s1 = new Student(0, "one");
+		s1.addKeyword("public");
+		s1.addKeyword("public");
+		s1.addKeyword("selection");
+		s1.addKeyword("catch");
+		s1.addKeyword("class");
+		Student s2 = new Student(1, "two");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("selection");
+		s2.addKeyword("itteration");
+		s2.addKeyword("class");
 		PlagiarismEngine pe = new PlagiarismEngine();
-		assertTrue(pe.isSymbolKeyword("=="));
+		pe.addStudent(s1);
+		pe.addStudent(s2);
+		pe.findWordUsage();
+		int value = pe.getWordUse().get("public");
+		assertEquals(2, value);
+		value = pe.getWordUse().get("selection");
+		assertEquals(2, value);
+		value = pe.getWordUse().get("catch");
+		assertEquals(1, value);
+		value = pe.getWordUse().get("class");
+		assertEquals(2, value);
+		value = pe.getWordUse().get("itteration");
+		assertEquals(1, value);
 	}
-	
+
 	@Test
-	void testIsSymbolKeywordInvalid() {
+	void testSetWeights() {
+		double delta = .0001;
+		Student s1 = new Student(0, "one");
+		s1.addKeyword("public");
+		s1.addKeyword("public");
+		s1.addKeyword("selection");
+		s1.addKeyword("catch");
+		s1.addKeyword("class");
+		Student s2 = new Student(1, "two");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("selection");
+		s2.addKeyword("itteration");
+		s2.addKeyword("class");
 		PlagiarismEngine pe = new PlagiarismEngine();
-		assertFalse(pe.isSymbolKeyword("test"));
-	}
-	
-	@Test
-	void getCommonWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(1, pe.getWeight("public"));
-	}
-	
-	@Test
-	void getUncommonWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(5, pe.getWeight("assert"));
-	}
-	
-	@Test
-	void getSelectionWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(3, pe.getWeight("selection"));
-	}
-	
-	@Test
-	void getitterationWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(3, pe.getWeight("itteration"));
-	}
-	
-	@Test
-	void getErrorHandlingWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(4, pe.getWeight("try"));
-	}
-	
-	@Test
-	void getDataValueWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(2, pe.getWeight("false"));
-	}
-	
-	@Test
-	void getDataTypeWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(2, pe.getWeight(" int"));
-	}
-	
-	@Test
-	void getSymbolWeightTest() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		assertEquals(3, pe.getWeight("--"));
+		pe.addStudent(s1);
+		pe.addStudent(s2);
+		pe.findWordUsage();
+		pe.assignWeights();
+		Double value = pe.getWeight().get("public");
+		assertEquals(10, value, delta);
+		value = pe.getWeight().get("catch");
+		assertEquals(50, value, delta);
 	}
 	
 	@Test
@@ -167,11 +105,37 @@ class PlagiarismEngineTest {
 		s2.addKeyword("public");
 		s2.addKeyword("public");
 		s2.addKeyword("selection");
-		s2.addKeyword("for");
 		s2.addKeyword("class");
 		PlagiarismEngine pe = new PlagiarismEngine();
+		pe.addStudent(s1);
+		pe.addStudent(s2);
+		pe.findWordUsage();
+		pe.assignWeights();
 		int score = pe.createCompScore(s1, s2);
-		assertEquals(6, score);
+		assertEquals(40, score);
+	}
+	
+	@Test
+	void testCreateScore() {
+		Student s1 = new Student(0, "one");
+		s1.addKeyword("public");
+		s1.addKeyword("public");
+		s1.addKeyword("selection");
+		s1.addKeyword("catch");
+		s1.addKeyword("class");
+		Student s2 = new Student(1, "two");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("public");
+		s2.addKeyword("itteration");
+		s2.addKeyword("class");
+		PlagiarismEngine pe = new PlagiarismEngine();
+		pe.addStudent(s1);
+		pe.addStudent(s2);
+		pe.findWordUsage();
+		pe.assignWeights();
+		pe.createScores();
+		assertEquals(130, s1.getScore());
 	}
 	
 	@Test
@@ -181,7 +145,14 @@ class PlagiarismEngineTest {
 		s1.setFile(f);
 		PlagiarismEngine pe = new PlagiarismEngine();
 		pe.countKeywords(s1);
-		assertEquals(10, s1.getScore());
+		int value = s1.getKeywords().get("public");
+		assertEquals(2, value);
+		value = s1.getKeywords().get("selection");
+		assertEquals(1, value);
+		value = s1.getKeywords().get("catch");
+		assertEquals(1, value);
+		value = s1.getKeywords().get("class");
+		assertEquals(1, value);
 	}
 	
 	@Test
@@ -290,6 +261,7 @@ class PlagiarismEngineTest {
 	
 	@Test
 	void testForAccurateComparison() {
+		//TODO fix
 		Student s1 = new Student(0, "one");
 		File f1 = new File("Student1Test");
 		s1.setFile(f1);
@@ -299,11 +271,16 @@ class PlagiarismEngineTest {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		pe.countKeywords(s1);
 		pe.countKeywords(s2);
+		pe.addStudent(s1);
+		pe.addStudent(s2);
+		pe.findWordUsage();
+		pe.assignWeights();
+		pe.createScores();
 		pe.compare(s1, s2);
 		double value = s1.getCompScores().get(s2.getName());
-		assertEquals(.5, value, .0001);
+		assertEquals(.21428, value, .0001);
 		value = s2.getCompScores().get(s1.getName());
-		assertEquals(.5, value, .0001);
+		assertEquals(.23076, value, .0001);
 	}
 	
 	@Test
@@ -314,7 +291,8 @@ class PlagiarismEngineTest {
 		s.setFile(f);
 		pe.parseFile(s);
 		pe.countKeywords(s);
-		assertEquals(2, s.getScore());
+		int value = s.getKeywords().get("public");
+		assertEquals(2, value);
 	}
 	
 }
