@@ -631,13 +631,13 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		BackgroundFill bg_fill = new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(10), null);
 		Background bg = new Background(bg_fill);
 
-		Label studentName = new Label("  " + name);
+		Label studentName = new Label("  " + name + " ");
 		studentName.setMinSize(325, 50);
 		studentName.setBackground(bg);
 		studentName.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 25));
 
 		// Set up the text for the red students
-		Text redTitle = new Text("Red\n");
+		Text redTitle = new Text("Red");
 		redTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		redTitle.setUnderline(true);
 		redTitle.setFill(Color.RED);
@@ -650,7 +650,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		Text redStudents = new Text(getRedStudents(name));
 
 		// Set up the text for the yellow students
-		Text yellowTitle = new Text("\nYellow\n");
+		Text yellowTitle = new Text("\nYellow");
 		yellowTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		yellowTitle.setUnderline(true);
 		yellowTitle.setFill(Color.YELLOW);
@@ -659,7 +659,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		Text yellowStudents = new Text(getYellowStudents(name));
 
 		// Set up the text for the green students
-		Text greenTitle = new Text("\nGreen\n");
+		Text greenTitle = new Text("\nGreen");
 		greenTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		greenTitle.setUnderline(true);
 		greenTitle.setFill(Color.GREEN);
@@ -729,7 +729,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		for (Student i : s.getRedStudents()) {
 			if (Math.abs(100 - comparisons.get(i.getName())) < .00001) {
-				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+				results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 			}
 		}
 
@@ -752,7 +752,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		for (Student i : s.getRedStudents()) {
 			if (Math.abs(100 - comparisons.get(i.getName())) > .00001) {
-				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+				results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 			}
 		}
 
@@ -770,7 +770,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 
 		for (Student i : s.getYellowStudents()) {
-			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+			results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 		}
 
 		return results;
@@ -787,7 +787,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 
 		for (Student i : s.getGreenStudents()) {
-			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+			results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 		}
 
 		return results;
