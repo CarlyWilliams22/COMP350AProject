@@ -2,6 +2,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
@@ -10,6 +11,8 @@ public class PlagiarismEngine {
 
 	private ArrayList<File> files; // projects to process
 	private ArrayList<Student> students;
+	private Map<String, Integer> wordUse;
+	private Map<String, Double> weight;
 
 	/*
 	 * Many of these keywords taken from the Wikipedia article List of Java keywords
@@ -25,37 +28,9 @@ public class PlagiarismEngine {
 			"BufferedOutputStream", "DataInputStream", "DataOutputStream", "EOFException", "System.out.println",
 			"System.out.print", "Random" };
 
-	private static String commonKeywords[] = { "class", "import", "public", "private", "new", "package", "return",
-			"static", "System.out.println", "System.out.print" };
-	private final int COMMON_WEIGHT = 1;
-
-	private static String uncommonKeywords[] = { "abstract", "assert", "continue", "protected", "break", "const",
-			"enum", "extends", "final", "implements", "instanceof", "interface", "native", "non-sealed", "strictfp",
-			"super", "synchronized", "this", "transient", "volatile" };
-	private final int UNCOMMON_WEIGHT = 5;
-
 	private static String selectionKeywords[] = { "case", "else", "goto", "if", "switch", "default", };
-	private final int SELECTION_WEIGHT = 3;
 
 	private static String itterationKeywords[] = { "do", "for", "while" };
-	private final int ITTERATION_WEIGHT = 3;
-
-	private static String errorHandlingKeywords[] = { "catch", "finally", "throw", "try", "throws", "IOException" };
-	private final int ERROR_HANDLING_WEIGHT = 4;
-
-	private static String dataValueKeywords[] = { "true", "false", "null" };
-	private final int DATA_VALUE_WEIGHT = 2;
-
-	private static String dataTypeKeywords[] = { "String", "ArrayList", "Map", "boolean", "byte", "char", "double",
-			"float", " int", "long", "short", "void", "ArrayList", "File", "FileInputStream", "FileOutputStream",
-			"BufferedInputStream", "BufferedOutputStream", "DataInputStream", "DataOutputStream", "EOFException",
-			"Random" };
-	private final int DATA_TYPE_WEIGHT = 2;
-
-	// TODO add to weight calc
-	private static String symbolKeywords[] = { "==", ">=", "<=", "!=", ">", "<", "&&", "||", "++", "+=", "--", "-=",
-			"=" };
-	private final int SYMBOL_WEIGHT = 3;
 
 	private final double GtoY = .70; // Green to yellow threshold
 	private final double YtoR = .85; // Yellow to red threshold
@@ -63,6 +38,8 @@ public class PlagiarismEngine {
 	public PlagiarismEngine() {
 		files = new ArrayList<File>();
 		students = new ArrayList<Student>();
+		wordUse = new HashMap<String, Integer>();
+		weight = new HashMap<String, Double>();
 	}
 
 	/**
@@ -158,6 +135,10 @@ public class PlagiarismEngine {
 		return get;
 	}
 
+	public void addStudent(Student s) {
+		students.add(s);
+	}
+	
 	// TODO FIX
 	/**
 	 * Removes comments and excess white space from a file TODO refactor
@@ -311,7 +292,6 @@ public class PlagiarismEngine {
 								word = "selection";
 							}
 							s.addKeyword(word);
-							weight += getWeight(word);
 						}
 					}
 				}
@@ -321,9 +301,51 @@ public class PlagiarismEngine {
 			e.printStackTrace();
 		}
 
-		s.setScore(weight);
+	}
+	
+	public void findWordUsage() {
+		int numUsed;
+		
+		for(String keyword: keywords) {
+			numUsed = 0;
+			for(Student s: students) {
+				if(s.getKeywords().containsKey(keyword)) {
+					numUsed++;
+				}
+			}
+			if(numUsed > 0) {
+				wordUse.put(keyword, numUsed);
+			}
+		}
+	}
+	
+	public Map<String, Integer> getWordUse(){
+		return wordUse;
 	}
 
+	public void assignWeights() {
+		Iterator<Map.Entry<String, Integer>> iterator = wordUse.entrySet().iterator();
+		String keyword;
+		int value;
+		double currWeight;
+		int totalStudents = students.size();
+		
+		while(iterator.hasNext()) {
+			Map.Entry<String, Integer> set = (Map.Entry<String, Integer>) iterator.next();
+			keyword = set.getKey();
+			value = set.getValue();
+			currWeight = (100-100*((double)value/(double)totalStudents));
+			if(currWeight == 0) {
+				currWeight = 10;
+			}
+			weight.put(keyword,currWeight);
+		}
+	}
+	
+	public Map<String, Double> getWeight(){
+		return weight;
+	}
+	
 	/**
 	 * Calls the countKeywords function for all the students
 	 */
@@ -333,30 +355,6 @@ public class PlagiarismEngine {
 		}
 	}
 
-	/**
-	 * 
-	 * @param keyword
-	 * @return
-	 */
-	public int getWeight(String keyword) {
-		if (isCommonKeyword(keyword)) {
-			return COMMON_WEIGHT;
-		} else if (isUncommonKeyword(keyword)) {
-			return UNCOMMON_WEIGHT;
-		} else if (keyword.equals("selection")) {
-			return SELECTION_WEIGHT;
-		} else if (keyword.equals("itteration")) {
-			return ITTERATION_WEIGHT;
-		} else if (isDataTypeKeyword(keyword)) {
-			return DATA_TYPE_WEIGHT;
-		} else if (isDataValueKeyword(keyword)) {
-			return DATA_VALUE_WEIGHT;
-		} else if (isSymbolKeyword(keyword)) {
-			return SYMBOL_WEIGHT;
-		} else {
-			return ERROR_HANDLING_WEIGHT;
-		}
-	}
 
 	/**
 	 * 
@@ -368,14 +366,14 @@ public class PlagiarismEngine {
 		Iterator<Map.Entry<String, Integer>> keywordIterator = s1.getKeywords().entrySet().iterator();
 		Map<String, Integer> student2Dictionary = s2.getKeywords();
 		int score = 0;
-		int weight = 0;
+		Double weight = (double)0;
 		String keyword;
 
 		while (keywordIterator.hasNext()) {
 			Map.Entry<String, Integer> word = (Map.Entry<String, Integer>) keywordIterator.next();
 			keyword = word.getKey();
 			if (student2Dictionary.containsKey(keyword)) {
-				weight = getWeight(keyword);
+				weight = getWeight().get(keyword);
 
 				if ((int) word.getValue() < student2Dictionary.get(word.getKey())) {
 					score += (int) word.getValue() * weight;
@@ -387,6 +385,24 @@ public class PlagiarismEngine {
 		}
 
 		return score;
+	}
+	
+	public void createScores() {
+		int score;
+		int total;
+		String keyword;
+		Iterator<Map.Entry<String, Integer>> keywordIterator;
+		for(Student s: students) {
+			score = 0;
+			keywordIterator = s.getKeywords().entrySet().iterator();
+			while(keywordIterator.hasNext()) {
+				Map.Entry<String, Integer> word = (Map.Entry<String, Integer>) keywordIterator.next();
+				keyword = word.getKey();
+				total = word.getValue();
+				score += total*weight.get(keyword);
+			}
+			s.setScore(score);
+		}
 	}
 
 	/**
@@ -447,31 +463,6 @@ public class PlagiarismEngine {
 		}
 	}
 
-	/**
-	 * 
-	 * @param keyword
-	 * @return
-	 */
-	public boolean isCommonKeyword(String keyword) {
-		for (String word : commonKeywords) {
-			if (word.equals(keyword))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param keyword
-	 * @return
-	 */
-	public boolean isUncommonKeyword(String keyword) {
-		for (String word : uncommonKeywords) {
-			if (word.equals(keyword))
-				return true;
-		}
-		return false;
-	}
 
 	/**
 	 * 
@@ -493,58 +484,6 @@ public class PlagiarismEngine {
 	 */
 	public boolean isItterationKeyword(String keyword) {
 		for (String word : itterationKeywords) {
-			if (word.equals(keyword))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param keyword
-	 * @return
-	 */
-	public boolean isErrorHandlingKeyword(String keyword) {
-		for (String word : errorHandlingKeywords) {
-			if (word.equals(keyword))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param keyword
-	 * @return
-	 */
-	public boolean isDataValueKeyword(String keyword) {
-		for (String word : dataValueKeywords) {
-			if (word.equals(keyword))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param keyword
-	 * @return
-	 */
-	public boolean isDataTypeKeyword(String keyword) {
-		for (String word : dataTypeKeywords) {
-			if (word.equals(keyword))
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * @param keyword
-	 * @return
-	 */
-	public boolean isSymbolKeyword(String keyword) {
-		for (String word : symbolKeywords) {
 			if (word.equals(keyword))
 				return true;
 		}

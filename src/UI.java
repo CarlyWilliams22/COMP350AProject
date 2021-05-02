@@ -335,6 +335,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		pe.createStudents(); // each student receives a file
 		pe.parseAllFiles(); // remove comments and excess whitespace
 		pe.countAllKeywords(); // check keywords
+		pe.findWordUsage();
+		pe.assignWeights();
+		pe.createScores();
 		pe.compareAll(); // compare each student to each other
 		renderResultsScreen(); // switch screens
 		primary.setScene(resultsScreen); // display results
