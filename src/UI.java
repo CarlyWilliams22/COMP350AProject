@@ -219,11 +219,11 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		help.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button uploadZips = new Button();
-		uploadZips.setText("Upload Zip Folder");
+		uploadZips.setText("Upload Zip Folders");
 		uploadZips.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button uploadJavaFiles = new Button();
-		uploadJavaFiles.setText("Upload Java File");
+		uploadJavaFiles.setText("Upload Java Files");
 		uploadJavaFiles.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button process = new Button();
