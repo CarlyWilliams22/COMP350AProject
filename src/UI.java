@@ -219,11 +219,11 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		help.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button uploadZips = new Button();
-		uploadZips.setText("Upload Zip Folder");
+		uploadZips.setText("Upload Zip Folders");
 		uploadZips.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button uploadJavaFiles = new Button();
-		uploadJavaFiles.setText("Upload Java File");
+		uploadJavaFiles.setText("Upload Java Files");
 		uploadJavaFiles.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button process = new Button();
@@ -428,37 +428,51 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		// Opens File Explorer
 		saveResults.setOnAction((event) -> {
-			System.out.println("Saving results...");
-
-			explorer.getExtensionFilters().clear();
-			FileChooser.ExtensionFilter fileExtension = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
-			explorer.getExtensionFilters().add(fileExtension);
-
-			File results = explorer.showSaveDialog(primary);
-
-			if (results != null) {
-				saveResults(results);
-			}
+			saveResults();
 		});
 
 		saveGraph.setOnAction((event) -> {
-			System.out.println("Saving graph...");
-
-			explorer.getExtensionFilters().clear();
-			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
-			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("JPG file (*.jpg)", "*.jpg"));
-
-			File graph = explorer.showSaveDialog(primary);
-
-			if (graph != null) {
-				saveGraph(graph);
-			}
+			saveGraph();
 		});
 
 		// Opens Upload Screen
 		newProject.setOnAction((event) -> {
 			newProject();
 		});
+	}
+
+	/**
+	 * Saves results to a CSV file.
+	 */
+	private void saveResults() {
+		System.out.println("Saving results...");
+
+		explorer.getExtensionFilters().clear();
+		FileChooser.ExtensionFilter fileExtension = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
+		explorer.getExtensionFilters().add(fileExtension);
+
+		File results = explorer.showSaveDialog(primary);
+
+		if (results != null) {
+			saveResults(results);
+		}
+	}
+
+	/**
+	 * Saves an image of the UI to a jpg or png
+	 */
+	private void saveGraph() {
+		System.out.println("Saving graph...");
+
+		explorer.getExtensionFilters().clear();
+		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
+		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("JPG file (*.jpg)", "*.jpg"));
+
+		File graph = explorer.showSaveDialog(primary);
+
+		if (graph != null) {
+			saveGraph(graph);
+		}
 	}
 
 	/**
@@ -635,13 +649,13 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		BackgroundFill bg_fill = new BackgroundFill(Color.LIGHTGRAY, new CornerRadii(10), null);
 		Background bg = new Background(bg_fill);
 
-		Label studentName = new Label("  " + name);
+		Label studentName = new Label("  " + name + " ");
 		studentName.setMinSize(325, 50);
 		studentName.setBackground(bg);
 		studentName.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 25));
 
 		// Set up the text for the red students
-		Text redTitle = new Text("Red\n");
+		Text redTitle = new Text("Red");
 		redTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		redTitle.setUnderline(true);
 		redTitle.setFill(Color.RED);
@@ -654,7 +668,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		Text redStudents = new Text(getRedStudents(name));
 
 		// Set up the text for the yellow students
-		Text yellowTitle = new Text("\nYellow\n");
+		Text yellowTitle = new Text("\nYellow");
 		yellowTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		yellowTitle.setUnderline(true);
 		yellowTitle.setFill(Color.YELLOW);
@@ -663,7 +677,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		Text yellowStudents = new Text(getYellowStudents(name));
 
 		// Set up the text for the green students
-		Text greenTitle = new Text("\nGreen\n");
+		Text greenTitle = new Text("\nGreen");
 		greenTitle.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
 		greenTitle.setUnderline(true);
 		greenTitle.setFill(Color.GREEN);
@@ -696,7 +710,14 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
 
-		Text message = new Text("Hello, World!");
+		Text message = new Text("Upload Zip Folders\n" + "Select one or more zip folders for unzipping.\n\n"
+				+ "Upload Java Files\n" + "Select one or more Java files to upload.\n\n" + "Process Files\n"
+				+ "Analyze students’ work for plagiarism.\n\n" + "Save Results\n"
+				+ "Saves results table to an Excel spreadsheet.\n\n" + "Save Graph\n"
+				+ "Select the Graph tab before clicking the button.\n" + "\n" + "New Project\n"
+				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H – help\n"
+				+ "Ctrl + N – start a new project\n" + "Ctrl + G – save graph\n" + "Ctrl + S – save results\n"
+				+ "Ctrl + W – exit\n" + "Ctrl + R – restart");
 
 		ScrollPane scroll = new ScrollPane();
 		scroll.setPadding(new Insets(20, 20, 20, 20));
@@ -733,7 +754,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		for (Student i : s.getRedStudents()) {
 			if (Math.abs(100 - comparisons.get(i.getName())) < .00001) {
-				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+				results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 			}
 		}
 
@@ -756,7 +777,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		for (Student i : s.getRedStudents()) {
 			if (Math.abs(100 - comparisons.get(i.getName())) > .00001) {
-				results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+				results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 			}
 		}
 
@@ -774,7 +795,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 
 		for (Student i : s.getYellowStudents()) {
-			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+			results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 		}
 
 		return results;
@@ -791,7 +812,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		String results = "";
 
 		for (Student i : s.getGreenStudents()) {
-			results += String.format("%-50s" + "%.2f\n", i.getName(), comparisons.get(i.getName()) * 100);
+			results += String.format("%.2f%% - %s\n", comparisons.get(i.getName()) * 100, i.getName());
 		}
 
 		return results;
@@ -885,9 +906,15 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			newProject();
 		}
 
+		else if (e.getCode() == e.getCode().G && e.isControlDown()) {
+			if (primary.getScene().equals(resultsScreen)) {
+				saveGraph();
+			}
+		}
+
 		else if (e.getCode() == e.getCode().S && e.isControlDown()) {
 			if (primary.getScene().equals(resultsScreen)) {
-				System.out.println("Saving results...");
+				saveResults();
 			}
 		}
 	} // handle
