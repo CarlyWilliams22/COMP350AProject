@@ -293,6 +293,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 								errorFiles.add(unprocessedFiles.get(i));
 							}
 						}
+						fe.cleanUpStorageFolder();
+						
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
