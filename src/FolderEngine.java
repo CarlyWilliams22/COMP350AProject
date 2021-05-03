@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,6 +53,7 @@ public class FolderEngine {
 
 		// Still gets stuck on Tyler Ridout's folder, even though it skips files
 		String testCodeFromVal = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectA_stupidCopies.zip";
+		testFE.unzipRecursive(testCodeFromVal, "Storage/");
 //		try {
 //			testFE.unzipRecursive(testCodeFromVal, "Storage/");
 //		} catch (IOException e) {
@@ -60,16 +63,16 @@ public class FolderEngine {
 
 		// This set of nonzipped test code doesn't work
 		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		try {
-			testFE.unzipRecursive(nonzippedTestCode, "Storage/");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+//		try {
+//			testFE.unzipRecursive(nonzippedTestCode, "Storage/");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
 
 		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main.java";
-		testFE.checkInputType(aSingleJavaFile, "Storage\\");
+		//testFE.checkInputType(aSingleJavaFile, "Storage\\");
 		
 		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectB_OrigCodes.zip";
@@ -84,7 +87,7 @@ public class FolderEngine {
 		// testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
 
 		System.out.println("Trying to access cleanup method");
-		//testFE.cleanUpFoldersCreated();
+		testFE.cleanUpFoldersCreated();
 		System.out.println("Got to the line past the cleanup method");
 
 		System.out.println("\n\nPrinting out files array: ");
@@ -127,7 +130,7 @@ public class FolderEngine {
 
 	// Loosely based on howtodoinjava article code:
 	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
-	public void unzipRecursive(String PATH, String targetDir) throws IOException {
+	public void unzipRecursive(String PATH, String targetDir) {
 		File badFile = null;
 		// check to see if folder passed in is a zip folder
 		if (PATH.endsWith(".zip")) {
@@ -481,6 +484,33 @@ public class FolderEngine {
 		}
 		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
 
+	}//cleanUpFoldersCreated method
+	
+	public void cleanUpStorageFolder() {
+		System.out.println("MADE IT TO CLEANUP METHOD!");
+		Path currDir = Paths.get("").toAbsolutePath();
+		File directory = currDir.toFile();
+		File[] allFilesInDir = directory.listFiles();
+		for (File fl : allFilesInDir) {
+			System.out.println(fl.toString());
+			if (fl.toString().endsWith("Storage")) {
+				File[] filesInStorage = fl.listFiles();
+				for (File fis : filesInStorage) {
+					fis.delete();
+				}
+				deleteDir(fl);
+				System.out.println("FOUND STORAGE FILE");
+			}
+		}
+		
+		FileSystem fs = FileSystems.getDefault();
+		// if the storage folder doesn't exist, make it
+		if (Files.notExists(fs.getPath("Storage\\"))) {
+			File storage = new File("Storage\\");
+			storage.mkdir();
+		}
+		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
+
 	}
 
 
@@ -679,7 +709,7 @@ public class FolderEngine {
 	}
 
 	/**
-	 * 
+	 * @see https://www.geeksforgeeks.org/java-program-to-read-content-from-one-file-and-write-it-into-another-file/
 	 * @param f
 	 */
 	public void uploadJavaFile(File f, String targetDir) {
@@ -691,12 +721,22 @@ public class FolderEngine {
 				File storage = new File(targetDir);
 				storage.mkdir();
 			}
-		
-			FileOutputStream fileOutput = new FileOutputStream(f = new File("Storage\\" + f.getName()));
-			
+
+			FileReader reader = new FileReader(f.getCanonicalPath());
+			String contents = "";
+			int buffer;
+			while ((buffer = reader.read()) != -1) {
+				contents += (char) buffer;
+			}
+
+			FileWriter writer = new FileWriter("Storage\\" + f.getName());
+			writer.write(contents);
+
+			reader.close();
+			writer.close();
+
 			files.add(f);
-			
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			unprocessedFiles.add(f);
 			e.printStackTrace();
 		} 

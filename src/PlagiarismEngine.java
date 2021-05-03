@@ -155,7 +155,8 @@ public class PlagiarismEngine {
 
 			// create a file to write the results to
 			// System.out.println(codeFile.getName());
-			File strippedSub = new File("Storage\\" + s.getID() + codeFile.getName());
+			File strippedSub = new File("Storage\\" + codeFile.getName());
+
 
 			// create a file writer and buffer writer for writing
 			FileWriter filwrit = new FileWriter(strippedSub);
