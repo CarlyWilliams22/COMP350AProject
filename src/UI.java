@@ -172,7 +172,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(uploadScreen);
 		primary.setMaximized(true);
-//		primary.setResizable(false);
 		primary.show();
 	}
 
@@ -422,7 +421,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(resultsScreen);
 		primary.setMaximized(true);
-		primary.setResizable(false);
 		primary.show();
 	}
 
