@@ -353,10 +353,19 @@ public class FolderEngine {
 					// catch any exceptions
 			} catch (FileAlreadyExistsException faee) {
 				faee.printStackTrace();
+				if (!unprocessedFiles.contains(badFile)) {
+					unprocessedFiles.add(badFile);
+				}
 			} catch (IOException ioe) {
 				ioe.printStackTrace();
+				if (!unprocessedFiles.contains(badFile)) {
+					unprocessedFiles.add(badFile);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
+				if (!unprocessedFiles.contains(badFile)) {
+					unprocessedFiles.add(badFile);
+				}
 			}
 		} // if it's not a zip file, use the nonzippedfolder method
 		else {
@@ -419,11 +428,12 @@ public class FolderEngine {
 		long sizeOfCurrentFile;
 		double standardDev;
 		while (zipEntries.hasMoreElements()) {
+			File currFile = null;
 			try {
 				// get next entry
 				ZipEntry ze = zipEntries.nextElement();
 				zipE.add(ze);
-				
+				currFile = new File(ze.getName());
 				
 				sizeOfCurrentFile = ze.getSize();
 				if (sizeOfCurrentFile != 0) {
@@ -437,6 +447,9 @@ public class FolderEngine {
 			}//try
 			catch(Exception e) {
 				e.printStackTrace();
+				if (!unprocessedFiles.contains(currFile)) {
+					unprocessedFiles.add(currFile);
+				}
 			}
 		}//while
 		
@@ -531,12 +544,13 @@ public class FolderEngine {
 		} else {
 			storage = fs.getPath(targetDir).toFile();
 		}
-		
+		File currFile = null;
 		try {
 			System.out.println("Trying to create a single temp file");
 			File singleFileDest = File.createTempFile(PATH, null, storage);
 			System.out.println("Trying to get the original file");
 			File singleFileInput = new File(PATH);
+			currFile = new File(PATH);
 			//File singleFileInput = fs.getPath(PATH).toFile();
 			System.out.println("single file input: " + singleFileInput.toString());
 			InputStream is = new FileInputStream(singleFileInput);
@@ -556,6 +570,9 @@ public class FolderEngine {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			if (!unprocessedFiles.contains(currFile)) {
+				unprocessedFiles.add(currFile);
+			}
 		}
 		
 	}
@@ -758,7 +775,9 @@ public class FolderEngine {
 
 			files.add(f);
 		} catch (IOException e) {
-			unprocessedFiles.add(f);
+			if (!unprocessedFiles.contains(f)) {
+				unprocessedFiles.add(f);
+			}
 			e.printStackTrace();
 		} 
 

@@ -32,8 +32,8 @@ public class PlagiarismEngine {
 
 	private static String itterationKeywords[] = { "do", "for", "while" };
 
-	private final double GtoY = .70; // Green to yellow threshold
-	private final double YtoR = .85; // Yellow to red threshold
+	private final double GtoY = .75; // Green to yellow threshold
+	private final double YtoR = .90; // Yellow to red threshold
 
 	public PlagiarismEngine() {
 		files = new ArrayList<File>();
