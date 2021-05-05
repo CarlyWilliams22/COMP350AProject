@@ -405,19 +405,19 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveResults.setText("Save Results");
 		saveResults.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button saveGraph = new Button(); // save graph as a png or jpg
-		saveGraph.setText("Save Graph");
-		saveGraph.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+		Button screenShot = new Button(); // screenshot as a png or jpg
+		screenShot.setText("Screenshot");
+		screenShot.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button newProject = new Button(); // triggers upload screen
 		newProject.setText("New Project");
 		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addResultsButtonListeners(help, saveResults, saveGraph, newProject); // add button actions
+		addResultsButtonListeners(help, saveResults, screenShot, newProject); // add button actions
 
 		buttons.add(help);
 		buttons.add(saveResults);
-		buttons.add(saveGraph);
+		buttons.add(screenShot);
 		buttons.add(newProject);
 
 		return buttons;
@@ -430,7 +430,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param uploadToOneDrive
 	 * @param newProject
 	 */
-	private void addResultsButtonListeners(Button help, Button saveResults, Button saveGraph, Button newProject) {
+	private void addResultsButtonListeners(Button help, Button saveResults, Button screenShot, Button newProject) {
 
 		// Creates popup window
 		help.setOnAction((event) -> {
@@ -443,8 +443,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		});
 
 		// Opens File Explorer
-		saveGraph.setOnAction((event) -> {
-			saveGraph();
+		screenShot.setOnAction((event) -> {
+			screenShot();
 		});
 
 		// Opens Upload Screen
@@ -473,8 +473,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Saves an image of the UI to a jpg or png
 	 */
-	private void saveGraph() {
-		System.out.println("Saving graph...");
+	private void screenShot() {
+		System.out.println("Screenshotting Scene...");
 
 		explorer.getExtensionFilters().clear();
 		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
@@ -483,7 +483,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		File graph = explorer.showSaveDialog(primary);
 
 		if (graph != null) {
-			saveGraph(graph);
+			screenShot(graph);
 		}
 	}
 
@@ -730,10 +730,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		Text message = new Text("Upload Zip Folders\n" + "Select one or more zip folders for unzipping.\n\n"
 				+ "Upload Java Files\n" + "Select one or more Java files to upload.\n\n" + "Process Files\n"
 				+ "Analyze students work for plagiarism.\n\n" + "Save Results\n"
-				+ "Saves results table to an Excel spreadsheet.\n\n" + "Save Graph\n"
+				+ "Saves results table to an Excel spreadsheet.\n\n" + "Screenshot\n"
 				+ "Select the Graph tab before clicking the button.\n" + "\n" + "New Project\n"
 				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H  help\n"
-				+ "Ctrl + N  start a new project\n" + "Ctrl + G  save graph\n" + "Ctrl + S  save results\n"
+				+ "Ctrl + N  start a new project\n" + "Ctrl + G  screenshot\n" + "Ctrl + S  save results\n"
 				+ "Ctrl + W  exit\n" + "Ctrl + R  restart");
 
 		ScrollPane scroll = new ScrollPane();
@@ -892,7 +892,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Saves screenshot of graph tab
 	 */
-	private File saveGraph(File file) {
+	private File screenShot(File file) {
 		WritableImage image = resultsScreen.snapshot(null);
 
 		try {
@@ -931,8 +931,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		}
 
 		else if (e.getCode() == e.getCode().G && e.isControlDown()) {
-			if (primary.getScene().equals(resultsScreen)) { // triggers save graph button
-				saveGraph();
+			if (primary.getScene().equals(resultsScreen)) { // triggers screenshot button
+				screenShot();
 			}
 		}
 
