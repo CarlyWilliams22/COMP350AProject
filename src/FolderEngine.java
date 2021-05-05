@@ -50,7 +50,7 @@ public class FolderEngine {
 
 		// Still gets stuck on Tyler Ridout's folder, even though it skips files
 		String testCodeFromVal = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectA_stupidCopies.zip";
-		testFE.unzipRecursive(testCodeFromVal, "Storage/");
+		//testFE.unzipRecursive(testCodeFromVal, "Storage/");
 //		try {
 //			testFE.unzipRecursive(testCodeFromVal, "Storage/");
 //		} catch (IOException e) {
@@ -82,10 +82,16 @@ public class FolderEngine {
 		// testFE.unzipRecursiveWithOneFile(sectionBCode, "Storage\\");
 		// testFE.unzipRecursiveWithTempDirs(sectionBCode, "Storage\\");
 		// testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
+		
+//		String regularFolder = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\MontyHall";
+//		testFE.regularFolder(regularFolder, "Storage\\");
+		
+		String regularFolderWithZip = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\MontyHall - Copy";
+		testFE.regularFolder(regularFolderWithZip, "Storage\\");
 
-		System.out.println("Trying to access cleanup method");
-		testFE.cleanUpFoldersCreated();
-		System.out.println("Got to the line past the cleanup method");
+//		System.out.println("Trying to access cleanup method");
+//		testFE.cleanUpFoldersCreated();
+//		System.out.println("Got to the line past the cleanup method");
 
 		System.out.println("\n\nPrinting out files array: ");
 		for (int i = 0; i < files.size(); i++) {
@@ -364,14 +370,17 @@ public class FolderEngine {
 	
 	//method to get the median size of all the zip entries
 	public long getMedianSize(Enumeration<? extends ZipEntry> zipEntries) {
+		//create an array list of the zip entries
 		ArrayList<ZipEntry> zipE = new ArrayList<ZipEntry>();
-		int numOfEntries;
-		int midpointEntry1;
-		int midpointEntry2;
-		long avgOfMids;
+		int numOfEntries;	//total number of entries
+		int midpointEntry1;	//middle or first of the 2 in the middle
+		int midpointEntry2;	//second middle entry (for data sets with an even number of entries)
+		long avgOfMids;		//average of the two middle entries (for data sets with even # of entries)
+		
+		//iterate over the zip entries
 		while (zipEntries.hasMoreElements()) {
 			try {
-				// get next entry
+				// get next entry and add it to the array list
 				ZipEntry ze = zipEntries.nextElement();
 				zipE.add(ze);
 
@@ -381,58 +390,88 @@ public class FolderEngine {
 			}
 		}//while
 		
+		//get the number of entries
 		numOfEntries = zipE.size();
+		//get the first middle entry
 		midpointEntry1 = numOfEntries / 2;
+		//if it's an even sized data set
 		if(numOfEntries % 2 == 0) {
+			//get the other entry in the middle
 			midpointEntry2 = (numOfEntries / 2) - 1;
 		} else {
+			//otherwise set the second midpoint to 0
 			midpointEntry2 = 0;
 		}
-		System.out.println(numOfEntries);
-		System.out.println(midpointEntry1);
-		System.out.println(midpointEntry2);
+		
+//		System.out.println(numOfEntries);
+//		System.out.println(midpointEntry1);
+//		System.out.println(midpointEntry2);
+		
+		//if there are two middle entries, average them
 		if(midpointEntry2 != 0) {
 			avgOfMids = zipE.get(midpointEntry1).getSize() + zipE.get(midpointEntry2).getSize();
 			avgOfMids /= 2;
-			System.out.println(avgOfMids);
+			
+//			System.out.println(avgOfMids);
+			
 		} else {
+			//otherwise just use the midpoint as the median
 			avgOfMids = zipE.get(midpointEntry1).getSize();
 		}
 		
-		return avgOfMids;
-		
+		//return the median
+		return avgOfMids;	
 	}//getMedSize
 	
+	
+	//method to get the standard deviation of the zip entries
 	public double getSD(Enumeration<? extends ZipEntry> zipEntries) {
+		//array list to hold zip entries
 		ArrayList<ZipEntry> zipE = new ArrayList<ZipEntry>();
+		//array list to hold calculated numbers midway through the SD calculation
 		ArrayList<Integer> zipEMidCalc = new ArrayList<Integer>();
-		int numOfEntries;
-		int midpointEntry1;
-		int midpointEntry2;
-		long avgOfMids;
-		long avg = 0;
-		int numFiles = 0;
-		long sizeOfCurrentFile;
-		double standardDev;
+		
+//		int numOfEntries;
+//		int midpointEntry1;
+//		int midpointEntry2;
+//		long avgOfMids;
+		
+		long avg = 0;	//initialize average size of files
+		int numFiles = 0;	//initialize number of files
+		long sizeOfCurrentFile;	//size of the current file
+		double standardDev;	//standard deviation
+		
+		//iterate over the zip entries
 		while (zipEntries.hasMoreElements()) {
 			File currFile = null;
 			try {
 				// get next entry
 				ZipEntry ze = zipEntries.nextElement();
-				zipE.add(ze);
+				zipE.add(ze);	//add it to the arraylist of zip entries
+				
+				//initialize the current file being processed
 				currFile = new File(ze.getName());
 				
+				//get the size of the current file
 				sizeOfCurrentFile = ze.getSize();
+				
+				//if the current file has a size
 				if (sizeOfCurrentFile != 0) {
-					System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
+					
+//					System.out.println("Size of: " + ze.getName() + " file: " + sizeOfCurrentFile);
+					
+					//keep track of the current average size of files
 					avg *= numFiles;
 					avg += sizeOfCurrentFile;
 					numFiles++;
 					avg /= numFiles;
+					
 					//System.out.println("Average size so far: " + averageSizeOfFile);
+					
 				}//if
 			}//try
 			catch(Exception e) {
+				//catch any errors and add to the unprocessed files array
 				e.printStackTrace();
 				if (!unprocessedFiles.contains(currFile)) {
 					unprocessedFiles.add(currFile);
@@ -440,6 +479,9 @@ public class FolderEngine {
 			}
 		}//while
 		
+		//for every zip entry,
+		//square its difference with the mean
+		//store results in the "middle of calculations" array
 		for(int i = 0; i < zipE.size(); i++) {
 			zipEMidCalc.add(i, (int)Math.pow((double)(avg - zipE.get(i).getSize()), 2));
 		}
@@ -448,289 +490,137 @@ public class FolderEngine {
 		avg = 0;
 		numFiles = 0;
 		
+		//iterate over the halfway calculated numbers
 		for(int i = 0; i < zipEMidCalc.size(); i++) {
+			//calculate the average of the calculated numbers
 			sizeOfCurrentFile = zipEMidCalc.get(i);
 			if (sizeOfCurrentFile != 0) {
 				avg *= numFiles;
 				avg += sizeOfCurrentFile;
 				numFiles++;
 				avg /= numFiles;
+				
 				//System.out.println("Average size so far: " + avg);
+				
 			}//if
 		}
 		
+		//take the square root of the average of the calculated numbers to get the SD
 		standardDev = Math.sqrt(avg);
+		//return the standard deviation
 		return standardDev;
-			
 	}//getStandardDev
 
+	//method to delete the folders created during runtime
 	public void cleanUpFoldersCreated() {
-		System.out.println("MADE IT TO CLEANUP METHOD!");
+		
+//		System.out.println("MADE IT TO CLEANUP METHOD!");
+		
+		//get the current directory
 		Path currDir = Paths.get("").toAbsolutePath();
+		//convert the current directory path to a file
 		File directory = currDir.toFile();
+		//get a list of all the files in the current directory
 		File[] allFilesInDir = directory.listFiles();
+		
+		//iterate over all the files in the current directory
 		for (File fl : allFilesInDir) {
-			System.out.println(fl.toString());
+			
+//			System.out.println(fl.toString());
+			//if the file is the storage folder
 			if (fl.toString().endsWith("Storage")) {
+				
 //				File[] filesInStorage = fl.listFiles();
 //				for (File fis : filesInStorage) {
 //					fis.delete();
 //				}
+				
+				//call the delete method on the storage folder
 				deleteDir(fl);
-				System.out.println("FOUND STORAGE FILE");
+				
+//				System.out.println("FOUND STORAGE FILE");
+				
 			}
+			//if the file is a temporary file
 			if (fl.toString().endsWith(".tmp")) {
+				//delete the temporary file
 				fl.delete();
-				System.out.println("FOUND a tmp FILE: " + fl.toString());
+				
+//				System.out.println("FOUND a tmp FILE: " + fl.toString());
+				
 			}
 		}
-		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
+//		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
 
 	}//cleanUpFoldersCreated method
 	
+	//method to clean up the storage folder between zip uploads
+	//this lets students with the same name be counted as separate submissions for each folder uploaded
 	public void cleanUpStorageFolder() {
-		System.out.println("MADE IT TO CLEANUP METHOD!");
+		
+//		System.out.println("MADE IT TO CLEANUP METHOD!");
+		
+		//get the current directory
 		Path currDir = Paths.get("").toAbsolutePath();
+		//convert the current directory path to a file
 		File directory = currDir.toFile();
+		//get a list of all the files in the current directory
 		File[] allFilesInDir = directory.listFiles();
+		
+		//iterate over all the files in the current directory
 		for (File fl : allFilesInDir) {
-			System.out.println(fl.toString());
+			
+//			System.out.println(fl.toString());
+			
+			//find the storage folder
 			if (fl.toString().endsWith("Storage")) {
-				File[] filesInStorage = fl.listFiles();
-				for (File fis : filesInStorage) {
-					fis.delete();
-				}
+				
+//				File[] filesInStorage = fl.listFiles();
+//				for (File fis : filesInStorage) {
+//					fis.delete();
+//				}
+				//delete all the files in the storage folder
 				deleteDir(fl);
-				System.out.println("FOUND STORAGE FILE");
+				
+//				System.out.println("FOUND STORAGE FILE");
+				
 			}
 		}
 		
+		//remake the storage folder
 		FileSystem fs = FileSystems.getDefault();
-		// if the storage folder doesn't exist, make it
 		if (Files.notExists(fs.getPath("Storage\\"))) {
 			File storage = new File("Storage\\");
 			storage.mkdir();
 		}
-		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
-
-	}
-
-
-	// using article from Atta:
-	// https://attacomsian.com/blog/java-delete-directory-recursively#:~:text=Using%20Java%20I%2FO%20Package,-To%20delete%20a&text=listFiles()%20method%20to%20list,delete()%20.
-
-	
-	public void addSingleJavaFile(String PATH, String targetDir) {
-		System.out.println("Made it to single java file method");
-		File storage;
-		FileSystem fs = FileSystems.getDefault();
-		//if the storage folder doesn't exist, make it
-		if (Files.notExists(fs.getPath(targetDir))) {
-			storage = new File(targetDir);
-			storage.mkdir();
-		} else {
-			storage = fs.getPath(targetDir).toFile();
-		}
-		File currFile = null;
-		try {
-			System.out.println("Trying to create a single temp file");
-			File singleFileDest = File.createTempFile(PATH, null, storage);
-			System.out.println("Trying to get the original file");
-			File singleFileInput = new File(PATH);
-			currFile = new File(PATH);
-			//File singleFileInput = fs.getPath(PATH).toFile();
-			System.out.println("single file input: " + singleFileInput.toString());
-			InputStream is = new FileInputStream(singleFileInput);
-			System.out.println(is.available());
-			BufferedInputStream bis = new BufferedInputStream(is);
-			System.out.println("num of bytes in bis: " + bis.available());
-			FileOutputStream fileOutput = new FileOutputStream(singleFileDest);
-			//write the file
-			while (bis.available() > 0) {
-				//System.out.println("writing from " + fileToWrite.getName());
-				fileOutput.write(bis.read());
-			}
-			System.out.println(singleFileInput.getName() + " was written");
-			fileOutput.close();
-			bis.close();
-			is.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			if (!unprocessedFiles.contains(currFile)) {
-				unprocessedFiles.add(currFile);
-			}
-		}
 		
-	}
-	
-	//using article from Atta: 
+//		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
+
+	}//cleanup storage folder method
+
+		
+	//method to delete a directory and its contents
+	//Code based on article from Atta: 
 	//https://attacomsian.com/blog/java-delete-directory-recursively#:~:text=Using%20Java%20I%2FO%20Package,-To%20delete%20a&text=listFiles()%20method%20to%20list,delete()%20.
 	public void deleteDir(File fileToDelete) {
+		//get the contents of the file/directory
 		File[] filesToDelete = fileToDelete.listFiles();
+		
+		//if the file is a directory and has contents
 		if (filesToDelete != null) {
+			//for each file
 			for (File f : filesToDelete) {
-				System.out.println("THERE ARE FILES IN THIS FOLDER");
+				
+//				System.out.println("THERE ARE FILES IN THIS FOLDER");
+				
+				//recursively call the method on the contents
 				deleteDir(f);
 			}
 		}
-		try {
-			boolean deleted = fileToDelete.delete();
-			System.out.println("Does the file exist? : " + fileToDelete.exists());
-			System.out.println("Can we write to it? :" + fileToDelete.canWrite());
-			System.out.println("Can we execute it? :" + fileToDelete.canExecute());
-			System.out.println("Deleted " + fileToDelete);
-			System.out.println(deleted);
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
+			//delete the file or directory after it's empty
+			fileToDelete.delete();
+	}//deleteDir method
 
-	public void lookInsideNonZippedFolder(String PATH, File[] fileArray, String targetDir) {
-		FileSystem fs = FileSystems.getDefault();
-		File currFileName = null;
-
-		try {
-			if (Files.notExists(fs.getPath(targetDir))) {
-				Files.createDirectory(fs.getPath(targetDir));
-			}
-
-			for (File currFile : fileArray) {
-				currFileName = currFile;
-				if (currFile.getName().endsWith(".zip")) {
-					unzipRecursive(PATH, targetDir);
-				}
-				if (currFile.isDirectory()) {
-					System.out.println("making dir: " + targetDir + currFile.getName());
-					Files.createDirectories(fs.getPath(targetDir + currFile.getName()));
-					lookInsideNonZippedFolder(targetDir + currFile.getName(), currFile.listFiles(),
-							targetDir + currFile.getName());
-				} else {
-					InputStream is = new FileInputStream(currFile);
-					BufferedInputStream bis = new BufferedInputStream(is);
-					Path currFilePath = fs.getPath(targetDir + currFile.getName());
-					Path unzipppedFileLoc = Files.createFile(currFilePath);
-					FileOutputStream fileOutput = new FileOutputStream(currFile);
-					while (bis.available() > 0) {
-						fileOutput.write(bis.read());
-					}
-					fileOutput.close();
-					bis.close();
-					is.close();
-					System.out.println("Written: " + currFile.getName());
-				}
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (!unprocessedFiles.contains(currFileName)) {
-				unprocessedFiles.add(currFileName);
-			}
-		}
-	} // look inside nonzipped without temp files or writing to files array
-
-	public void lookInsideNonZippedFolderMoreWork(String PATH, File[] fileArray, String targetDir) {
-		FileSystem fs = FileSystems.getDefault();
-		File currFileName = null;
-
-		try {
-			if (Files.notExists(fs.getPath(targetDir))) {
-				// Files.createDirectories(fs.getPath(targetDir));
-				File storage = new File(targetDir);
-				storage.mkdir();
-			}
-
-			for (File currFile : fileArray) {
-				currFileName = currFile;
-				if (currFile.getName().endsWith(".zip")) {
-					unzipRecursive(PATH, targetDir);
-				}
-				// String tempFileNameForStudent;
-				if (currFile.isDirectory() && !currFile.getName().contains(".settings")
-						&& !currFile.getName().contains("bin")) {
-					System.out.println("making dir in nonzipped meth: " + targetDir + currFile.getName());
-					// Files.createDirectories(fs.getPath(targetDir + ze.getName()));
-					File newDir = new File(targetDir + File.separator + currFile.getName());
-					newDir.mkdir();
-					// tempFileNameForStudent = newDir.getName();
-					// File combinedCode = new File(newDir.getName() + ".txt");
-					// combinedCode.createNewFile();
-					File combinedCode;
-					combinedCode = File.createTempFile(newDir.getName(), null, newDir);
-					System.out.println("This is the name of the combinedCode file: " + combinedCode.getName());
-					System.out.println("This is the parent of the .txt file: " + combinedCode.getParent());
-					lookInsideNonZippedFolderMoreWork(newDir.getName(), currFile.listFiles(), newDir.getName());
-					// Files.createFile(fs.getPath(targetDir + ze.getName()));
-				} else {
-					InputStream is = new FileInputStream(currFile);
-					BufferedInputStream bis = new BufferedInputStream(is);
-					String uncompFileName = "";
-					System.out.println("This is the value of targetDir: " + targetDir);
-					// System.out.println("This is the zip entry name: " + ze.getName());
-					uncompFileName = targetDir + File.separator + currFile.getName();
-					Path uncompFilePath = fs.getPath(uncompFileName);
-//					Path zipFileLoc;
-//					if(Files.notExists(uncompFilePath)) {
-//						 zipFileLoc = Files.createFile(uncompFilePath);
-//					} else {
-//						zipFileLoc = uncompFilePath.toFile();
-//					}
-					System.out.println("This is the uncompFilePath: " + uncompFilePath.toString());
-					File fileToWrite = uncompFilePath.toFile();
-					File compilationFile = null;
-					FileOutputStream fileOutput;
-					if (fileToWrite.getParent() != null) {
-						File[] filesInParent = fileToWrite.getParentFile().listFiles();
-						for (File f : filesInParent) {
-							if (f.getName().endsWith(".tmp")) {
-								compilationFile = new File(f.getName());
-								System.out.println("Found a tmp file! " + f.getName());
-							} else {
-								System.out.println("This isn't a tmp file: " + f.getName());
-							}
-						}
-						if (compilationFile == null) {
-							if (fileToWrite.getParentFile().getParentFile() != null) {
-								File grandparent = fileToWrite.getParentFile().getParentFile();
-								File[] filesInGParent = grandparent.listFiles();
-								for (File f : filesInGParent) {
-									if (f.getName().endsWith(".tmp")) {
-										compilationFile = new File(f.getName());
-										System.out.println("Found a tmp file! " + f.getName());
-									} else {
-										System.out.println("This isn't a tmp file: " + f.getName());
-									}
-								}
-							}
-						}
-						System.out.println(
-								"File: " + fileToWrite.getName() + " has a parent: " + fileToWrite.getParent());
-					}
-					System.out.println("THIS IS IN NONZIPPED METH: " + fileToWrite.getName());
-					// System.out.println(compilationFile.getName());
-					if (!(compilationFile == null) && fileToWrite.getName().endsWith(".java")) {
-						fileOutput = new FileOutputStream(compilationFile, true);
-					} else {
-						fileOutput = new FileOutputStream(fileToWrite);
-					}
-					while (bis.available() > 0) {
-						fileOutput.write(bis.read());
-					}
-					fileOutput.close();
-					bis.close();
-					is.close();
-					System.out.println("Written: " + currFile.getName());
-				} // else close
-			} // for close
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (!unprocessedFiles.contains(currFileName)) {
-				unprocessedFiles.add(currFileName);
-			}
-		}
-	}
 
 	/**
 	 * @see https://www.geeksforgeeks.org/java-program-to-read-content-from-one-file-and-write-it-into-another-file/
@@ -771,61 +661,107 @@ public class FolderEngine {
 	}
 
 	
-
-	/**
-	 * Unzips a single zip file of files in a storage folder NOTE: I left this in,
-	 * but as of now, I don't use it
-	 * 
-	 * @param PATH - zip file path
-	 */
-	public void unzipLocally(String PATH) {
-		File currentFile;
-		FileInputStream fileInput;
-
-		byte[] buffer = new byte[1024];
-
-		try {
-			// Creates the storage folder
-			createFolder();
-
-			// Setup to access each entry in the zip file
-			fileInput = new FileInputStream(PATH);
-			ZipInputStream zipInput = new ZipInputStream(fileInput);
-			ZipEntry entry = zipInput.getNextEntry();
-
-			// Unzips
-			while (entry != null) {
-				String fileName = entry.getName();
-				File file = new File(fileName);
-
-				// Writes unzipped file to storage folder
-				FileOutputStream fileOutput = new FileOutputStream(
-						currentFile = new File("Storage\\" + file.getName()));
-
-				int len;
-
-				while ((len = zipInput.read(buffer)) > 0) {
-					fileOutput.write(buffer, 0, len);
+	//method to handle an unzipped folder
+	public void regularFolder(String filePath, String targetDir) {
+		//create a new file based on the path given in
+		File f = new File(filePath);
+		
+		System.out.println("This is the file name of the file given my the regular folder method: " + f.getName());
+		
+		//list all the contents of the folder
+		File[] filesInRegFolder = f.listFiles();
+		
+//		if(filesInRegFolder != null) {
+//			System.out.println(filesInRegFolder.length);
+//		}
+		
+		//iterate over the contents of the folder
+		for(File fInRegFolder : filesInRegFolder) {
+			//if it doesn't start with . or is a bin file, process it 
+			if(!fInRegFolder.getName().startsWith(".") && !fInRegFolder.getName().equals("bin")) {
+				//send zip folders to the recursive unzip method
+				if(fInRegFolder.getName().endsWith(".zip")) {
+					try {
+						System.out.println("Sending " + fInRegFolder.getName() + " to unzip method...");
+						unzipRecursive(fInRegFolder.getCanonicalPath(), "Storage\\");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
-
-				// Adds file to list for processing
-				files.add(currentFile);
-
-				fileOutput.close();
-				fileInput.close();
-				zipInput.closeEntry();
-
-				// get the next file
-				entry = zipInput.getNextEntry();
-			} // while
-			zipInput.close();
-		} catch (FileNotFoundException e) {
-			System.err.println("Works only on a single zip folder with regular files.");
-//			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+				//send java files to the method handling single java files
+				else if(fInRegFolder.getName().endsWith(".java")) {
+					System.out.println("Sending " + fInRegFolder.getName() + " to single java method...");
+					uploadJavaFile(fInRegFolder, "Storage\\");
+				} 
+				//make a recursive call for all other folders
+				else {
+					System.out.println("Sending " + fInRegFolder.getName() + " back to reg folder method...");
+					try {
+						regularFolder(fInRegFolder.getCanonicalPath(), "Storage\\");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			
 		}
-	}
+	}//regular folder method
+	
+
+//	/**
+//	 * Unzips a single zip file of files in a storage folder NOTE: I left this in,
+//	 * but as of now, I don't use it
+//	 * 
+//	 * @param PATH - zip file path
+//	 */
+//	public void unzipLocally(String PATH) {
+//		File currentFile;
+//		FileInputStream fileInput;
+//
+//		byte[] buffer = new byte[1024];
+//
+//		try {
+//			// Creates the storage folder
+//			createFolder();
+//
+//			// Setup to access each entry in the zip file
+//			fileInput = new FileInputStream(PATH);
+//			ZipInputStream zipInput = new ZipInputStream(fileInput);
+//			ZipEntry entry = zipInput.getNextEntry();
+//
+//			// Unzips
+//			while (entry != null) {
+//				String fileName = entry.getName();
+//				File file = new File(fileName);
+//
+//				// Writes unzipped file to storage folder
+//				FileOutputStream fileOutput = new FileOutputStream(
+//						currentFile = new File("Storage\\" + file.getName()));
+//
+//				int len;
+//
+//				while ((len = zipInput.read(buffer)) > 0) {
+//					fileOutput.write(buffer, 0, len);
+//				}
+//
+//				// Adds file to list for processing
+//				files.add(currentFile);
+//
+//				fileOutput.close();
+//				fileInput.close();
+//				zipInput.closeEntry();
+//
+//				// get the next file
+//				entry = zipInput.getNextEntry();
+//			} // while
+//			zipInput.close();
+//		} catch (FileNotFoundException e) {
+//			System.err.println("Works only on a single zip folder with regular files.");
+////			e.printStackTrace();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	/**
 	 * Transfers a deep copy of files
@@ -847,38 +783,38 @@ public class FolderEngine {
 		}
 	}
 
-	/**
-	 * Partially deletes the contents of the storage folder
-	 */
-	public void deleteFolder() {
-		File folder = new File("Storage\\");
+//	/**
+//	 * Partially deletes the contents of the storage folder
+//	 */
+//	public void deleteFolder() {
+//		File folder = new File("Storage\\");
+//
+//		if (folder.exists()) {
+//
+//			File[] files = folder.listFiles();
+//
+//			if (files != null) {
+//
+//				for (File f : files) {
+//					f.delete();
+//				}
+//			}
+//			folder.delete();
+//		}
+//	}
 
-		if (folder.exists()) {
-
-			File[] files = folder.listFiles();
-
-			if (files != null) {
-
-				for (File f : files) {
-					f.delete();
-				}
-			}
-			folder.delete();
-		}
-	}
-
-	/**
-	 * Creates the storage folder
-	 * 
-	 * @throws IOException
-	 */
-	private void createFolder() throws IOException {
-		File folder = new File("Storage\\");
-
-		if (!folder.exists()) {
-			folder.mkdir();
-		}
-	}
+//	/**
+//	 * Creates the storage folder
+//	 * 
+//	 * @throws IOException
+//	 */
+//	private void createFolder() throws IOException {
+//		File folder = new File("Storage\\");
+//
+//		if (!folder.exists()) {
+//			folder.mkdir();
+//		}
+//	}
 
 	/**
 	 * Clears files for new set of data
