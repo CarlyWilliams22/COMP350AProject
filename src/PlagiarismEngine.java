@@ -93,7 +93,8 @@ public class PlagiarismEngine {
 				}
 				//if the current student name already exists then tack a number on the end
 				else {
-					currentStudentName = currentStudentName.substring(0, nameLen) + Integer.toString(studentNum);
+					currentStudentName = currentStudentName.substring(0, nameLen) + 
+							" (" + Integer.toString(studentNum) + ")";
 					studentNum++;
 				}
 			}
