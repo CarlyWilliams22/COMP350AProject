@@ -155,7 +155,8 @@ public class PlagiarismEngine {
 
 			// create a file to write the results to
 			// System.out.println(codeFile.getName());
-			File strippedSub = new File("Storage\\" + s.getID() + codeFile.getName());
+			File strippedSub = new File("Storage\\" + codeFile.getName());
+
 
 			// create a file writer and buffer writer for writing
 			FileWriter filwrit = new FileWriter(strippedSub);
@@ -247,7 +248,9 @@ public class PlagiarismEngine {
 			}
 			// close scanners and writers
 			bufwrit.flush();
+			filwrit.flush();
 			bufwrit.close();
+			filwrit.close();
 			scnr.close();
 
 			// replace the file with the stripped file in the student
@@ -295,8 +298,11 @@ public class PlagiarismEngine {
 						}
 					}
 				}
+				//close line scanner
+				lineScnr.close();
 			}
-
+			//close file scanner
+			fileScnr.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

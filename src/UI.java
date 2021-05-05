@@ -111,10 +111,11 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		primary.setOnCloseRequest(event -> { // ensure data deletion on exit
 			clear();
 		});
-
+		
 		primary.setTitle("Copied Code Catcher");
 		primary.getIcons().add(new Image("sparrow.png"));
 		renderUploadScreen();
+		
 	}
 
 	/**
@@ -297,6 +298,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 								errorFiles.add(unprocessedFiles.get(i));
 							}
 						}
+						fe.cleanUpStorageFolder();
+						
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -318,6 +321,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 					uploadedFiles.add(file); // display selected file
 //						String PATH = file.getCanonicalPath(); // get location
 					fe.uploadJavaFile(file, "Storage\\");
+					//fe.uploadJavaFile(PATH, "Storage\\");
 					pe.receiveFiles(fe.transferFiles());
 					ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
 
@@ -725,12 +729,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		Text message = new Text("Upload Zip Folders\n" + "Select one or more zip folders for unzipping.\n\n"
 				+ "Upload Java Files\n" + "Select one or more Java files to upload.\n\n" + "Process Files\n"
-				+ "Analyze students’ work for plagiarism.\n\n" + "Save Results\n"
+				+ "Analyze studentsÂ’ work for plagiarism.\n\n" + "Save Results\n"
 				+ "Saves results table to an Excel spreadsheet.\n\n" + "Save Graph\n"
 				+ "Select the Graph tab before clicking the button.\n" + "\n" + "New Project\n"
-				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H – help\n"
-				+ "Ctrl + N – start a new project\n" + "Ctrl + G – save graph\n" + "Ctrl + S – save results\n"
-				+ "Ctrl + W – exit\n" + "Ctrl + R – restart");
+				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H Â– help\n"
+				+ "Ctrl + N Â– start a new project\n" + "Ctrl + G Â– save graph\n" + "Ctrl + S Â– save results\n"
+				+ "Ctrl + W Â– exit\n" + "Ctrl + R Â– restart");
 
 		ScrollPane scroll = new ScrollPane();
 		scroll.setPadding(new Insets(20, 20, 20, 20));

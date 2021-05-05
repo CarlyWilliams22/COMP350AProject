@@ -53,6 +53,7 @@ public class FolderEngine {
 
 		// Still gets stuck on Tyler Ridout's folder, even though it skips files
 		String testCodeFromVal = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectA_stupidCopies.zip";
+		testFE.unzipRecursive(testCodeFromVal, "Storage/");
 //		try {
 //			testFE.unzipRecursive(testCodeFromVal, "Storage/");
 //		} catch (IOException e) {
@@ -62,16 +63,16 @@ public class FolderEngine {
 
 		// This set of nonzipped test code doesn't work
 		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-		try {
-			testFE.unzipRecursive(nonzippedTestCode, "Storage/");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+//		try {
+//			testFE.unzipRecursive(nonzippedTestCode, "Storage/");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
 
 		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main.java";
-		testFE.checkInputType(aSingleJavaFile, "Storage\\");
+		//testFE.checkInputType(aSingleJavaFile, "Storage\\");
 		
 		// This set of code (sectionBCode) works
 		String sectionBCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectB_OrigCodes.zip";
@@ -86,7 +87,7 @@ public class FolderEngine {
 		// testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
 
 		System.out.println("Trying to access cleanup method");
-		//testFE.cleanUpFoldersCreated();
+		testFE.cleanUpFoldersCreated();
 		System.out.println("Got to the line past the cleanup method");
 
 		System.out.println("\n\nPrinting out files array: ");
@@ -129,7 +130,7 @@ public class FolderEngine {
 
 	// Loosely based on howtodoinjava article code:
 	// https://howtodoinjava.com/java/io/unzip-file-with-subdirectories/
-	public void unzipRecursive(String PATH, String targetDir) throws IOException {
+	public void unzipRecursive(String PATH, String targetDir) {
 		File badFile = null;
 		// check to see if folder passed in is a zip folder
 		if (PATH.endsWith(".zip")) {
@@ -314,6 +315,8 @@ public class FolderEngine {
 								}
 
 								fileOutput.close(); // close the output stream
+								bis.close(); //close the buffered input stream
+								is.close(); //close the input stream
 								// System.out.println("Written: " + ze.getName());
 
 								// if the file is a zip folder, make a recursive call
@@ -469,10 +472,10 @@ public class FolderEngine {
 		for (File fl : allFilesInDir) {
 			System.out.println(fl.toString());
 			if (fl.toString().endsWith("Storage")) {
-				File[] filesInStorage = fl.listFiles();
-				for (File fis : filesInStorage) {
-					fis.delete();
-				}
+//				File[] filesInStorage = fl.listFiles();
+//				for (File fis : filesInStorage) {
+//					fis.delete();
+//				}
 				deleteDir(fl);
 				System.out.println("FOUND STORAGE FILE");
 			}
@@ -480,6 +483,33 @@ public class FolderEngine {
 				fl.delete();
 				System.out.println("FOUND a tmp FILE: " + fl.toString());
 			}
+		}
+		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
+
+	}//cleanUpFoldersCreated method
+	
+	public void cleanUpStorageFolder() {
+		System.out.println("MADE IT TO CLEANUP METHOD!");
+		Path currDir = Paths.get("").toAbsolutePath();
+		File directory = currDir.toFile();
+		File[] allFilesInDir = directory.listFiles();
+		for (File fl : allFilesInDir) {
+			System.out.println(fl.toString());
+			if (fl.toString().endsWith("Storage")) {
+				File[] filesInStorage = fl.listFiles();
+				for (File fis : filesInStorage) {
+					fis.delete();
+				}
+				deleteDir(fl);
+				System.out.println("FOUND STORAGE FILE");
+			}
+		}
+		
+		FileSystem fs = FileSystems.getDefault();
+		// if the storage folder doesn't exist, make it
+		if (Files.notExists(fs.getPath("Storage\\"))) {
+			File storage = new File("Storage\\");
+			storage.mkdir();
 		}
 		System.out.println("THIS IS FROM CLEANUP METHOD: " + currDir.toString());
 
@@ -520,6 +550,9 @@ public class FolderEngine {
 				fileOutput.write(bis.read());
 			}
 			System.out.println(singleFileInput.getName() + " was written");
+			fileOutput.close();
+			bis.close();
+			is.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -533,10 +566,21 @@ public class FolderEngine {
 		File[] filesToDelete = fileToDelete.listFiles();
 		if (filesToDelete != null) {
 			for (File f : filesToDelete) {
+				System.out.println("THERE ARE FILES IN THIS FOLDER");
 				deleteDir(f);
 			}
 		}
-		fileToDelete.delete();
+		try {
+			boolean deleted = fileToDelete.delete();
+			System.out.println("Does the file exist? : " + fileToDelete.exists());
+			System.out.println("Can we write to it? :" + fileToDelete.canWrite());
+			System.out.println("Can we execute it? :" + fileToDelete.canExecute());
+			System.out.println("Deleted " + fileToDelete);
+			System.out.println(deleted);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public void lookInsideNonZippedFolder(String PATH, File[] fileArray, String targetDir) {
@@ -568,6 +612,8 @@ public class FolderEngine {
 						fileOutput.write(bis.read());
 					}
 					fileOutput.close();
+					bis.close();
+					is.close();
 					System.out.println("Written: " + currFile.getName());
 				}
 			}
@@ -668,6 +714,8 @@ public class FolderEngine {
 						fileOutput.write(bis.read());
 					}
 					fileOutput.close();
+					bis.close();
+					is.close();
 					System.out.println("Written: " + currFile.getName());
 				} // else close
 			} // for close
@@ -705,6 +753,7 @@ public class FolderEngine {
 			writer.write(contents);
 
 			reader.close();
+			writer.flush();
 			writer.close();
 
 			files.add(f);
@@ -714,6 +763,8 @@ public class FolderEngine {
 		} 
 
 	}
+
+	
 
 	/**
 	 * Unzips a single zip file of files in a storage folder NOTE: I left this in,
@@ -755,12 +806,13 @@ public class FolderEngine {
 				files.add(currentFile);
 
 				fileOutput.close();
+				fileInput.close();
 				zipInput.closeEntry();
 
 				// get the next file
 				entry = zipInput.getNextEntry();
 			} // while
-
+			zipInput.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("Works only on a single zip folder with regular files.");
 //			e.printStackTrace();
