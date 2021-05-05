@@ -9,9 +9,6 @@
  * 
  */
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,6 +26,7 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
@@ -46,6 +44,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Background;
@@ -62,25 +61,27 @@ import javafx.scene.text.TextFlow;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class UI extends Application implements EventHandler<KeyEvent> {
 
 	// Constants
-	private final Dimension window = Toolkit.getDefaultToolkit().getScreenSize();
-	private final double WINDOW_WIDTH = window.getWidth();
-	private final double WINDOW_HEIGHT = window.getHeight();
+//	private final Dimension window = Toolkit.getDefaultToolkit().getScreenSize();
+	private final Rectangle2D screenDimensions = Screen.getPrimary().getBounds();
+	private final double WINDOW_WIDTH = screenDimensions.getWidth();
+	private final double WINDOW_HEIGHT = screenDimensions.getHeight();
 	private final double BUTTON_WIDTH = 150;
 	private final double BUTTON_HEIGHT = 40;
 
-	private Stage primary;
+	private Stage primary; // main windows
 	private Scene uploadScreen;
 	private Scene resultsScreen;
 	private FolderEngine fe; // file functionality
 	private PlagiarismEngine pe; // algorithm functionality
-	private FileChooser explorer;
-	private ObservableList<File> files = FXCollections.observableArrayList();
-	private ObservableList<File> errorFiles = FXCollections.observableArrayList();
+	private FileChooser explorer; // file gui
+	private ObservableList<File> uploadedFiles = FXCollections.observableArrayList(); // stores uploads
+	private ObservableList<File> errorFiles = FXCollections.observableArrayList(); // stores failed uploads
 
 	public UI() {
 		primary = new Stage();
@@ -107,11 +108,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary = stage;
 
-		primary.setOnCloseRequest(event -> {
+		primary.setOnCloseRequest(event -> { // ensure data deletion on exit
 			clear();
 		});
 
 		primary.setTitle("Copied Code Catcher");
+		primary.getIcons().add(new Image("sparrow.png"));
 		renderUploadScreen();
 	}
 
@@ -120,11 +122,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void renderUploadScreen() {
 
-		TextFlow title = new TextFlow();
-		title.setLayoutX(WINDOW_WIDTH / 1.5);
+		TextFlow title = new TextFlow(); // welcome title
+		title.setLayoutX(WINDOW_WIDTH);
 		title.setLayoutY(50);
 		title.setTextAlignment(TextAlignment.CENTER);
-
 		title.getChildren().addAll(renderTitleText());
 
 		Label label = new Label(); // screen information
@@ -138,45 +139,47 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderFileButtons());
 
-		TableView<File> table = new TableView<File>(); // upload directory
+		TableView<File> uploadTable = new TableView<File>(); // upload directory
+		uploadTable.setMaxHeight(WINDOW_HEIGHT);
 
-		TableColumn<File, String> column = new TableColumn<File, String>("Files");
-		column.setMinWidth(400);
+		TableColumn<File, String> column = new TableColumn<File, String>("Files"); // file column
+		column.setPrefWidth(WINDOW_WIDTH / 2);
 		column.setCellValueFactory(new PropertyValueFactory<File, String>("Name"));
-		table.getColumns().add(column);
-		table.setItems(files);
+		uploadTable.getColumns().add(column);
+		uploadTable.setItems(uploadedFiles);
+
+		TableView<File> errorTable = new TableView<File>(); // failed uploads directory
+		errorTable.setMaxHeight(100);
+
+		TableColumn<File, String> unprocessedColumn = new TableColumn<File, String>("Failed Uploads"); // file column
+		unprocessedColumn.setPrefWidth(WINDOW_WIDTH / 2);
+		unprocessedColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Path"));
+		errorTable.getColumns().add(unprocessedColumn);
+		errorTable.setItems(errorFiles);
 
 		BorderPane pane = new BorderPane(); // UI layout
-		BorderPane.setMargin(table, new Insets(30, 30, 30, 30));
+		BorderPane.setMargin(uploadTable, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
-		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+		BorderPane.setMargin(errorTable, new Insets(0, 30, 30, 30));
+		pane.setPrefSize(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 3);
+		pane.setTop(title);
 		pane.setRight(side);
-		pane.setCenter(table);
+		pane.setCenter(uploadTable);
+		pane.setBottom(errorTable);
 
-		TableView<File> unprocessedTable = new TableView<File>();
-
-		TableColumn<File, String> unprocessedColumn = new TableColumn<File, String>("Could not read files:");
-		unprocessedColumn.setMinWidth(WINDOW_WIDTH * .5);
-		unprocessedColumn.setCellValueFactory(new PropertyValueFactory<File, String>("Path"));
-		unprocessedTable.getColumns().add(unprocessedColumn);
-		unprocessedTable.setMaxHeight(100);
-		unprocessedTable.setItems(errorFiles);
-
-		VBox frame = new VBox();
-		frame.setPrefSize(WINDOW_WIDTH * .5, WINDOW_HEIGHT * .75);
-		frame.getChildren().addAll(title, pane, unprocessedTable);
-
-		uploadScreen = new Scene(frame);
+		uploadScreen = new Scene(pane);
 		uploadScreen.setOnKeyPressed(this); // adds hot keys listener
 
 		primary.setScene(uploadScreen);
+		primary.setMaximized(true);
+		primary.setResizable(false);
 		primary.show();
 	}
 
 	/**
 	 * Creates the welcome title textS
 	 * 
-	 * @return text
+	 * @return the welcome title
 	 */
 	private ObservableList<Text> renderTitleText() {
 
@@ -214,23 +217,23 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		ObservableList<Button> buttons = FXCollections.observableArrayList();
 
-		Button help = new Button();
+		Button help = new Button(); // triggers help popup
 		help.setText("Help");
 		help.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button uploadZips = new Button();
+		Button uploadZips = new Button(); // uploads zip folders
 		uploadZips.setText("Upload Zip Folders");
 		uploadZips.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button uploadJavaFiles = new Button();
+		Button uploadJavaFiles = new Button(); // uploads java files
 		uploadJavaFiles.setText("Upload Java Files");
 		uploadJavaFiles.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button process = new Button();
+		Button process = new Button(); // processes all files
 		process.setText("Process Files");
 		process.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addFileButtonListeners(help, uploadZips, uploadJavaFiles, process);
+		addFileButtonListeners(help, uploadZips, uploadJavaFiles, process); // add button actions
 
 		buttons.addAll(help, uploadZips, uploadJavaFiles, process);
 
@@ -238,6 +241,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
+	 * Adds actions to specific upload screen buttons
 	 * 
 	 * @param help
 	 * @param browseThisPC
@@ -282,7 +286,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			for (File file : folders) {
 				if (file != null) { // if file exists
 					try {
-						files.add(file); // display selected folder
+						uploadedFiles.add(file); // display selected folder
 						String PATH = file.getCanonicalPath(); // get location
 						fe.unzipRecursive(PATH, "Storage\\"); // unzip
 						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
@@ -311,7 +315,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		if (javaFiles != null) { // if upload contains Java files
 			for (File file : javaFiles) {
 				if (file != null) { // if file exists
-					files.add(file); // display selected file
+					uploadedFiles.add(file); // display selected file
 //						String PATH = file.getCanonicalPath(); // get location
 					fe.uploadJavaFile(file, "Storage\\");
 					pe.receiveFiles(fe.transferFiles());
@@ -328,7 +332,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
-	 * 
+	 * Runs the uploaded files through the plagiarism algorithm
 	 */
 	private void process() {
 		System.out.println("Done!");
@@ -349,24 +353,25 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private void renderResultsScreen() {
 
 		Label label = new Label(); // screen information
-		label.setText("Students' Results");
-		label.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 15));
-		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+		label.setText("Students'\n Results");
+		label.setFont(Font.font("Bookman Old Style", FontWeight.BOLD, FontPosture.REGULAR, 20));
+		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT * 2);
 
 		VBox side = new VBox(); // holds buttons on the right side
-		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
+		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT);
 		side.setSpacing(60);
 		renderFileButtons();
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderResultsButtons());
 
 		TabPane tabs = renderTabPane(); // for table and graph
+		tabs.setMaxSize(WINDOW_WIDTH, WINDOW_HEIGHT / 1.25);
 
 		BorderPane pane = new BorderPane(); // UI layout
 		BorderPane.setMargin(tabs, new Insets(30, 30, 30, 30));
 		BorderPane.setMargin(side, new Insets(30, 30, 30, 0));
-		pane.setPrefSize(WINDOW_WIDTH * .7, WINDOW_HEIGHT * .65);
-		tabs.setTabMinWidth(200);
+		pane.setPrefSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+		tabs.setTabMinWidth(300);
 		pane.setRight(side);
 		pane.setCenter(tabs);
 
@@ -374,6 +379,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		resultsScreen.setOnKeyPressed(this); // add hot keys listener
 
 		primary.setScene(resultsScreen);
+		primary.setMaximized(true);
+		primary.setResizable(false);
 		primary.show();
 	}
 
@@ -386,23 +393,23 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		ObservableList<Button> buttons = FXCollections.observableArrayList();
 
-		Button help = new Button();
+		Button help = new Button(); // triggers help popup
 		help.setText("Help");
 		help.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button saveResults = new Button();
+		Button saveResults = new Button(); // saves table results to csv file
 		saveResults.setText("Save Results");
 		saveResults.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button saveGraph = new Button();
+		Button saveGraph = new Button(); // save graph as a png or jpg
 		saveGraph.setText("Save Graph");
 		saveGraph.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button newProject = new Button();
+		Button newProject = new Button(); // triggers upload screen
 		newProject.setText("New Project");
 		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addResultsButtonListeners(help, saveResults, saveGraph, newProject);
+		addResultsButtonListeners(help, saveResults, saveGraph, newProject); // add button actions
 
 		buttons.add(help);
 		buttons.add(saveResults);
@@ -431,6 +438,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			saveResults();
 		});
 
+		// Opens File Explorer
 		saveGraph.setOnAction((event) -> {
 			saveGraph();
 		});
@@ -491,7 +499,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * Deletes all data created at runtime.
 	 */
 	private void clear() {
-		files.clear(); // clear uploads
+		uploadedFiles.clear(); // clear uploads
 		fe.clearFiles(); // clear files in the folder engine
 		fe.cleanUpFoldersCreated(); // erase stored files
 		pe.clearFiles(); // clear files in plagiarism engine
@@ -590,7 +598,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private Tab renderGraphTab() {
 		Tab t = new Tab("Graph");
 		ScrollPane scroll = new ScrollPane();
-//		scroll.setFitToHeight(true);
 		scroll.setFitToWidth(true);
 		scroll.setContent(renderGraph()); // add graph to tab
 		t.setContent(scroll);
@@ -606,23 +613,27 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		NumberAxis x = new NumberAxis();
 		CategoryAxis y = new CategoryAxis();
 
+		// create chart
 		BarChart<Number, String> graph = new BarChart<Number, String>(x, y);
 		graph.setTitle("Class Results");
 		x.setLabel("Number of Files");
 		y.setLabel("Students");
 
+		// red line
 		XYChart.Series<Number, String> red = new Series<Number, String>();
 		red.setName("Red");
 
+		// yellow line
 		XYChart.Series<Number, String> yellow = new Series<Number, String>();
 		yellow.setName("Yellow");
 
+		// green line
 		XYChart.Series<Number, String> green = new Series<Number, String>();
 		green.setName("Green");
 
-		ArrayList<Student> students = pe.getStudents(); // gets data
+		ArrayList<Student> students = pe.getStudents(); // get class data
 
-		for (Student s : students) {
+		for (Student s : students) { // generate lines per student
 			red.getData().add(new Data<Number, String>(s.getRedNum(), s.getName()));
 			yellow.getData().add(new Data<Number, String>(s.getYellowNum(), s.getName()));
 			green.getData().add(new Data<Number, String>(s.getGreenNum(), s.getName()));
@@ -642,6 +653,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void renderStudentPopup(String name) {
 		Stage popup = new Stage();
+		popup.getIcons().add(new Image("sparrow.png"));
 		popup.setTitle(name);
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
@@ -695,7 +707,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		textBoxes.setSpacing(10);
 		textBoxes.setPadding(new Insets(10));
 		ScrollPane sp = new ScrollPane(textBoxes);
-		Scene dialogScene = new Scene(sp, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 3);
+		Scene dialogScene = new Scene(sp, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
 		popup.setScene(dialogScene);
 		popup.show();
@@ -706,6 +718,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void renderHelpPopup() {
 		Stage popup = new Stage();
+		popup.getIcons().add(new Image("sparrow.png"));
 		popup.setTitle("Help");
 		popup.initModality(Modality.APPLICATION_MODAL);
 		popup.initOwner(primary);
@@ -723,7 +736,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		scroll.setPadding(new Insets(20, 20, 20, 20));
 		scroll.setContent(message);
 
-		Scene dialogScene = new Scene(scroll, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+		Scene dialogScene = new Scene(scroll, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
 		popup.setScene(dialogScene);
 		popup.show();
@@ -766,6 +779,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
+	 * Get students in the red category
 	 * 
 	 * @param name
 	 * @return
@@ -785,6 +799,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
+	 * Get students in the yellow category
 	 * 
 	 * @param name
 	 * @return
@@ -802,6 +817,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
+	 * Get students in the green category
 	 * 
 	 * @param name
 	 * @return
@@ -826,27 +842,32 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		// may want to change return value to a boolean for status check
 		try {
 			FileWriter writer = new FileWriter(file);
-			Iterator<Entry<String, Double>> studentIterator;
+//			Iterator<Entry<String, Double>> studentIterator;
 			Map<String, Double> studentResults;
 
-			// write header info
 			for (Student s : pe.getStudents()) {
+				// write header info
 				writer.append("Student:," + s.getName().toUpperCase() + "\n");
 				studentResults = s.getCompScores();
+
+				// green column
 				writer.append("GREEN:," + s.getGreenNum() + "\n");
 				for (Student s2 : s.getGreenStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
+
+				// yellow column
 				writer.append("YELLOW:," + s.getYellowNum() + "\n");
 				for (Student s2 : s.getYellowStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
+
+				// red column
 				writer.append("RED:," + s.getRedNum() + "\n");
 				for (Student s2 : s.getRedStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
 				writer.append("\n");
-
 			}
 
 			if (!errorFiles.isEmpty()) {
@@ -884,36 +905,35 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	@Override
 	public void handle(KeyEvent e) {
-		if (e.getCode() == e.getCode().W && e.isControlDown()) {
-			clear();
+		if (e.getCode() == e.getCode().W && e.isControlDown()) { // exit
+			clear(); // delete any generated data
 			System.out.println("Terminating...");
 			System.out.println("\n<<< STANDARD TERMINATION >>>");
 			System.exit(0);
 		}
 
 		else if (e.getCode() == e.getCode().H && e.isControlDown()) {
-			renderHelpPopup();
+			renderHelpPopup(); // trigger help
 		}
 
 		else if (e.getCode() == e.getCode().N && e.isControlDown()) {
-			if (primary.getScene().equals(resultsScreen)) {
+			if (primary.getScene().equals(resultsScreen)) { // triggers new project button
 				newProject();
 			}
 		}
 
 		else if (e.getCode() == e.getCode().R && e.isControlDown()) {
-			System.out.println("Restarting application...");
-			newProject();
+			newProject(); // restarts
 		}
 
 		else if (e.getCode() == e.getCode().G && e.isControlDown()) {
-			if (primary.getScene().equals(resultsScreen)) {
+			if (primary.getScene().equals(resultsScreen)) { // triggers save graph button
 				saveGraph();
 			}
 		}
 
 		else if (e.getCode() == e.getCode().S && e.isControlDown()) {
-			if (primary.getScene().equals(resultsScreen)) {
+			if (primary.getScene().equals(resultsScreen)) { // triggers save results button
 				saveResults();
 			}
 		}
