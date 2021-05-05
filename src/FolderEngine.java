@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.IllegalFormatException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -290,8 +291,21 @@ public class FolderEngine {
 								files.add(compilationFile);
 							}
 						} // close of if statement for zip/java
+						else if(ze.getName().endsWith(".txt")) {
+							badFile = new File(ze.getName());
+							//throw exception
+							throw new IOException("Cannot process .txt files");
+						}
 					} // close of else for directory
 				} // close try
+				catch(IOException ioe) {
+					System.out.println(ioe.getMessage());
+					ioe.printStackTrace();
+					//add unprocessed file to array
+					if (!unprocessedFiles.contains(badFile)) {
+						unprocessedFiles.add(badFile);
+					}
+				}
 				catch (Exception e) {
 					System.out.println(e.getMessage());
 					e.printStackTrace();

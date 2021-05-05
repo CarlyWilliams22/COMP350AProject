@@ -448,13 +448,16 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveResults.setText("Save Results");
 		saveResults.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+
 		Button saveScreenshot = new Button(); // save a screenshot as a png or jpg
 		saveScreenshot.setText("Save Screenshot");
 		saveScreenshot.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+
 		Button newProject = new Button(); // triggers upload screen
 		newProject.setText("New Project");
 		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
 
 		addResultsButtonListeners(help, saveResults, saveScreenshot, newProject); // add button actions
 
@@ -475,6 +478,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void addResultsButtonListeners(Button help, Button saveResults, Button saveScreenshot, Button newProject) {
 
+
 		// Creates popup window
 		help.setOnAction((event) -> {
 			renderHelpPopup();
@@ -486,6 +490,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		});
 
 		// Opens File Explorer
+
 		saveScreenshot.setOnAction((event) -> {
 			saveScreenshot();
 		});
@@ -522,7 +527,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		File graph = explorer.showSaveDialog(primary);
 
 		if (graph != null) {
-			saveGraph(graph);
+			screenShot(graph);
 		}
 	}
 
@@ -930,7 +935,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Saves screenshot of graph tab
 	 */
-	private File saveGraph(File file) {
+	private File screenShot(File file) {
 		WritableImage image = resultsScreen.snapshot(null);
 
 		try {
