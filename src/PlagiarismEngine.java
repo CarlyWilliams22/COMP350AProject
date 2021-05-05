@@ -154,9 +154,7 @@ public class PlagiarismEngine {
 			Scanner scnr = new Scanner(codeFile);
 
 			// create a file to write the results to
-			// System.out.println(codeFile.getName());
 			File strippedSub = new File("Storage\\" + codeFile.getName());
-
 
 			// create a file writer and buffer writer for writing
 			FileWriter filwrit = new FileWriter(strippedSub);
@@ -173,8 +171,6 @@ public class PlagiarismEngine {
 			String beforeCom;
 			String afterCom;
 
-			boolean firstComment = true;
-
 			// iterate over each line in the file
 			while (scnr.hasNextLine()) {
 				// grab the next line
@@ -188,42 +184,32 @@ public class PlagiarismEngine {
 							// find index of each
 							indexOfBlkComStart = currLine.indexOf("/*");
 							indexOfBlkComEnd = currLine.indexOf("*/");
-							if (!firstComment) {
-								// create substrings with those indices
-								beforeCom = currLine.substring(0, indexOfBlkComStart);
-								afterCom = currLine.substring(indexOfBlkComEnd + 2);
-								// write the surrounding text to screen
-								bufwrit.write(beforeCom + afterCom);
-							} else {
-								bufwrit.write(currLine + "\n");
-								firstComment = false;
-							}
-
+							
+							// create substrings with those indices
+							beforeCom = currLine.substring(0, indexOfBlkComStart);
+							afterCom = currLine.substring(indexOfBlkComEnd + 2);
+							// write the surrounding text to screen
+							bufwrit.write(beforeCom + afterCom);
 						}
 						// else if it doesn't have closing chars,
 						// but has more lines
 						else if (scnr.hasNextLine()) {
 							// grab the next line
-							if (!firstComment) {
-								nextLine = scnr.nextLine();
-								// see if it contains the closing chars
-								while (!(nextLine.contains("*/"))) {
-									// if the scanner has more
-									if (scnr.hasNextLine()) {
-										// grab the next line
-										nextLine = scnr.nextLine();
-									} else {
-										// otherwise, break out of loop
-										break;
-									}
+							nextLine = scnr.nextLine();
+							// see if it contains the closing chars
+							while (!(nextLine.contains("*/"))) {
+								// if the scanner has more
+								if (scnr.hasNextLine()) {
+									// grab the next line
+									nextLine = scnr.nextLine();
+								} else {
+									// otherwise, break out of loop
+									break;
 								}
-							} else {
-								bufwrit.write(currLine + "\n");
-								firstComment = false;
 							}
 						}
 					} // end if statement for block comment chars
-						// if it doesn't have a block comment char
+					// if it doesn't have a block comment char
 					else {
 						// look for double slashes
 						indexOfSlashes = currLine.indexOf("//");
@@ -231,16 +217,11 @@ public class PlagiarismEngine {
 						if (indexOfSlashes == -1) {
 							bufwrit.write(currLine + "\n");
 						} else {
-							if (!firstComment) {
-								// otherwise use the index to shorten the string
-								if (indexOfSlashes != 0) {
-									shortenedStr = currLine.substring(0, indexOfSlashes);
-									// write the line minus the comment
-									bufwrit.write(shortenedStr + "\n");
-								}
-							} else {
-								bufwrit.write(currLine + "\n");
-								firstComment = false;
+							// otherwise use the index to shorten the string
+							if (indexOfSlashes != 0) {
+								shortenedStr = currLine.substring(0, indexOfSlashes);
+								// write the line minus the comment
+								bufwrit.write(shortenedStr + "\n");
 							}
 						}
 					}
