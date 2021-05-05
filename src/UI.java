@@ -5,7 +5,7 @@
  * @author Matthew Moody
  * @author Carly Williams
  * 
- * Copied Code Catcher Sprint 1 Working Increment
+ * Copied Code Catcher Sprint 2 Working Increment
  * 
  */
 
@@ -13,10 +13,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
