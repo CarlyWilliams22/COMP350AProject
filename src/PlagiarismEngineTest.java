@@ -11,15 +11,15 @@ import org.junit.jupiter.api.Test;
 class PlagiarismEngineTest {
 	
 	@Test
-	void testIsItterationKeywordValid() {
+	void testIsIterationKeywordValid() {
 		PlagiarismEngine pe = new PlagiarismEngine();
-		assertTrue(pe.isItterationKeyword("for"));
+		assertTrue(pe.isIterationKeyword("for"));
 	}
 	
 	@Test
-	void testIsItterationKeywordInvalid() {
+	void testIsIterationKeywordInvalid() {
 		PlagiarismEngine pe = new PlagiarismEngine();
-		assertFalse(pe.isItterationKeyword("test"));
+		assertFalse(pe.isIterationKeyword("test"));
 	}
 	
 	@Test
@@ -47,7 +47,7 @@ class PlagiarismEngineTest {
 		s2.addKeyword("public");
 		s2.addKeyword("public");
 		s2.addKeyword("selection");
-		s2.addKeyword("itteration");
+		s2.addKeyword("iteration");
 		s2.addKeyword("class");
 		PlagiarismEngine pe = new PlagiarismEngine();
 		pe.addStudent(s1);
@@ -61,7 +61,7 @@ class PlagiarismEngineTest {
 		assertEquals(1, value);
 		value = pe.getWordUse().get("class");
 		assertEquals(2, value);
-		value = pe.getWordUse().get("itteration");
+		value = pe.getWordUse().get("iteration");
 		assertEquals(1, value);
 	}
 
@@ -79,7 +79,7 @@ class PlagiarismEngineTest {
 		s2.addKeyword("public");
 		s2.addKeyword("public");
 		s2.addKeyword("selection");
-		s2.addKeyword("itteration");
+		s2.addKeyword("iteration");
 		s2.addKeyword("class");
 		PlagiarismEngine pe = new PlagiarismEngine();
 		pe.addStudent(s1);
@@ -127,7 +127,7 @@ class PlagiarismEngineTest {
 		s2.addKeyword("public");
 		s2.addKeyword("public");
 		s2.addKeyword("public");
-		s2.addKeyword("itteration");
+		s2.addKeyword("iteration");
 		s2.addKeyword("class");
 		PlagiarismEngine pe = new PlagiarismEngine();
 		pe.addStudent(s1);
@@ -194,7 +194,7 @@ class PlagiarismEngineTest {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		Student s1 = new Student(0, "0");
 		Student s2 = new Student(1, "1");
-		pe.colorPlacement(s1, s2, .5, .9);
+		pe.colorPlacement(s1, s2, .5, .91);
 		assertEquals(1, s1.getGreenNum());
 		assertEquals(1, s2.getRedNum());
 	}
@@ -224,7 +224,7 @@ class PlagiarismEngineTest {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		Student s1 = new Student(0, "0");
 		Student s2 = new Student(1, "1");
-		pe.colorPlacement(s1, s2, .8, .9);
+		pe.colorPlacement(s1, s2, .8, .91);
 		assertEquals(1, s1.getYellowNum());
 		assertEquals(1, s2.getRedNum());
 	}
@@ -234,7 +234,7 @@ class PlagiarismEngineTest {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		Student s1 = new Student(0, "0");
 		Student s2 = new Student(1, "1");
-		pe.colorPlacement(s1, s2, .9, .9);
+		pe.colorPlacement(s1, s2, .91, .91);
 		assertEquals(1, s1.getRedNum());
 		assertEquals(1, s2.getRedNum());
 	}
@@ -244,7 +244,7 @@ class PlagiarismEngineTest {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		Student s1 = new Student(0, "0");
 		Student s2 = new Student(1, "1");
-		pe.colorPlacement(s1, s2, .9, .5);
+		pe.colorPlacement(s1, s2, .91, .5);
 		assertEquals(1, s1.getRedNum());
 		assertEquals(1, s2.getGreenNum());
 	}
@@ -254,7 +254,7 @@ class PlagiarismEngineTest {
 		PlagiarismEngine pe = new PlagiarismEngine();
 		Student s1 = new Student(0, "0");
 		Student s2 = new Student(1, "1");
-		pe.colorPlacement(s1, s2, .9, .8);
+		pe.colorPlacement(s1, s2, .91, .8);
 		assertEquals(1, s1.getRedNum());
 		assertEquals(1, s2.getYellowNum());
 	}
@@ -278,7 +278,7 @@ class PlagiarismEngineTest {
 		pe.createScores();
 		pe.compare(s1, s2);
 		double value = s1.getCompScores().get(s2.getName());
-		assertEquals(.21428, value, .0001);
+		assertEquals(.2142, value, .0001);
 		value = s2.getCompScores().get(s1.getName());
 		assertEquals(.23076, value, .0001);
 	}

@@ -380,9 +380,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		pe.createStudents(); // each student receives a file
 		pe.parseAllFiles(); // remove comments and excess whitespace
 		pe.countAllKeywords(); // check keywords
-		pe.findWordUsage();
-		pe.assignWeights();
-		pe.createScores();
+		pe.findWordUsage();	//find out how frequently each word is used
+		pe.assignWeights();	//Dynamically assign the weights
+		pe.createScores();	//make the scores for each student
 		pe.compareAll(); // compare each student to each other
 		renderResultsScreen(); // switch screens
 		primary.setScene(resultsScreen); // display results
@@ -441,13 +441,16 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveResults.setText("Save Results");
 		saveResults.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+
 		Button saveScreenshot = new Button(); // save a screenshot as a png or jpg
 		saveScreenshot.setText("Save Screenshot");
 		saveScreenshot.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+
 		Button newProject = new Button(); // triggers upload screen
 		newProject.setText("New Project");
 		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
 
 		addResultsButtonListeners(help, saveResults, saveScreenshot, newProject); // add button actions
 
@@ -468,6 +471,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 */
 	private void addResultsButtonListeners(Button help, Button saveResults, Button saveScreenshot, Button newProject) {
 
+
 		// Creates popup window
 		help.setOnAction((event) -> {
 			renderHelpPopup();
@@ -479,6 +483,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		});
 
 		// Opens File Explorer
+
 		saveScreenshot.setOnAction((event) -> {
 			saveScreenshot();
 		});
@@ -515,7 +520,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		File graph = explorer.showSaveDialog(primary);
 
 		if (graph != null) {
-			saveGraph(graph);
+			screenShot(graph);
 		}
 	}
 
@@ -874,41 +879,41 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * processing errors
 	 */
 	private void saveResults(File file) {
-		// may want to change return value to a boolean for status check
 		try {
 			FileWriter writer = new FileWriter(file);
-//			Iterator<Entry<String, Double>> studentIterator;
 			Map<String, Double> studentResults;
 
+			// Write student information header
 			for (Student s : pe.getStudents()) {
 				// write header info
 				writer.append("Student:," + s.getName().toUpperCase() + "\n");
 				studentResults = s.getCompScores();
-
-				// green column
+				//Print green info header
 				writer.append("GREEN:," + s.getGreenNum() + "\n");
+				//print out the green students and their scores
 				for (Student s2 : s.getGreenStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
-
-				// yellow column
+				//Print yellow info header
 				writer.append("YELLOW:," + s.getYellowNum() + "\n");
+				//print out the yellow students and their scores
 				for (Student s2 : s.getYellowStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
-
-				// red column
+				//Print red info header
 				writer.append("RED:," + s.getRedNum() + "\n");
+				//print out the red students and their scores
 				for (Student s2 : s.getRedStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
 				writer.append("\n");
 			}
-
+			
+			//print out any unprocessed files
 			if (!errorFiles.isEmpty()) {
 				writer.append("FAILED TO PROCESS THESE FILES:\n");
 				for (File f : errorFiles) {
-					writer.append(f.getName() + "\n");
+					writer.append(f.getPath() + "\n");
 				}
 			}
 
@@ -923,7 +928,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Saves screenshot of graph tab
 	 */
-	private File saveGraph(File file) {
+	private File screenShot(File file) {
 		WritableImage image = resultsScreen.snapshot(null);
 
 		try {
