@@ -42,72 +42,7 @@ public class FolderEngine {
 	public FolderEngine() {
 		files = new ArrayList<File>();
 		unprocessedFiles = new ArrayList<File>();
-	}
-
-	//TODO: TAKE THIS OUT :)
-	// TODO: Make it work with a zip folder that has a nonzipped folder directly
-	// inside (testCodeFromDesktop)
-	// TODO: make it work with a non zipped folder
-	public static void main(String[] args) {
-		FolderEngine testFE = new FolderEngine();
-		// This set of test code is the one that doesn't work
-		String testCodeFromDesktop = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles.zip";
-		// testFE.unzipRecursive(testCodeFromDesktop, "Storage/");
-
-		// Still gets stuck on Tyler Ridout's folder, even though it skips files
-		String testCodeFromVal = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectA_stupidCopies.zip";
-		//testFE.unzipRecursive(testCodeFromVal, "Storage/");
-//		try {
-//			testFE.unzipRecursive(testCodeFromVal, "Storage/");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
-		// This set of nonzipped test code doesn't work
-		String nonzippedTestCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles";
-//		try {
-//			testFE.unzipRecursive(nonzippedTestCode, "Storage/");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-
-		String aSingleJavaFile = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCCTestCodeFiles\\French Main.java";
-		//testFE.checkInputType(aSingleJavaFile, "Storage\\");
-		
-		// This set of code (sectionBCode) works
-		String sectionBCode = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\CCC Test Code Folders from Valentine\\SectB_OrigCodes.zip";
-//		try {
-//			testFE.unzipRecursive(sectionBCode, "Storage\\");
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		// testFE.unzipRecursiveWithOneFile(sectionBCode, "Storage\\");
-		// testFE.unzipRecursiveWithTempDirs(sectionBCode, "Storage\\");
-		// testFE.unzipRecursivewithMods(sectionBCode, "Storage\\");
-		
-//		String regularFolder = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\MontyHall";
-//		testFE.regularFolder(regularFolder, "Storage\\");
-		
-		String regularFolderWithZip = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\MontyHall - Copy";
-		testFE.uploadRegularFolder(regularFolderWithZip, "Storage\\");
-
-//		System.out.println("Trying to access cleanup method");
-//		testFE.cleanUpFoldersCreated();
-//		System.out.println("Got to the line past the cleanup method");
-
-		System.out.println("\n\nPrinting out files array: ");
-		for (int i = 0; i < files.size(); i++) {
-			System.out.println(files.get(i).getName());
-		}
-
-		// testFE.unzipThirdTry("C:\\Users\\lloydta18\\git\\COMP350Project\\COMP350AProject\\Storage");
-		System.out.println("<<NORMAL TERMINATION>>");
-	}
-	
+	}	
 	
 
 	/**
@@ -594,15 +529,10 @@ public class FolderEngine {
 		//create a new file based on the path given in
 		File f = new File(filePath);
 			
-		System.out.println("This is the file name of the file given my the regular folder method: " + f.getName());
 		try {
 			//list all the contents of the folder
 			File[] filesInRegFolder = f.listFiles();
-			
-	//		if(filesInRegFolder != null) {
-	//			System.out.println(filesInRegFolder.length);
-	//		}
-			
+					
 			//iterate over the contents of the folder
 			for(File fInRegFolder : filesInRegFolder) {
 				//if it doesn't start with . or is a bin file, process it 
@@ -610,7 +540,6 @@ public class FolderEngine {
 					//send zip folders to the recursive unzip method
 					if(fInRegFolder.getName().endsWith(".zip")) {
 						try {
-							System.out.println("Sending " + fInRegFolder.getName() + " to unzip method...");
 							unzipRecursive(fInRegFolder.getCanonicalPath(), "Storage\\");
 						} catch (IOException e) {
 							e.printStackTrace();
@@ -618,12 +547,10 @@ public class FolderEngine {
 					}
 					//send java files to the method handling single java files
 					else if(fInRegFolder.getName().endsWith(".java")) {
-						System.out.println("Sending " + fInRegFolder.getName() + " to single java method...");
 						uploadJavaFile(fInRegFolder, "Storage\\");
 					} 
 					//make a recursive call for all other folders
 					else {
-						System.out.println("Sending " + fInRegFolder.getName() + " back to reg folder method...");
 						try {
 							uploadRegularFolder(fInRegFolder.getCanonicalPath(), "Storage\\");
 						} catch (IOException e) {
@@ -634,6 +561,7 @@ public class FolderEngine {
 				
 			}
 		} catch (Exception e) {
+			//catch and report any errors
 			if (!unprocessedFiles.contains(f)) {
 				unprocessedFiles.add(f);
 			}
