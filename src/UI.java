@@ -110,9 +110,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		primary.setOnCloseRequest(event -> {
 			clear();
 		});
-
+		
 		primary.setTitle("Copied Code Catcher");
 		renderUploadScreen();
+		
 	}
 
 	/**
@@ -314,8 +315,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 			for (File file : javaFiles) {
 				if (file != null) { // if file exists
 					files.add(file); // display selected file
-//						String PATH = file.getCanonicalPath(); // get location
+					//String PATH = null;
+					//String PATH = file.getCanonicalPath(); // get location
 					fe.uploadJavaFile(file, "Storage\\");
+					//fe.uploadJavaFile(PATH, "Storage\\");
 					pe.receiveFiles(fe.transferFiles());
 					ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
 

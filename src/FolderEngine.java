@@ -315,6 +315,8 @@ public class FolderEngine {
 								}
 
 								fileOutput.close(); // close the output stream
+								bis.close(); //close the buffered input stream
+								is.close(); //close the input stream
 								// System.out.println("Written: " + ze.getName());
 
 								// if the file is a zip folder, make a recursive call
@@ -470,10 +472,10 @@ public class FolderEngine {
 		for (File fl : allFilesInDir) {
 			System.out.println(fl.toString());
 			if (fl.toString().endsWith("Storage")) {
-				File[] filesInStorage = fl.listFiles();
-				for (File fis : filesInStorage) {
-					fis.delete();
-				}
+//				File[] filesInStorage = fl.listFiles();
+//				for (File fis : filesInStorage) {
+//					fis.delete();
+//				}
 				deleteDir(fl);
 				System.out.println("FOUND STORAGE FILE");
 			}
@@ -548,6 +550,9 @@ public class FolderEngine {
 				fileOutput.write(bis.read());
 			}
 			System.out.println(singleFileInput.getName() + " was written");
+			fileOutput.close();
+			bis.close();
+			is.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -561,10 +566,21 @@ public class FolderEngine {
 		File[] filesToDelete = fileToDelete.listFiles();
 		if (filesToDelete != null) {
 			for (File f : filesToDelete) {
+				System.out.println("THERE ARE FILES IN THIS FOLDER");
 				deleteDir(f);
 			}
 		}
-		fileToDelete.delete();
+		try {
+			boolean deleted = fileToDelete.delete();
+			System.out.println("Does the file exist? : " + fileToDelete.exists());
+			System.out.println("Can we write to it? :" + fileToDelete.canWrite());
+			System.out.println("Can we execute it? :" + fileToDelete.canExecute());
+			System.out.println("Deleted " + fileToDelete);
+			System.out.println(deleted);
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	public void lookInsideNonZippedFolder(String PATH, File[] fileArray, String targetDir) {
@@ -596,6 +612,8 @@ public class FolderEngine {
 						fileOutput.write(bis.read());
 					}
 					fileOutput.close();
+					bis.close();
+					is.close();
 					System.out.println("Written: " + currFile.getName());
 				}
 			}
@@ -696,6 +714,8 @@ public class FolderEngine {
 						fileOutput.write(bis.read());
 					}
 					fileOutput.close();
+					bis.close();
+					is.close();
 					System.out.println("Written: " + currFile.getName());
 				} // else close
 			} // for close
@@ -733,6 +753,7 @@ public class FolderEngine {
 			writer.write(contents);
 
 			reader.close();
+			writer.flush();
 			writer.close();
 
 			files.add(f);
@@ -742,6 +763,8 @@ public class FolderEngine {
 		} 
 
 	}
+
+	
 
 	/**
 	 * Unzips a single zip file of files in a storage folder NOTE: I left this in,
@@ -783,12 +806,13 @@ public class FolderEngine {
 				files.add(currentFile);
 
 				fileOutput.close();
+				fileInput.close();
 				zipInput.closeEntry();
 
 				// get the next file
 				entry = zipInput.getNextEntry();
 			} // while
-
+			zipInput.close();
 		} catch (FileNotFoundException e) {
 			System.err.println("Works only on a single zip folder with regular files.");
 //			e.printStackTrace();
