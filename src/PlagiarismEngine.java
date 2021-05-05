@@ -248,7 +248,9 @@ public class PlagiarismEngine {
 			}
 			// close scanners and writers
 			bufwrit.flush();
+			filwrit.flush();
 			bufwrit.close();
+			filwrit.close();
 			scnr.close();
 
 			// replace the file with the stripped file in the student
@@ -296,8 +298,11 @@ public class PlagiarismEngine {
 						}
 					}
 				}
+				//close line scanner
+				lineScnr.close();
 			}
-
+			//close file scanner
+			fileScnr.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
