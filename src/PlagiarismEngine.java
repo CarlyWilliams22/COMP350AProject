@@ -10,9 +10,9 @@ import java.util.Scanner;
 public class PlagiarismEngine {
 
 	private ArrayList<File> files; // projects to process
-	private ArrayList<Student> students;
-	private Map<String, Integer> wordUse;
-	private Map<String, Double> weight;
+	private ArrayList<Student> students; //students being compared
+	private Map<String, Integer> wordUse; //keeps track over the word usage over the 
+	private Map<String, Double> weight; //weights assigned to the keywords
 
 	/*
 	 * Many of these keywords taken from the Wikipedia article List of Java keywords
@@ -23,14 +23,16 @@ public class PlagiarismEngine {
 			"implements", "instanceof", "interface", "native", "non-sealed", "strictfp", "super", "synchronized",
 			"this", "transient", "volatile", "catch", "finally", "throw", "try", "throws", "true", "false", "null",
 			"String", "ArrayList", "Map", "boolean", "byte", "char", "double", "float", " int", "long", "short", "void",
-			"selection", "itteration", "IOException", "FileInputStream", "FileOutputStream", "ArrayList", "File", "==",
+			"selection", "iteration", "IOException", "FileInputStream", "FileOutputStream", "ArrayList", "File", "==",
 			">=", "<=", "!=", ">", "<", "&&", "||", "++", "+=", "--", "-=", "=", "BufferedInputStream",
 			"BufferedOutputStream", "DataInputStream", "DataOutputStream", "EOFException", "System.out.println",
 			"System.out.print", "Random" };
 
+	//Used to decide if a word is a selection keyword
 	private static String selectionKeywords[] = { "case", "else", "goto", "if", "switch", "default", };
 
-	private static String itterationKeywords[] = { "do", "for", "while" };
+	//Used to decide if a word is a iteration keyword
+	private static String iterationKeywords[] = { "do", "for", "while" };
 
 	private final double GtoY = .75; // Green to yellow threshold
 	private final double YtoR = .90; // Yellow to red threshold
@@ -55,14 +57,17 @@ public class PlagiarismEngine {
 	 * Creates a student for each file
 	 */
 	public void createStudents() {
-		Student currentStudent;
-		String currentStudentName;
+		Student currentStudent;	//current student object that gets created
+		String currentStudentName; //name of the student currently being created
+		//List of student names in the project
 		ArrayList<String> studentNames = new ArrayList<String>();
-		boolean dataEntered;
-		int studentNum;
-		int currIndex;
-		int nameLen;
-		int ID = 0;
+		boolean dataEntered; //has the student been created
+		int studentNum; //The number of students with the same name
+		int currIndex;	//index for for loop
+		int nameLen;//length of the original name
+		int ID = 0;//current student ID
+		
+		//removes confusing numbers off the end of the temp file names
 		for (File file : files) {
 			String nameOfCurrFile = file.getName();
 			for(currIndex = 0; currIndex < file.getName().length(); currIndex++) {
@@ -70,20 +75,26 @@ public class PlagiarismEngine {
 					break;
 				}
 			}
+			
+			//gets unique student name
 			currentStudentName = file.getName().substring(0, currIndex);
 			System.out.println("This is the student name: " + currentStudentName);
 			dataEntered = false;
 			studentNum = 2;
 			nameLen = currentStudentName.length();
+			//while the student hasn't been created
 			while(!dataEntered) {
+				//if the Array list of names does not contain the current students name then make the student
 				if(!studentNames.contains(currentStudentName)) {
 					students.add(currentStudent = new Student(ID, currentStudentName));
 					currentStudent.setFile(file);
 					studentNames.add(currentStudentName);
 					dataEntered = true;
 				}
+				//if the current student name already exists then tack a number on the end
 				else {
-					currentStudentName = currentStudentName.substring(0, nameLen) + Integer.toString(studentNum);
+					currentStudentName = currentStudentName.substring(0, nameLen) + 
+							" (" + Integer.toString(studentNum) + ")";
 					studentNum++;
 				}
 			}
@@ -257,21 +268,27 @@ public class PlagiarismEngine {
 	 * @param s
 	 */
 	public void countKeywords(Student s) {
-		Scanner fileScnr, lineScnr;
-		String currLine, currToken;
-		int weight = 0;
+		Scanner fileScnr/*Scans the whole file*/, lineScnr;//Scans one line
+		String currLine/*Current line being scanned*/, currToken;//Current chunk of string being searched
+		//get the file from the student
 		File codeFile = s.getFile();
 		try {
+			//get the File
 			fileScnr = new Scanner(codeFile);
 			while (fileScnr.hasNextLine()) {
+				//get the line
 				currLine = fileScnr.nextLine();
 				lineScnr = new Scanner(currLine);
 				while (lineScnr.hasNext()) {
+					//get the token
 					currToken = lineScnr.next();
+					//check the token for keywords
 					for (String word : keywords) {
 						if (currToken.contains(word)) {
-							if (isItterationKeyword(word)) {
-								word = "itteration";
+							//if word is an iteration keyword assign it the value "iteration"
+							if (isIterationKeyword(word)) {
+								word = "iteration";
+							//if word is an selection keyword assign it the value "selection"							
 							} else if (isSelectionKeyword(word)) {
 								word = "selection";
 							}
@@ -289,12 +306,18 @@ public class PlagiarismEngine {
 		}
 
 	}
-	
+
+	/**
+	 * Fills the wordUse map when called
+	 * */
 	public void findWordUsage() {
+		//Number of students who used the word
 		int numUsed;
 		
+		//Checks for every keyword
 		for(String keyword: keywords) {
 			numUsed = 0;
+			//if student used the words increase numUsed
 			for(Student s: students) {
 				if(s.getKeywords().containsKey(keyword)) {
 					numUsed++;
@@ -310,17 +333,28 @@ public class PlagiarismEngine {
 		return wordUse;
 	}
 
+	
+	/**
+	 * Populates the weight map with the appropriate values
+	 * */
 	public void assignWeights() {
+		//Iterates through all the keywords used by the students
 		Iterator<Map.Entry<String, Integer>> iterator = wordUse.entrySet().iterator();
+		//current keyword
 		String keyword;
+		//number of students who used the keyword
 		int value;
+		//the weight assigned to the keyword
 		double currWeight;
+		//total number of students in the project
 		int totalStudents = students.size();
 		
 		while(iterator.hasNext()) {
 			Map.Entry<String, Integer> set = (Map.Entry<String, Integer>) iterator.next();
 			keyword = set.getKey();
 			value = set.getValue();
+			//weight is assigned %100 - %of students who used the keyword
+			//if %100 percent of the students used the keyword then give it a default value of 10
 			currWeight = (100-100*((double)value/(double)totalStudents));
 			if(currWeight == 0) {
 				currWeight = 10;
@@ -329,6 +363,10 @@ public class PlagiarismEngine {
 		}
 	}
 	
+	/**
+	 * returns the weight map
+	 * used for JUnit tests
+	 * */
 	public Map<String, Double> getWeight(){
 		return weight;
 	}
@@ -350,15 +388,22 @@ public class PlagiarismEngine {
 	 * @return
 	 */
 	public int createCompScore(Student s1, Student s2) {
+		//Iterates through all the keywords used by student 1
 		Iterator<Map.Entry<String, Integer>> keywordIterator = s1.getKeywords().entrySet().iterator();
+		//map of the words used by student 2
 		Map<String, Integer> student2Dictionary = s2.getKeywords();
+		//current comparison score
 		int score = 0;
+		//weight of the keyword
 		Double weight = (double)0;
+		//Current keyword
 		String keyword;
 
 		while (keywordIterator.hasNext()) {
 			Map.Entry<String, Integer> word = (Map.Entry<String, Integer>) keywordIterator.next();
 			keyword = word.getKey();
+			//if both students used the word get the weight and multiply it by the smaller number of uses between 
+			//the two then add it to the score
 			if (student2Dictionary.containsKey(keyword)) {
 				weight = getWeight().get(keyword);
 
@@ -375,13 +420,18 @@ public class PlagiarismEngine {
 	}
 	
 	public void createScores() {
+		//score of the current student
 		int score;
+		//number of times the student used a keyword
 		int total;
+		//Current keyword
 		String keyword;
 		Iterator<Map.Entry<String, Integer>> keywordIterator;
 		for(Student s: students) {
 			score = 0;
 			keywordIterator = s.getKeywords().entrySet().iterator();
+			/*while there are entries left in the map multiply the total times it was used 
+			 * by the weight of the keyword and then add it to the score*/
 			while(keywordIterator.hasNext()) {
 				Map.Entry<String, Integer> word = (Map.Entry<String, Integer>) keywordIterator.next();
 				keyword = word.getKey();
@@ -469,8 +519,8 @@ public class PlagiarismEngine {
 	 * @param keyword
 	 * @return
 	 */
-	public boolean isItterationKeyword(String keyword) {
-		for (String word : itterationKeywords) {
+	public boolean isIterationKeyword(String keyword) {
+		for (String word : iterationKeywords) {
 			if (word.equals(keyword))
 				return true;
 		}
