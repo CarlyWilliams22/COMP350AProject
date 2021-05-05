@@ -337,9 +337,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		pe.createStudents(); // each student receives a file
 		pe.parseAllFiles(); // remove comments and excess whitespace
 		pe.countAllKeywords(); // check keywords
-		pe.findWordUsage();
-		pe.assignWeights();
-		pe.createScores();
+		pe.findWordUsage();	//find out how frequently each word is used
+		pe.assignWeights();	//Dynamically assign the weights
+		pe.createScores();	//make the scores for each student
 		pe.compareAll(); // compare each student to each other
 		renderResultsScreen(); // switch screens
 		primary.setScene(resultsScreen); // display results
@@ -825,36 +825,41 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * processing errors
 	 */
 	private void saveResults(File file) {
-		// may want to change return value to a boolean for status check
 		try {
 			FileWriter writer = new FileWriter(file);
-			Iterator<Entry<String, Double>> studentIterator;
 			Map<String, Double> studentResults;
 
-			// write header info
+			// Write student information header
 			for (Student s : pe.getStudents()) {
 				writer.append("Student:," + s.getName().toUpperCase() + "\n");
 				studentResults = s.getCompScores();
+				//Print green info header
 				writer.append("GREEN:," + s.getGreenNum() + "\n");
+				//print out the green students and their scores
 				for (Student s2 : s.getGreenStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
+				//Print yellow info header
 				writer.append("YELLOW:," + s.getYellowNum() + "\n");
+				//print out the yellow students and their scores
 				for (Student s2 : s.getYellowStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
+				//Print red info header
 				writer.append("RED:," + s.getRedNum() + "\n");
+				//print out the red students and their scores
 				for (Student s2 : s.getRedStudents()) {
 					writer.append("," + s2.getName() + "," + studentResults.get(s2.getName()) + "\n");
 				}
 				writer.append("\n");
 
 			}
-
+			
+			//print out any unprocessed files
 			if (!errorFiles.isEmpty()) {
 				writer.append("FAILED TO PROCESS THESE FILES:\n");
 				for (File f : errorFiles) {
-					writer.append(f.getName() + "\n");
+					writer.append(f.getPath() + "\n");
 				}
 			}
 
