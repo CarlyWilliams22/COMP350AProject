@@ -23,14 +23,16 @@ public class PlagiarismEngine {
 			"implements", "instanceof", "interface", "native", "non-sealed", "strictfp", "super", "synchronized",
 			"this", "transient", "volatile", "catch", "finally", "throw", "try", "throws", "true", "false", "null",
 			"String", "ArrayList", "Map", "boolean", "byte", "char", "double", "float", " int", "long", "short", "void",
-			"selection", "itteration", "IOException", "FileInputStream", "FileOutputStream", "ArrayList", "File", "==",
+			"selection", "iteration", "IOException", "FileInputStream", "FileOutputStream", "ArrayList", "File", "==",
 			">=", "<=", "!=", ">", "<", "&&", "||", "++", "+=", "--", "-=", "=", "BufferedInputStream",
 			"BufferedOutputStream", "DataInputStream", "DataOutputStream", "EOFException", "System.out.println",
 			"System.out.print", "Random" };
 
+	//Used to decide if a word is a selection keyword
 	private static String selectionKeywords[] = { "case", "else", "goto", "if", "switch", "default", };
 
-	private static String itterationKeywords[] = { "do", "for", "while" };
+	//Used to decide if a word is a iteration keyword
+	private static String iterationKeywords[] = { "do", "for", "while" };
 
 	private final double GtoY = .75; // Green to yellow threshold
 	private final double YtoR = .90; // Yellow to red threshold
@@ -287,8 +289,8 @@ public class PlagiarismEngine {
 					currToken = lineScnr.next();
 					for (String word : keywords) {
 						if (currToken.contains(word)) {
-							if (isItterationKeyword(word)) {
-								word = "itteration";
+							if (isIterationKeyword(word)) {
+								word = "iteration";
 							} else if (isSelectionKeyword(word)) {
 								word = "selection";
 							}
@@ -483,8 +485,8 @@ public class PlagiarismEngine {
 	 * @param keyword
 	 * @return
 	 */
-	public boolean isItterationKeyword(String keyword) {
-		for (String word : itterationKeywords) {
+	public boolean isIterationKeyword(String keyword) {
+		for (String word : iterationKeywords) {
 			if (word.equals(keyword))
 				return true;
 		}
