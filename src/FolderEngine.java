@@ -92,7 +92,7 @@ public class FolderEngine {
 //		testFE.regularFolder(regularFolder, "Storage\\");
 		
 		String regularFolderWithZip = "C:\\Users\\lloydta18\\OneDrive - Grove City College\\Desktop\\MontyHall - Copy";
-		testFE.regularFolder(regularFolderWithZip, "Storage\\");
+		testFE.uploadRegularFolder(regularFolderWithZip, "Storage\\");
 
 //		System.out.println("Trying to access cleanup method");
 //		testFE.cleanUpFoldersCreated();
@@ -576,7 +576,7 @@ public class FolderEngine {
 	 * @param targetDir -- A string representing the name of the folder in which to store the files gathered
 	 */
 	//method to handle an unzipped folder
-	public void regularFolder(String filePath, String targetDir) {
+	public void uploadRegularFolder(String filePath, String targetDir) {
 		//create a new file based on the path given in
 		File f = new File(filePath);
 			
@@ -611,7 +611,7 @@ public class FolderEngine {
 					else {
 						System.out.println("Sending " + fInRegFolder.getName() + " back to reg folder method...");
 						try {
-							regularFolder(fInRegFolder.getCanonicalPath(), "Storage\\");
+							uploadRegularFolder(fInRegFolder.getCanonicalPath(), "Storage\\");
 						} catch (IOException e) {
 							e.printStackTrace();
 						}

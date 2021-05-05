@@ -111,11 +111,11 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		primary.setOnCloseRequest(event -> { // ensure data deletion on exit
 			clear();
 		});
-		
+
 		primary.setTitle("Copied Code Catcher");
 		primary.getIcons().add(new Image("sparrow.png"));
 		renderUploadScreen();
-		
+
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(uploadScreen);
 		primary.setMaximized(true);
-		primary.setResizable(false);
+//		primary.setResizable(false);
 		primary.show();
 	}
 
@@ -226,6 +226,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		uploadZips.setText("Upload Zip Folders");
 		uploadZips.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+		Button uploadFolder = new Button(); // upload regular folders
+		uploadFolder.setText("Upload Folders");
+		uploadFolder.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
 		Button uploadJavaFiles = new Button(); // uploads java files
 		uploadJavaFiles.setText("Upload Java Files");
 		uploadJavaFiles.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -234,9 +238,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		process.setText("Process Files");
 		process.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addFileButtonListeners(help, uploadZips, uploadJavaFiles, process); // add button actions
+		addFileButtonListeners(help, uploadZips, uploadFolder, uploadJavaFiles, process); // add button actions
 
-		buttons.addAll(help, uploadZips, uploadJavaFiles, process);
+		buttons.addAll(help, uploadZips, uploadFolder, uploadJavaFiles, process);
 
 		return buttons;
 	}
@@ -249,7 +253,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param browseOneDrive
 	 * @param done
 	 */
-	private void addFileButtonListeners(Button help, Button uploadZips, Button uploadJavaFiles, Button process) {
+	private void addFileButtonListeners(Button help, Button uploadZips, Button uploadFolder, Button uploadJavaFiles,
+			Button process) {
 
 		// Opens Help Popup
 		help.setOnAction((event) -> {
@@ -260,14 +265,21 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		uploadZips.setOnAction((event) -> {
 			explorer.getExtensionFilters().clear();
 			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip file (*.zip)", "*.zip"));
-			uploadZip();
+			uploadZips();
+		});
+
+		// Opens File Explorer
+		uploadFolder.setOnAction((event) -> {
+			explorer.getExtensionFilters().clear();
+//			explorer.getExtensionFilters();
+			uploadRegularFolders();
 		});
 
 		// Opens File Explorer
 		uploadJavaFiles.setOnAction((event) -> {
 			explorer.getExtensionFilters().clear();
 			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("Java file(*.java)", "*.java"));
-			uploadJavaFile();
+			uploadJavaFiles();
 		});
 
 		// Processes Files
@@ -279,7 +291,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Uploads selected zip folders for processing
 	 */
-	private void uploadZip() {
+	private void uploadZips() {
 
 		List<File> folders = explorer.showOpenMultipleDialog(primary);
 
@@ -299,7 +311,38 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 							}
 						}
 						fe.cleanUpStorageFolder();
-						
+
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				} // if
+			} // for
+		} // if
+	}
+
+	/**
+	 * 
+	 */
+	private void uploadRegularFolders() {
+		List<File> folders = explorer.showOpenMultipleDialog(primary);
+
+		if (folders != null) { // if upload directory contains folders
+			for (File file : folders) {
+				if (file != null) { // if file exists
+					try {
+						uploadedFiles.add(file); // display selected folder
+						String PATH = file.getCanonicalPath(); // get location
+						fe.uploadRegularFolder(PATH, "Storage\\"); // unzip
+						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
+						ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
+
+						for (int i = 0; i < unprocessedFiles.size(); i++) {
+							if (!errorFiles.contains(unprocessedFiles.get(i))) {
+								errorFiles.add(unprocessedFiles.get(i));
+							}
+						}
+						fe.cleanUpStorageFolder();
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -311,7 +354,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Uploads selected Java files for processing
 	 */
-	private void uploadJavaFile() {
+	private void uploadJavaFiles() {
 
 		List<File> javaFiles = explorer.showOpenMultipleDialog(primary);
 
@@ -321,7 +364,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 					uploadedFiles.add(file); // display selected file
 //						String PATH = file.getCanonicalPath(); // get location
 					fe.uploadJavaFile(file, "Storage\\");
-					//fe.uploadJavaFile(PATH, "Storage\\");
+					// fe.uploadJavaFile(PATH, "Storage\\");
 					pe.receiveFiles(fe.transferFiles());
 					ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
 
@@ -405,19 +448,22 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveResults.setText("Save Results");
 		saveResults.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button screenShot = new Button(); // screenshot as a png or jpg
-		screenShot.setText("Screenshot");
-		screenShot.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button saveScreenshot = new Button(); // save a screenshot as a png or jpg
+		saveScreenshot.setText("Save Screenshot");
+		saveScreenshot.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
 
 		Button newProject = new Button(); // triggers upload screen
 		newProject.setText("New Project");
 		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addResultsButtonListeners(help, saveResults, screenShot, newProject); // add button actions
+
+		addResultsButtonListeners(help, saveResults, saveScreenshot, newProject); // add button actions
 
 		buttons.add(help);
 		buttons.add(saveResults);
-		buttons.add(screenShot);
+		buttons.add(saveScreenshot);
 		buttons.add(newProject);
 
 		return buttons;
@@ -430,7 +476,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param uploadToOneDrive
 	 * @param newProject
 	 */
-	private void addResultsButtonListeners(Button help, Button saveResults, Button screenShot, Button newProject) {
+	private void addResultsButtonListeners(Button help, Button saveResults, Button saveScreenshot, Button newProject) {
+
 
 		// Creates popup window
 		help.setOnAction((event) -> {
@@ -443,8 +490,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		});
 
 		// Opens File Explorer
-		screenShot.setOnAction((event) -> {
-			screenShot();
+
+		saveScreenshot.setOnAction((event) -> {
+			saveScreenshot();
 		});
 
 		// Opens Upload Screen
@@ -457,8 +505,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * Saves results to a CSV file.
 	 */
 	private void saveResults() {
-		System.out.println("Saving results...");
-
 		explorer.getExtensionFilters().clear();
 		FileChooser.ExtensionFilter fileExtension = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
 		explorer.getExtensionFilters().add(fileExtension);
@@ -473,9 +519,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Saves an image of the UI to a jpg or png
 	 */
-	private void screenShot() {
-		System.out.println("Screenshotting Scene...");
-
+	private void saveScreenshot() {
 		explorer.getExtensionFilters().clear();
 		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
 		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("JPG file (*.jpg)", "*.jpg"));
@@ -493,7 +537,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private void newProject() {
 		primary.close();
 		errorFiles.clear();
-		System.out.println("Creating new project...");
 		clear();
 		primary.setScene(uploadScreen); // switch to upload screen
 		primary.show(); // display
@@ -729,12 +772,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		Text message = new Text("Upload Zip Folders\n" + "Select one or more zip folders for unzipping.\n\n"
 				+ "Upload Java Files\n" + "Select one or more Java files to upload.\n\n" + "Process Files\n"
-				+ "Analyze studentsÂ’ work for plagiarism.\n\n" + "Save Results\n"
-				+ "Saves results table to an Excel spreadsheet.\n\n" + "Screenshot\n"
+				+ "Analyze students\' work for plagiarism.\n\n" + "Save Results\n"
+				+ "Saves results table to an Excel spreadsheet.\n\n" + "Save Graph\n"
 				+ "Select the Graph tab before clicking the button.\n" + "\n" + "New Project\n"
-				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H Â– help\n"
-				+ "Ctrl + N Â– start a new project\n" + "Ctrl + G Â– screenshot\n" + "Ctrl + S Â– save results\n"
-				+ "Ctrl + W Â– exit\n" + "Ctrl + R Â– restart");
+				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H – help\n"
+				+ "Ctrl + N – start a new project\n" + "Ctrl + G – save screenshot\n" + "Ctrl + S – save results\n"
+				+ "Ctrl + W – exit\n" + "Ctrl + R – restart");
 
 		ScrollPane scroll = new ScrollPane();
 		scroll.setPadding(new Insets(20, 20, 20, 20));
@@ -931,8 +974,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		}
 
 		else if (e.getCode() == e.getCode().G && e.isControlDown()) {
-			if (primary.getScene().equals(resultsScreen)) { // triggers screenshot button
-				screenShot();
+			if (primary.getScene().equals(resultsScreen)) { // triggers save screenshot button
+				saveScreenshot();
 			}
 		}
 
