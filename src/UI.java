@@ -136,8 +136,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox(); // holds the buttons on the right side
-		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
-		side.setSpacing(60);
+		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT);
+		side.setSpacing(35);
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderFileButtons());
 
