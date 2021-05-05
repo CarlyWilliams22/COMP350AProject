@@ -5,18 +5,15 @@
  * @author Matthew Moody
  * @author Carly Williams
  * 
- * Copied Code Catcher Sprint 1 Working Increment
+ * Copied Code Catcher Sprint 2 Working Increment
  * 
  */
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -59,6 +56,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.scene.text.Font;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -135,8 +133,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox(); // holds the buttons on the right side
-		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
-		side.setSpacing(60);
+		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT);
+		side.setSpacing(35);
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderFileButtons());
 
@@ -173,7 +171,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(uploadScreen);
 		primary.setMaximized(true);
-//		primary.setResizable(false);
 		primary.show();
 	}
 
@@ -226,8 +223,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		uploadZips.setText("Upload Zip Folders");
 		uploadZips.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button uploadFolder = new Button(); // upload regular folders
-		uploadFolder.setText("Upload Folders");
+		Button uploadFolder = new Button(); // upload directory
+		uploadFolder.setText("Upload Directory");
 		uploadFolder.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		Button uploadJavaFiles = new Button(); // uploads java files
@@ -271,8 +268,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		// Opens File Explorer
 		uploadFolder.setOnAction((event) -> {
 			explorer.getExtensionFilters().clear();
-//			explorer.getExtensionFilters();
-			uploadRegularFolders();
+			uploadRegularFolder();
 		});
 
 		// Opens File Explorer
@@ -321,33 +317,30 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
-	 * 
+	 * Uploads selected directory folder
 	 */
-	private void uploadRegularFolders() {
-		List<File> folders = explorer.showOpenMultipleDialog(primary);
+	private void uploadRegularFolder() {
+		DirectoryChooser chooser = new DirectoryChooser();
+		File folder = chooser.showDialog(primary);
 
-		if (folders != null) { // if upload directory contains folders
-			for (File file : folders) {
-				if (file != null) { // if file exists
-					try {
-						uploadedFiles.add(file); // display selected folder
-						String PATH = file.getCanonicalPath(); // get location
-						fe.uploadRegularFolder(PATH, "Storage\\"); // unzip
-						pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
-						ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
+		if (folder != null) { // if upload directory contains folders
+			try {
+				uploadedFiles.add(folder); // display selected folder
+				String PATH = folder.getCanonicalPath(); // get location
+				fe.uploadRegularFolder(PATH, "Storage\\"); // unzip
+				pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
+				ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
 
-						for (int i = 0; i < unprocessedFiles.size(); i++) {
-							if (!errorFiles.contains(unprocessedFiles.get(i))) {
-								errorFiles.add(unprocessedFiles.get(i));
-							}
-						}
-						fe.cleanUpStorageFolder();
-
-					} catch (IOException e) {
-						e.printStackTrace();
+				for (int i = 0; i < unprocessedFiles.size(); i++) {
+					if (!errorFiles.contains(unprocessedFiles.get(i))) {
+						errorFiles.add(unprocessedFiles.get(i));
 					}
-				} // if
-			} // for
+				}
+				fe.cleanUpStorageFolder();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} // if
 	}
 
@@ -427,7 +420,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(resultsScreen);
 		primary.setMaximized(true);
-		primary.setResizable(false);
 		primary.show();
 	}
 
