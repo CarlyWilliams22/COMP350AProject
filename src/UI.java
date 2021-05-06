@@ -5,18 +5,15 @@
  * @author Matthew Moody
  * @author Carly Williams
  * 
- * Copied Code Catcher Sprint 1 Working Increment
+ * Copied Code Catcher Sprint 2 Working Increment
  * 
  */
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -59,6 +56,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.scene.text.Font;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -111,11 +109,11 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		primary.setOnCloseRequest(event -> { // ensure data deletion on exit
 			clear();
 		});
-		
+
 		primary.setTitle("Copied Code Catcher");
 		primary.getIcons().add(new Image("sparrow.png"));
 		renderUploadScreen();
-		
+
 	}
 
 	/**
@@ -135,8 +133,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		label.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
 		VBox side = new VBox(); // holds the buttons on the right side
-		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT / 2);
-		side.setSpacing(60);
+		side.setPrefSize(BUTTON_WIDTH, WINDOW_HEIGHT);
+		side.setSpacing(35);
 		side.getChildren().add(label);
 		side.getChildren().addAll(renderFileButtons());
 
@@ -173,7 +171,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(uploadScreen);
 		primary.setMaximized(true);
-		primary.setResizable(false);
 		primary.show();
 	}
 
@@ -226,6 +223,10 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		uploadZips.setText("Upload Zip Folders");
 		uploadZips.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
+		Button uploadFolder = new Button(); // upload directory
+		uploadFolder.setText("Upload Directory");
+		uploadFolder.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
 		Button uploadJavaFiles = new Button(); // uploads java files
 		uploadJavaFiles.setText("Upload Java Files");
 		uploadJavaFiles.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -234,9 +235,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		process.setText("Process Files");
 		process.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addFileButtonListeners(help, uploadZips, uploadJavaFiles, process); // add button actions
+		addFileButtonListeners(help, uploadZips, uploadFolder, uploadJavaFiles, process); // add button actions
 
-		buttons.addAll(help, uploadZips, uploadJavaFiles, process);
+		buttons.addAll(help, uploadZips, uploadFolder, uploadJavaFiles, process);
 
 		return buttons;
 	}
@@ -249,7 +250,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param browseOneDrive
 	 * @param done
 	 */
-	private void addFileButtonListeners(Button help, Button uploadZips, Button uploadJavaFiles, Button process) {
+	private void addFileButtonListeners(Button help, Button uploadZips, Button uploadFolder, Button uploadJavaFiles,
+			Button process) {
 
 		// Opens Help Popup
 		help.setOnAction((event) -> {
@@ -260,14 +262,20 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		uploadZips.setOnAction((event) -> {
 			explorer.getExtensionFilters().clear();
 			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("Zip file (*.zip)", "*.zip"));
-			uploadZip();
+			uploadZips();
+		});
+
+		// Opens File Explorer
+		uploadFolder.setOnAction((event) -> {
+			explorer.getExtensionFilters().clear();
+			uploadRegularFolder();
 		});
 
 		// Opens File Explorer
 		uploadJavaFiles.setOnAction((event) -> {
 			explorer.getExtensionFilters().clear();
 			explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("Java file(*.java)", "*.java"));
-			uploadJavaFile();
+			uploadJavaFiles();
 		});
 
 		// Processes Files
@@ -279,7 +287,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Uploads selected zip folders for processing
 	 */
-	private void uploadZip() {
+	private void uploadZips() {
 
 		List<File> folders = explorer.showOpenMultipleDialog(primary);
 
@@ -299,7 +307,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 							}
 						}
 						fe.cleanUpStorageFolder();
-						
+
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -309,9 +317,37 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	}
 
 	/**
+	 * Uploads selected directory folder
+	 */
+	private void uploadRegularFolder() {
+		DirectoryChooser chooser = new DirectoryChooser();
+		File folder = chooser.showDialog(primary);
+
+		if (folder != null) { // if upload directory contains folders
+			try {
+				uploadedFiles.add(folder); // display selected folder
+				String PATH = folder.getCanonicalPath(); // get location
+				fe.uploadRegularFolder(PATH, "Storage\\"); // unzip
+				pe.receiveFiles(fe.transferFiles()); // send data to plagiarism engine for processing
+				ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
+
+				for (int i = 0; i < unprocessedFiles.size(); i++) {
+					if (!errorFiles.contains(unprocessedFiles.get(i))) {
+						errorFiles.add(unprocessedFiles.get(i));
+					}
+				}
+				fe.cleanUpStorageFolder();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} // if
+	}
+
+	/**
 	 * Uploads selected Java files for processing
 	 */
-	private void uploadJavaFile() {
+	private void uploadJavaFiles() {
 
 		List<File> javaFiles = explorer.showOpenMultipleDialog(primary);
 
@@ -321,7 +357,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 					uploadedFiles.add(file); // display selected file
 //						String PATH = file.getCanonicalPath(); // get location
 					fe.uploadJavaFile(file, "Storage\\");
-					//fe.uploadJavaFile(PATH, "Storage\\");
+					// fe.uploadJavaFile(PATH, "Storage\\");
 					pe.receiveFiles(fe.transferFiles());
 					ArrayList<File> unprocessedFiles = fe.getUnprocessedFiles();
 
@@ -384,7 +420,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		primary.setScene(resultsScreen);
 		primary.setMaximized(true);
-		primary.setResizable(false);
 		primary.show();
 	}
 
@@ -405,19 +440,22 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		saveResults.setText("Save Results");
 		saveResults.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		Button saveGraph = new Button(); // save graph as a png or jpg
-		saveGraph.setText("Save Graph");
-		saveGraph.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
+		Button saveScreenshot = new Button(); // save a screenshot as a png or jpg
+		saveScreenshot.setText("Save Screenshot");
+		saveScreenshot.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
+
 
 		Button newProject = new Button(); // triggers upload screen
 		newProject.setText("New Project");
 		newProject.setPrefSize(BUTTON_WIDTH, BUTTON_HEIGHT);
 
-		addResultsButtonListeners(help, saveResults, saveGraph, newProject); // add button actions
+
+		addResultsButtonListeners(help, saveResults, saveScreenshot, newProject); // add button actions
 
 		buttons.add(help);
 		buttons.add(saveResults);
-		buttons.add(saveGraph);
+		buttons.add(saveScreenshot);
 		buttons.add(newProject);
 
 		return buttons;
@@ -430,7 +468,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * @param uploadToOneDrive
 	 * @param newProject
 	 */
-	private void addResultsButtonListeners(Button help, Button saveResults, Button saveGraph, Button newProject) {
+	private void addResultsButtonListeners(Button help, Button saveResults, Button saveScreenshot, Button newProject) {
+
 
 		// Creates popup window
 		help.setOnAction((event) -> {
@@ -443,8 +482,9 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		});
 
 		// Opens File Explorer
-		saveGraph.setOnAction((event) -> {
-			saveGraph();
+
+		saveScreenshot.setOnAction((event) -> {
+			saveScreenshot();
 		});
 
 		// Opens Upload Screen
@@ -457,8 +497,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	 * Saves results to a CSV file.
 	 */
 	private void saveResults() {
-		System.out.println("Saving results...");
-
 		explorer.getExtensionFilters().clear();
 		FileChooser.ExtensionFilter fileExtension = new FileChooser.ExtensionFilter("CSV file (*.csv)", "*.csv");
 		explorer.getExtensionFilters().add(fileExtension);
@@ -473,9 +511,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Saves an image of the UI to a jpg or png
 	 */
-	private void saveGraph() {
-		System.out.println("Saving graph...");
-
+	private void saveScreenshot() {
 		explorer.getExtensionFilters().clear();
 		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG file (*.png)", "*.png"));
 		explorer.getExtensionFilters().add(new FileChooser.ExtensionFilter("JPG file (*.jpg)", "*.jpg"));
@@ -483,7 +519,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		File graph = explorer.showSaveDialog(primary);
 
 		if (graph != null) {
-			saveGraph(graph);
+			screenShot(graph);
 		}
 	}
 
@@ -493,7 +529,6 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	private void newProject() {
 		primary.close();
 		errorFiles.clear();
-		System.out.println("Creating new project...");
 		clear();
 		primary.setScene(uploadScreen); // switch to upload screen
 		primary.show(); // display
@@ -729,12 +764,12 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 
 		Text message = new Text("Upload Zip Folders\n" + "Select one or more zip folders for unzipping.\n\n"
 				+ "Upload Java Files\n" + "Select one or more Java files to upload.\n\n" + "Process Files\n"
-				+ "Analyze studentsÂ’ work for plagiarism.\n\n" + "Save Results\n"
+				+ "Analyze students\' work for plagiarism.\n\n" + "Save Results\n"
 				+ "Saves results table to an Excel spreadsheet.\n\n" + "Save Graph\n"
 				+ "Select the Graph tab before clicking the button.\n" + "\n" + "New Project\n"
-				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H Â– help\n"
-				+ "Ctrl + N Â– start a new project\n" + "Ctrl + G Â– save graph\n" + "Ctrl + S Â– save results\n"
-				+ "Ctrl + W Â– exit\n" + "Ctrl + R Â– restart");
+				+ "Upload a new batch of student projects.\n" + "\n" + "Hot Keys\n" + "Ctrl + H – help\n"
+				+ "Ctrl + N – start a new project\n" + "Ctrl + G – save screenshot\n" + "Ctrl + S – save results\n"
+				+ "Ctrl + W – exit\n" + "Ctrl + R – restart");
 
 		ScrollPane scroll = new ScrollPane();
 		scroll.setPadding(new Insets(20, 20, 20, 20));
@@ -892,7 +927,7 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 	/**
 	 * Saves screenshot of graph tab
 	 */
-	private File saveGraph(File file) {
+	private File screenShot(File file) {
 		WritableImage image = resultsScreen.snapshot(null);
 
 		try {
@@ -931,8 +966,8 @@ public class UI extends Application implements EventHandler<KeyEvent> {
 		}
 
 		else if (e.getCode() == e.getCode().G && e.isControlDown()) {
-			if (primary.getScene().equals(resultsScreen)) { // triggers save graph button
-				saveGraph();
+			if (primary.getScene().equals(resultsScreen)) { // triggers save screenshot button
+				saveScreenshot();
 			}
 		}
 
