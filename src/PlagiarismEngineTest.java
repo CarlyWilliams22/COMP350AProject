@@ -283,16 +283,5 @@ class PlagiarismEngineTest {
 		assertEquals(.23076, value, .0001);
 	}
 	
-	@Test
-	void testCommentsAreIgnoredWhenScored() {
-		PlagiarismEngine pe = new PlagiarismEngine();
-		File f = new File("testForParseFile");
-		Student s = new Student(0, "s");
-		s.setFile(f);
-		pe.parseFile(s);
-		pe.countKeywords(s);
-		int value = s.getKeywords().get("public");
-		assertEquals(2, value);
-	}
 	
 }
